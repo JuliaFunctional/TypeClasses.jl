@@ -1,0 +1,8 @@
+name = "TypeClasses"
+uuid = "addcc920-e0cf-11e8-30b7-0fb08706b574"
+authors = ["Sahm Stephan <s.sahm@reply.de>"]
+version = "0.1.0"
+
+[deps]
+Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
+Traits = "5060dc80-e054-11e8-0acc-1dc6592f659e"
