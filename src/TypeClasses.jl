@@ -17,6 +17,24 @@ using Traits
 using Traits.BasicTraits
 using Suppressor: @suppress, @suppress_err, @suppress_out  # this is to surpress unnecessary method overwritten warnings
 
+
+# FIter
+# =====
+
+"""
+  fforeach(f, functor)
+
+Like fmap, but destroying the context. I.e. makes only sense for functions with side effects
+
+Foreach allows to define a code-rewrite @syntax_fforeach similar to @syntax_fflatmap (which uses fmap and fflatmap).
+Hence make sure that fmap, fflatmap and fforeach have same semantics.
+
+Note that this does not work for all Functors (e.g. not for Callables), however is handy in many cases.
+This is also the reason why we don't use the default fallback to map, as this may make no sense for your custom Functor.
+"""
+@traitsof_enabled_function testest
+
+
 # Helpers
 # =======
 
