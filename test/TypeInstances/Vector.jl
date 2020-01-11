@@ -10,7 +10,7 @@ b = [4,5,6]
 # =======================
 
 @test feltype(Vector{Int}) == Int
-@test change_feltype(Vector{Int}, String) == Vector{String}
+@test change_eltype(Vector{Int}, String) == Vector{String}
 
 @test fmap(x -> x*x, a) == [1, 4, 9]
 

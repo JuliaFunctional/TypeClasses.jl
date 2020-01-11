@@ -1,8 +1,8 @@
 @test feltype(Vector{Int}) == Int
-@test change_feltype(Dict{Int, String}, Int) == Dict{Int, Int}
+@test change_eltype(Dict{Int, String}, Int) == Dict{Int, Int}
  # types without typeparameters should default to no change at all
-@test change_feltype(typeof(+), Int) == typeof(+)
-@test change_feltype(Dict{String}, Int) == Dict{Int}
+@test change_eltype(typeof(+), Int) == typeof(+)
+@test change_eltype(Dict{String}, Int) == Dict{Int}
 
 # we use plain Identity Monads for testing
 

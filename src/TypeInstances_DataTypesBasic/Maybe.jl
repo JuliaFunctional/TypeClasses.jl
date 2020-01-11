@@ -23,8 +23,8 @@ TypeClasses.orelse(::Traitsof, x1::Maybe{T, Nothing}, x2::Maybe) where T = x2
 # =======================
 
 TypeClasses.feltype(::Traitsof, ::Type{M}) where {T, M <: Maybe{T}} = T
-TypeClasses.change_feltype(::Traitsof, ::Type{Maybe{T, Tag}}, T2::Type) where {T, Tag} = Maybe{T2, Tag}
-TypeClasses.change_feltype(::Traitsof, ::Type{Maybe{T}}, T2::Type) where T = Maybe{T2}
+TypeClasses.change_eltype(::Traitsof, ::Type{Maybe{T, Tag}}, T2::Type) where {T, Tag} = Maybe{T2, Tag}
+TypeClasses.change_eltype(::Traitsof, ::Type{Maybe{T}}, T2::Type) where T = Maybe{T2}
 
 
 function TypeClasses.fmap(::Traitsof, f, ::Maybe{T, Nothing}) where T
@@ -44,6 +44,15 @@ TypeClasses.pure(::Traitsof, ::Type{<:Maybe}, a) = Maybe(a)
 
 TypeClasses.fflatten(::Traitsof, x::Maybe{T, Nothing}) where T = Maybe{T}(nothing)
 TypeClasses.fflatten(::Traitsof, x::Maybe{<:Any, Some}) = x.value  # TODO or better constrain this to <:Maybe only?
+
+
+function return_type_FunctionType(F, TupleTypeArgs)
+  try
+    Core.Compiler.return_type(F.instance, TupleTypeArgs)
+  catch e
+    e isa UndefRefError ? Any : rethrow()
+  end
+end
 
 
 # Sequence

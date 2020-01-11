@@ -1,8 +1,8 @@
 # Define and test Monoid instance for Int
 # ---------------------------------------
 
-TypeClasses.combine(::Traitsof, a::Int, b::Int) = a + b
-TypeClasses.neutral(::Traitsof, ::Type{Int}) = 0
+TypeClasses.combine(a::Int, b::Int) = a + b
+TypeClasses.neutral(::Type{Int}) = 0
 traitsof_refixate()
 traitsof(Int)
 @test reduce([1,2,3,1]) == 7

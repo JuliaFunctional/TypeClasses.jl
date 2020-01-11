@@ -10,7 +10,7 @@ b = "b" => [2,3,4]
 # =======================
 
 @test feltype(Pair{Int, String}) == String
-@test change_feltype(Pair{String, Int}, String) == Pair{String, String}
+@test change_eltype(Pair{String, Int}, String) == Pair{String, String}
 
 
 

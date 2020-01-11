@@ -1,3 +1,5 @@
+using Traits
+
 """
     ⊕(::T, ::T)::T
 
@@ -13,16 +15,11 @@ Associativity
 """
 function combine end
 const ⊕ = combine
-combine(traitsof::Traitsof, a::T, b::T) where T = combine_traits(traitsof, a, b, traitsof(T))
-@create_default combine_traits
-const Combine = typeof(combine)  # this is the standard naming convention
-const Semigroup = typeof(combine)  # this alternative name is just super popular
 
-@traitsof_push! function(traitsof::Traitsof, T::Type)
-  if functiondefined(combine, Tuple{typeof(traitsof), T, T})
-    Combine
-  end
-end
+isCombine(T::Type) = isdef(combine, T, T)
+isCombine(a) = isCombine(typeof(a))
+isSemigroup(a) = isCombine(a) # this alternative name is just super popular
+
 """
     neutral(::Type{T})::T
 
@@ -45,38 +42,34 @@ Right Identity
       ⊕(t::T, neutral(T)) == t
 """
 function neutral end
-neutral(traitsof::Traitsof, t::Type{T}) where T = neutral_traits(traitsof, t, traitsof(T))
-@create_default neutral_traits
-const Neutral = typeof(neutral)
+neutral(T::Type) = throw(MethodError("neutral($T) not defined"))
+@traits neutral(a) = neutral(typeof(a))
 
-@traitsof_push! function(traitsof::Traitsof, T::Type)
-  if functiondefined(neutral, Tuple{typeof(traitsof), Type{T}})
-    Neutral
-  end
-end
+isNeutral(T::Type) = isdef(neutral, Type{T})
+isNeutral(a) = isNeutral(typeof(a))
 
-const Monoid = Union{Semigroup, Neutral}
+isMonoid(a) = isSemigroup(a) && isNeutral(a)
 
 
 """
-    reduce(itr)::eltype(itr) where traitsof(eltype(itr)) >: Monoid
-    reduce(itr, init::T)::T where traitsof(T) >: typeof(⊕)
+    reduce(itr)::eltype(itr)
+    reduce(itr, init::T)::T
 
 Shortcut functions for Monoid and Semigroup (⊕) instances.
 """
 function reduce end
 
 """
-    foldl(itr)::eltype(itr) where traitsof(eltype(itr)) >: Monoid
-    foldl(itr, init::T)::T where traitsof(T) >: typeof(⊕)
+    foldl(itr)::eltype(itr)
+    foldl(itr, init::T)::T
 
 Shortcut functions for Monoid and Semigroup (⊕) instances.
 """
 function foldl end
 
 """
-    foldr(itr)::eltype(itr) where traitsof(eltype(itr)) >: Monoid
-    foldr(itr, init::T)::T where traitsof(T) >: typeof(⊕)
+    foldr(itr)::eltype(itr)
+    foldr(itr, init::T)::T
 
 Shortcut functions for Monoid and Semigroup (⊕) instances.
 """
@@ -90,36 +83,21 @@ function foldr end
   reducefn_init = Symbol(reducefn, "_init")
 
   @eval begin
-    function $reducefn(traitsof::Traitsof, itr; init::T) where T
-      $reducefn_init(traitsof, itr, init, traitsof(T))
+    @traits function $reducefn(itr, init::T) where {T, isSemigroup(T)}
+      Base.$reducefn(⊕, itr; init=init)
     end
-    function $reducefn_init(traitsof::Traitsof, itr, init::T, ::TypeLB(typeof(⊕))) where T
-      Base.$reducefn((a,b) -> ⊕(traitsof, a, b), itr; init=init)
-    end
-
-    # needs to be defined after the keyword functions
-    function $reducefn(traitsof::Traitsof, itr)
-      $reducefn_eltp(traitsof, itr, eltype(itr), traitsof(eltype(itr)))
-    end
-    function $reducefn_eltp(traitsof::Traitsof, itr, ::Type{T}, ::TypeLB(Monoid)) where T
-      Base.$reducefn((a,b) -> ⊕(traitsof, a, b), itr; init=neutral(traitsof, T))
+    @traits function $reducefn(itr) where {isMonoid(eltype(itr))}
+      Base.$reducefn(⊕, itr; init=neutral(eltype(itr)))
     end
 
-    function $reducefn(traitsof::Traitsof, op, itr)
-      $reducefn_neutral(traitsof, op, itr, traitsof(typeof(op)))
-    end
     # we assume that ``neutral`` for functions will give back a normal neutral function
-    function $reducefn_neutral(traitsof::Traitsof, op, itr, ::TypeLB(typeof(neutral)))
-      Base.$reducefn(op, itr; init = neutral(traitsof, op)(eltype(itr)))
-    end
-    # default fallback to Base, as these are normal input variables
-    function $reducefn_neutral(traitsof::Traitsof, op, itr, _)
-      Base.$reducefn(op, itr)
+    @traits function $reducefn(op::Union{Function, Type}, itr) where {isNeutral(op)}
+      Base.$reducefn(op, itr; init = neutral(op)(eltype(itr)))
     end
 
     # default fallback to Base
-    function $reducefn(traitsof::Traitsof, signature...; kwargs...)
-      Base.$reducefn(signature...; kwargs...)
+    @traits function $reducefn(args...; kwargs...)
+      Base.$reducefn(args...; kwargs...)
     end
   end
 end
@@ -129,15 +107,11 @@ end
 # =========
 
 function absorbing end
-absorbing(traitsof::Traitsof, t::Type{T}) where T = absorbing_traits(traitsof, t, traitsof(T))
-@create_default absorbing_traits
-const Absorbing = typeof(absorbing)
+absorbing(T::Type) = throw(MethodError("absorbing($T) not defined"))
+@traits absorbing(a) = absorbing(typeof(a))
 
-@traitsof_push! function(traitsof::Traitsof, T::Type)
-  if functiondefined(absorbing, Tuple{typeof(traitsof), Type{T}})
-    Absorbing
-  end
-end
+isAbsorbing(T::Type) = isdef(absorbing, Type{T})
+isAbsorbing(a) = isAbsorbing(typeof(a))
 
 
 # Alternative
@@ -147,7 +121,8 @@ end
 function orelse end
 # we follow haskell unicode syntax http://hackage.haskell.org/package/base-unicode-symbols-0.2.3/docs/Control-Applicative-Unicode.html
 const ⊛ = orelse
-const OrElse = typeof(orelse)
+isOrElse(T::Type) = isdef(orelse, T, T)
+isOrElse(a) = isOrElse(typeof(a))
 
 # we choose Neutral instead of defining a new "empty" because the semantics is the same
-const Alternative = Union{Neutral, OrElse}
+isAlternative(a) = isNeutral(a) && isOrElse(a)

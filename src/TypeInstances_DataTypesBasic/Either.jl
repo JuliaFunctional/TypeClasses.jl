@@ -22,8 +22,8 @@ end
 # =======================
 
 TypeClasses.feltype(::Traitsof, ::Type{E}) where {L, R, E <: Either{L, R}} = R
-TypeClasses.change_feltype(::Traitsof, ::Type{Either{L, R, Tag}}, R2::Type) where {L, R, Tag} = Either{L, R2, Tag}
-TypeClasses.change_feltype(::Traitsof, ::Type{Either{L, R}}, R2::Type) where {L, R} = Either{L, R2}
+TypeClasses.change_eltype(::Traitsof, ::Type{Either{L, R, Tag}}, R2::Type) where {L, R, Tag} = Either{L, R2, Tag}
+TypeClasses.change_eltype(::Traitsof, ::Type{Either{L, R}}, R2::Type) where {L, R} = Either{L, R2}
 
 TypeClasses.fmap(::Traitsof, f, x::Either{L, R, Right}) where {L, R} = Either{L}(f(x.value))
 function TypeClasses.fmap(::Traitsof, f, x::Either{L, R, Left}) where {L, R}
@@ -60,3 +60,11 @@ function sequence_Either_traits(::Traitsof, x::Either{L, R, Left}, TraitsL, Trai
   TypeClasses.pure(traitsof, T, Either{L, E, Left}(x.value))
 end
 sequence_Either_traits(::Traitsof, x::Either{L, R, Right}, TraitsL, TraitsR::TypeLB(Functor)) where {L, R} = TypeClasses.fmap(traitsof, x -> Either{L}(Right(x)), x.value)
+
+
+
+
+# left implementation which still works with missing type information
+Base.Iterators.flatten(x::Either{L, R, Left}) where {L, R} = e
+Base.Iterators.flatten(x::Either{L, E, Left}) where {L, R, E <: Either{L, R}} = Either{L, R, Left}(x.value)  # just to have better type support
+Base.Iterators.flatten(x::Either{L, R, Right}) where {L, R} = x.value  # TODO or does this need to be more restrictive? like ``x::Either{L, E, Right} where {L, R, E <: Either{L, R}}``

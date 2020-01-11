@@ -23,8 +23,8 @@ TypeClasses.combine(::Traitsof, e1::Exception, e2::Exception) = MultipleExceptio
 # =======================
 
 TypeClasses.feltype(::Traitsof, ::Type{F}) where {T, F <: Try{T}} = T
-TypeClasses.change_feltype(::Traitsof, ::Type{Try{T, Tag}}, T2::Type) where {T, Tag} = Try{T2, Tag}
-TypeClasses.change_feltype(::Traitsof, ::Type{Try{T}}, T2::Type) where T = Try{T2}
+TypeClasses.change_eltype(::Traitsof, ::Type{Try{T, Tag}}, T2::Type) where {T, Tag} = Try{T2, Tag}
+TypeClasses.change_eltype(::Traitsof, ::Type{Try{T}}, T2::Type) where T = Try{T2}
 
 TypeClasses.fmap(::Traitsof, f, x::Try{T, Success}) where T = @Try f(x.value)
 function TypeClasses.fmap(::Traitsof, f, x::Try{T, Exception}) where T
@@ -60,3 +60,9 @@ function sequence_Try_traits(::Traitsof, x::Try{T, Exception}, ::TypeLB(Pure, Fu
   TypeClasses.pure(traitsof, T, Try{E, Exception}(x.value))
 end
 sequence_Try_traits(::Traitsof, x::Try{T, Success}, ::TypeLB(Functor)) where T = TypeClasses.fmap(traitsof, Try, x.value)
+
+
+# flatten implementation which still works with missing type information
+Base.Iterators.flatten(x::Try{T, Exception}) where T = x
+Base.Iterators.flatten(x::Try{F, Exception}) where {T, F <: Try{T}} = Try{T, Exception}(x.value)
+Base.Iterators.flatten(x::Try{<:Any, Success}) = x.value  # TODO more restrictive constrain <:Try needed?

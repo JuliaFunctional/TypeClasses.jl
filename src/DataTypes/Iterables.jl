@@ -1,14 +1,15 @@
+# DEPRECATED, no longer needed
+module Iterables
+export IterateEmpty, IterateSingleton
 
+struct IterateEmpty{ElType} end
+IterateEmpty() = IterateEmpty{Any}()
 
-# Helper Iterables
-# ================
-
-struct IterateEmpty end
 Base.iterate(::IterateEmpty) = nothing
 
-Base.IteratorSize(::Type{IterateEmpty}) = Base.HasLength()
+Base.IteratorSize(::Type{<:IterateEmpty}) = Base.HasLength()
 Base.length(::IterateEmpty) = 0
-Base.IteratorEltype(::Type{IterateEmpty}) = Base.EltypeUnknown()
+Base.IteratorEltype(::Type{IterateEmpty{T}}) where T = T
 
 
 struct IterateSingleton{T}
@@ -22,6 +23,8 @@ Base.length(::IterateSingleton) = 1
 Base.IteratorEltype(::Type{IterateSingleton{T}}) where T = Base.HasEltype()
 Base.eltype(::Type{IterateSingleton{T}}) where T = T
 
+
+#= TODO delete?
 
 # Iterable Wrapper
 # ================
@@ -48,6 +51,7 @@ function Iterable(it)
 end
 Iterable{ET}(it::Iterable) where ET = Iterable{ET}(it.iterable)
 unionall_implementationdetails(::Type{Iterable{ET, IT}}) where {ET, IT} = Iterable{ET}
+
 
 #=
 # the following special cases are no longer needed for typeinference as Julia's inference on iterate is strong enough
@@ -82,3 +86,8 @@ Base.size(it::Iterable) = Base.size(it.iter)
 Base.size(it::Iterable, d) = Base.size(it.iter, d)
 Base.axes(it::Iterable) = axes(it.iter)  # analog to Base.Generator
 Base.ndims(it::Iterable) = ndims(it.iter)
+
+
+=#
+
+end # module

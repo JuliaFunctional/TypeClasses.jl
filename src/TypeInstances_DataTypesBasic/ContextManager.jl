@@ -13,7 +13,7 @@ end
 # TypeClasses.feltype defaults to eltype
 
 # TODO we don't care about F for now, maybe this leads to some bugs
-TypeClasses.change_feltype(::Traitsof, ::Type{<:ContextManager{A, F}}, B) where {A, F} = ContextManager{B, F}
+TypeClasses.change_eltype(::Traitsof, ::Type{<:ContextManager{A, F}}, B) where {A, F} = ContextManager{B, F}
 
 
 
@@ -110,3 +110,15 @@ fflatten_Either_ContextManager(traitsof::Traitsof, a, _) = TypeClasses.fmap(trai
 
 # does not make much sense as if I would sequence ContextManager, I need to evaluate the context
 # hence I could directly fflatten instead
+
+
+
+
+function Base.Iterators.flatten(c::ContextManager{T, F}) where {T <: ContextManager, F}
+  @ContextManager cont -> begin
+    # execute both nested ContextManagers in the nested manner
+    c() do cc
+      cc(cont)
+    end
+  end
+end

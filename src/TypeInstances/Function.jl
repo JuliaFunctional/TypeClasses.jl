@@ -1,22 +1,27 @@
+using TypeClasses
+using Traits
+using Traits.BasicTraits: iscallable
+
 # Monoid instances
 # ================
 
-neutral(::Traitsof, ::typeof(+)) = zero
-neutral(::Traitsof, ::typeof(*)) = one
+@traits TypeClasses.neutral(::typeof(+)) = zero
+@traits TypeClasses.neutral(::typeof(*)) = one
 
+_apply(f, x) = f(x)
 
 # Monad instances
 # ===============
 
-fmap_traits_Callable(::Traitsof, f, g) = (args...; kwargs...) -> f(g(args...; kwargs...))
-fmap_traits(traitsof::Traitsof, f, g, TraitsF, TraitsG::TypeLB(Callable)) = fmap_traits_Callable(traitsof, f, g)
+# there is no general definition for eltype, as this depends on the argument parameters
+# @traits eltype(T::Type) where {iscallable(T)} = Out(_apply, T, Any)
+@traits TypeClasses.map(f, g) where {iscallable(g)} = (args...; kwargs...) -> f(g(args...; kwargs...))
 
+# @traits TypeClasses.pure(G, a) where {iscallable(G)} = (args...; kwargs...) -> a
+@traits TypeClasses.ap(f, g) where {iscallable(g)} = (args...; kwargs...) -> f(args...; kwargs...)(g(args...; kwargs...))
+@traits TypeClasses.flatten(g) where {iscallable(g)} = (args...; kwargs...) -> g(args...; kwargs...)(args...; kwargs...)
 
-pure_traits_Callable(::Traitsof, G, a) = (args...; kwargs...) -> a
-pure_traits(traitsof::Traitsof, G, a, TraitsG::TypeLB(Callable), TraitsA) = pure_traits_Callable(traitsof, G, a)
+# FlipTypes instance
+# ==================
 
-ap_traits_Callable(::Traitsof, f, g) = (args...; kwargs...) -> f(args...; kwargs...)(g(args...; kwargs...))
-ap_traits(traitsof::Traitsof, f, g, TraitsF::TypeLB(Callable), TraitsG::TypeLB(Callable)) = ap_traits_Callable(traitsof, f, g)
-
-fflatten_traits_Callable(traitsof::Traitsof, g) = (args...; kwargs...) -> g(args...; kwargs...)(args...; kwargs...)
-fflatten_traits(traitsof::Traitsof, g, TraitsG::TypeLB(Callable)) = fflatten_traits_Callable(traitsof, g)
+# there cannot be any flip_types for functions
