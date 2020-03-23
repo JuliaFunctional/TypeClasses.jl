@@ -1,5 +1,6 @@
 module Utils
-export chain, @ifsomething
+export chain, @ifsomething, return_type_FunctionType
+using IsDef
 
 # include("unionall_implementationdetails.jl")  # TODO do we need this?
 
@@ -25,6 +26,15 @@ macro ifsomething(ex)
         result === nothing && return nothing
         result
     end
+end
+
+
+function return_type_FunctionType(F, TupleTypeArgs)
+  if isdefined(F, :instance)
+    IsDef._return_type(F.instance, TupleTypeArgs)
+  else
+    Any
+  end
 end
 
 end # module

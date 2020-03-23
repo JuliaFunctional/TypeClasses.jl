@@ -1,6 +1,10 @@
 # DEPRECATED, no longer needed
 module Iterables
-export IterateEmpty, IterateSingleton
+export IterateEmpty, IterateSingleton, Iterable
+using TypeClasses.Utils
+using Traits
+import ProxyInterface
+using IsDef
 
 struct IterateEmpty{ElType} end
 IterateEmpty() = IterateEmpty{Any}()
@@ -24,11 +28,10 @@ Base.IteratorEltype(::Type{IterateSingleton{T}}) where T = Base.HasEltype()
 Base.eltype(::Type{IterateSingleton{T}}) where T = T
 
 
-#= TODO delete?
-
 # Iterable Wrapper
 # ================
 
+# TODO get rid of TypeTag ElemType
 """
 wrapper to clearly indicate that something should be treated as an Iterable
 
@@ -38,20 +41,22 @@ struct Iterable{ElemType, IterType}
   iter::IterType  # we follow the naming of Base.Generator
   Iterable{ElemType}(iter::IterType) where {ElemType, IterType} = new{ElemType, IterType}(iter)
 end
-Iterable() = Iterable(IterateEmpty)  # empty iter
-Iterable(it::Iterable) = it  # don't nest Iterable wrappers
-function Iterable(it)
-  tupletype = typediff_Nothing(Core.Compiler.return_type(iterate, Tuple{typeof(it)}))
-  if tupletype === Union{}  # only nothing returned
-    Iterable{Any}(it)
+ProxyInterface.iterator(::Type{Iterable{ElemT, IterT}}) where {ElemT, IterT} = IterT
+ProxyInterface.iterator(it::Iterable) = it.iter
+
+function Iterable(it::T) where T
+  if Base.IteratorEltype(it) isa Base.HasEltype
+    Iterable{eltype(T)}(it)
   else
-    # element returned (will always be a Tuple by convention)
-    Iterable{tupletype.parameters[1]}(it)
+    # we try automatic type inference
+    # because for instance ``eltype(i for i in 1:3)`` already does not work without
+    Iterable{Out(Base.first, T)}(it)
   end
 end
-Iterable{ET}(it::Iterable) where ET = Iterable{ET}(it.iterable)
-unionall_implementationdetails(::Type{Iterable{ET, IT}}) where {ET, IT} = Iterable{ET}
-
+Iterable() = Iterable(IterateEmpty())  # empty iter
+Iterable{ElemT}() where ElemT = Iterable{ElemT}(IterateEmpty{ElemT}())
+Iterable(it::Iterable) = it  # don't nest Iterable wrappers
+Iterable{ET}(it::Iterable) where ET = Iterable{ET}(it.iter) # switch typetag easily
 
 #=
 # the following special cases are no longer needed for typeinference as Julia's inference on iterate is strong enough
@@ -66,7 +71,14 @@ Iterable(iter::IterateSingleton{T}) where T = Iterable{T}(iter)  # singleton ite
 =#
 
 # pass through whole iterator interface https://docs.julialang.org/en/v1/manual/interfaces/#man-interface-iteration-1
-# unfortunately this does not seem to be enough for nested inference... not sure what is missing, see https://discourse.julialang.org/t/limits-of-type-inference/22868
+
+Base.iterate(it::Iterable) = Base.iterate(it.iter)
+Base.iterate(it::Iterable, state) = Base.iterate(it.iter, state)
+
+#= Typed Versions of iterate
+# we don't use these right now because the cast is a big overhead for fast iterators
+# and the tag
+
 function Base.iterate(it::Iterable{T}) where T
   first, state = @ifsomething Base.iterate(it.iter)
   first::T, state
@@ -75,6 +87,7 @@ function Base.iterate(it::Iterable{T}, state) where T
   next, state = @ifsomething Base.iterate(it.iter, state)
   next::T, state
 end
+=#
 
 Base.IteratorEltype(::Type{<:Iterable}) = Base.HasEltype()
 Base.eltype(::Type{Iterable{T}}) where T = T
@@ -84,10 +97,7 @@ Base.IteratorSize(it::Type{Iterable{E, I}}) where {E, I} = Base.IteratorSize(I) 
 Base.length(it::Iterable) = Base.length(it.iter)
 Base.size(it::Iterable) = Base.size(it.iter)
 Base.size(it::Iterable, d) = Base.size(it.iter, d)
-Base.axes(it::Iterable) = axes(it.iter)  # analog to Base.Generator
-Base.ndims(it::Iterable) = ndims(it.iter)
-
-
-=#
+Base.axes(it::Iterable) = Base.axes(it.iter)  # analog to Base.Generator
+Base.ndims(it::Iterable) = Base.ndims(it.iter)
 
 end # module

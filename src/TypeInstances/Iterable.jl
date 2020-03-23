@@ -1,19 +1,33 @@
 using TypeClasses
 using Traits
+using IsDef
+import Traits.BasicTraits: isiterable
 
 """
-as we experienced problems with supporting Iterate trait directly (e.g. conflicts with Dict type)
-we offer implementations for an Iterable wrapper
+Iterables can be seen two ways. On the one hand, an iterable is mainly defined by its `iterate` method, which can be
+thought of as a kind of TypeClass (similar to how `map`, `combine`, `Monad`, or `Monoid` refer to TypeClasses). In
+this sense being iterable is regarded as a decisive characteristic which is usually checked via `Base.isiterable` or
+`Traits.BasicTraits.isiterable` (recommended). As an example, the TypeClass FlipTypes has a default implementation
+which uses exactly this.
 
-all functionality can also be accessed via individual functions so that
-you can easily use them as default implementations when dispatching on your custom type
+The alternativ semantics, which is implemented in this file, is that an iterable type can be seen as an (abstract)
+DataType on top of which we can define TypeClasses themselves.
+
+Because of this duality, we don't define TypeClasses for iterables directly by dispatching on `isiterable`, but we
+provide a custom wrapper ``TypeClasses.Iterable`` on which all TypeClasses are defined.
+I.e. if you want to use standard TypeClasses on top of your iterable Type, just wrap it within an ``Iterable``:
+```
+myiterable = ...
+Iterable(myiterable)
+```
 """
 
 # MonoidAlternative
 # =================
 
-@traits TypeClasses.neutral(iter) where {isiterable(iter)} = IterateEmpty{eltype(iter)}()
-@traits TypeClasses.combine(it1, it2) where {isiterable(it1), isiterable(it2)} = chain(it1, it2)
+@traits TypeClasses.neutral(iter::Type{<:Iterable{ElemT}}) where ElemT = Iterable{ElemT}()
+@traits TypeClasses.neutral(iter::Type{<:Iterable}) where ElemT = Iterable{Any}()
+@traits TypeClasses.combine(it1::Iterable{ET1}, it2::Iterable{ET2}) where {ET1, ET2} = Iterable{promote_type(ET1, ET2)}(chain(it1.iter, it2.iter))
 
 
 # FunctorApplicativeMonad
@@ -21,96 +35,28 @@ you can easily use them as default implementations when dispatching on your cust
 
 # implementation for Iter wrapper
 
-@traits TypeClasses.eltype(T::Type) where {isiterable(T), Base.IteratorEltype(T)::Base.HasEltype} = Base.eltype(T)
-@traits TypeClasses.eltype(T::Type) where {isiterable(T), Base.IteratorEltype(T)::Base.EltypeUnknown} = Any
+@traits TypeClasses.eltype(::Type{<:Iterable{ElemT}}) where ElemT = ElemT
 
-# change_eltype(traitsof::Traitsof, ::Type{Iterable{A}}, B::Type) where A = Iterable{B}
-# change_eltype(traitsof::Traitsof, it::Iterable{A}, B::Type) where A = Iterable{B}(it)
+change_eltype(::Type{Iterable{A, IterT}}, B::Type) where {A, IterT} = Iterable{B, IterT}
+change_eltype(::Type{Iterable{A}}, B::Type) where {A} = Iterable{B}
 
-@traits function TypeClasses.foreach(f, iter) where {isiterable(iter)}
-  for a in it
+@traits function TypeClasses.foreach(f, it::Iterable)
+  for a in it.iter
     f(a)
   end
 end
 
-@traits TypeClasses.map(f, iter) where {isiterable(iter)} = (f(x) for x ∈ it)
 
-@traits TypeClasses.pure(T::Type, a) where {isiterable(T)} = IterateSingleton(a)
-@traits TypeClasses.ap(fs, it) where {isiterable(fs), isiterable(it)} = (f(a) for f ∈ fs for a ∈ it)
+@traits TypeClasses.map(f, it::Iterable) = Iterable(f(x) for x ∈ it.iter)
 
-@traits TypeClasses.flatten(it) where {isiterable(it)} = Iterators.flatten(it)
+@traits TypeClasses.pure(::Type{<:Iterable}, a) = Iterable(IterateSingleton(a))
+@traits TypeClasses.ap(fs::Iterable, it::Iterable) = Iterable(f(a) for f ∈ fs.iter for a ∈ it.iter)
 
-
-
-
-# FlipTypes
-# =========
+@traits TypeClasses.flatten(it::Iterable) = Iterable(Iterators.flatten(it.iter))
+@traits TypeClasses.flatten(it::Iterable{<:Iterable{ElemT}}) where ElemT = Iterable{ElemT}(Iterators.flatten(it.iter))
 
 
-# generic default implementation for Monoid of Applicatives
-# ---------------------------------------------------------
+# flip_types
+# ==========
 
-
-"""
-we create helpers to access different forks of eltypes
-
-read them as having a type ABC = A{B{C}} where
-  C(ABC) = C
-  AC(ABC) = A{C}
-  BAC(ABC) = B{A{C}}
-  B(ABC) = B{C}
-"""
-B(ABC) = eltype(ABC)
-C(ABC) = eltype(eltype(ABC))
-AC(ABC) = ABC ⫙ C(ABC)
-BAC(ABC) = B(ABC) ⫙ AC(ABC)
-
-@traits function flip_types(iter::ABC) where {ABC, isiterable(ABC), isPure(ABC), isCombine(BAC(ABC))}
-  flip_types_CombineBAC(iter)
-end
-# we define an extra function so that people can easier deal with ambiguity errors
-# (might happen quite often with isiterable)
-function flip_types_CombineBAC(iter::ABC) where ABC
-  first = iterate(s)
-  if first == nothing
-    # only here we need `neutral(BAC)`
-    # for non-empty sequences everything works for Types without (hence isNeutral is not dispatched on)
-    neutral(BAC(ABC))
-  else
-    b, state = first
-    start = map(c -> pure(ABC, c), b)
-    #|> feltype_unionall_implementationdetails  # we need to keep care of abstract enough type for later combine
-    Base.foldl(Iterators.rest(iter, state); init = start) do acc, b
-      b′ = map(c -> pure(ABC, c), b)
-      acc ⊕ b′  # combining BAC
-    end
-  end
-end
-
-#= isiterable(ABC), isPure(ABC), isCombine(AC(ABC)), isAp(BAC(ABC))
------> special case of the above, because {isCombine(AC(ABC)), isAp(BAC(ABC))} -> isCombine(BAC(ABC))
-
-@traits function flip_types(iter::ABC) where {ABC, isiterable(ABC), isPure(ABC), isCombine(AC(ABC)), isAp(BAC(ABC))}
-  flip_types_ApBAC_CombineAC(iter)
-end
-
-function flip_types_ApBAC_CombineAC(iter::ABC) where ABC
-  first = iterate(iter)
-  if first == nothing
-    # only in this case we actually need `pure(B)` and `neutral(AC)`
-    # for non-empty sequences everything works for Types without both
-    pure(B(ABC), neutral(AC(ABC)))
-  else
-    b, state = first
-    # we need to abstract out details so that combine can actually work
-    # note that because of its definition, pure(ABC, x) == pure(A, x)
-    # start = feltype_unionall_implementationdetails(fmap(traitsof, a -> pure(traitsof, T, a), x)) # we can only combine on S
-    start = map(c -> pure(ABC, c), b)  # we can only combine on ABC
-    Base.foldl(Iterators.rest(iter, state); init = start) do acc, b
-      mapn(acc, b) do acc′, c  # working in applicative context B
-        acc′ ⊕ pure(ABC, c)  # combining on AC
-      end
-    end
-  end
-end
-=#
+# flip_types follows from applicative and iterable

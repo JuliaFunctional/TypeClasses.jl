@@ -14,7 +14,7 @@ Note that this does not work for all Functors (e.g. not for Callables), however 
 This is also the reason why we don't use the default fallback to map, as this may make no sense for your custom Functor.
 """
 @traits foreach(f, a) = Base.foreach(f, a)
-isForeach(T::Type) = isdef(foreach, Function, T)
+isForeach(T::Type) = isdef(foreach, typeof(identity), T)
 isForeach(a) = isForeach(typeof(a))
 
 macro syntax_foreach(block::Expr)
@@ -31,15 +31,18 @@ The core functionality of a functor, applying a normal function "into" the conte
 Think of map and vector as best examples.
 """
 @traits map(f, a) = Base.map(f, a)
-
+isMap(T::Type) = isdef(map, typeof(identity), T)  # we check for a concrete function to have better typeinference
+isMap(value) = isMap(typeof(value))
 
 """
   eltype(functor)
 
 return the type of the functor "element"
 """
-@traits eltype(T) = Base.eltype(T)
-
+@traits eltype(T::Type) = Base.eltype(T)
+@traits eltype(value) = eltype(typeof(value))
+isEltype(T::Type) = isdef(eltype, Type{T})
+isEltype(value) = isEltype(typeof(value))
 
 """
   change_eltype(FunctorType::Type, NewElementType::Type)
@@ -51,7 +54,8 @@ function change_eltype end
 const ⫙ = change_eltype
 
 # advanced default implementation using https://discourse.julialang.org/t/how-can-i-create-a-function-type-with-custom-input-and-output-type/31719
-change_eltype(T::Type, E) = Out(map,FunctionWrapper{E, Tuple{Any}}, T)
+# Note that is very important to use @traits here as there may be implementations using only traits
+@traits change_eltype(T::Type, E) = Out(map, FunctionWrapper{E, Tuple{Any}}, T)
 
 
 # TODO is this still needed?
@@ -67,7 +71,7 @@ change_eltype(T::Type, E) = Out(map,FunctionWrapper{E, Tuple{Any}}, T)
 
 function isFunctor(T::Type)
   # TODO Functions for example don't have an eltype function, maybe we should just check for map
-  isdef(map, Function, T) && isdef(eltype, Type{T})
+  isMap(T) && isEltype(T)
 end
 isFunctor(a) = isFunctor(typeof(a))
 
@@ -94,16 +98,14 @@ isPure(a) = isPure(typeof(a))
 apply function in container F1 to element in container F2
 """
 function ap end
-isAp(T::Type) = isdef(ap, T, T)
+isAp(T::Type) = isdef(ap, change_eltype(T, Function), T)
 isAp(a) = isAp(typeof(a))
-const isMapN = isAp  # alias because `mapn` is actually equal in power to `ap`, but more often used
+const isMapN = isAp  # alias because `mapn` is actually equal in power to `ap`, but more self explanatory and more used
 
 function isApplicative(T::Type)
   isFunctor(T) && isPure(T) && isAp(T)
 end
 isApplicative(a) = isApplicative(typeof(a))
-
-
 
 # currying helper
 # ---------------
@@ -151,11 +153,30 @@ macro mapn(call_expr)
   esc(:(TypeClasses.mapn($callee, $(parsed.args...))))
 end
 
+returnlast(a) = a
+returnlast(a, b) = b
+returnlast(a, b, c) = c
+returnlast(a, b, c, d) = d
+returnlast(a, b, c, d, e) = e
+returnlast(a, b, c, d, e, f) = f
+returnlast(a, b, c, d, e, f, g) = g
+returnlast(a, b, c, d, e, f, g, h) = h
+returnlast(args...) = args[end]
+
+"""
+combine several Applicative contexts by building up a Tuple
+"""
+function tupled(applicatives...)
+  mapn(tuple, applicatives...)
+end
 
 # default implementations
 # -----------------------
 
-@traits map(f, a::A) where {A, isAp(A), isPure(A)} = ap(pure(A, f), a)
+# default implementations collide to often with other traits definitions and rather do harm than good
+# hence we just give a default definition to use for custom definitions
+
+@traits default_map(f, a::A) where {A, isAp(A), isPure(A)} = ap(pure(A, f), a)
 
 
 
@@ -163,6 +184,7 @@ end
 # ----------------------------------------------
 
 # isApplicative(T) && isMonoid(eltype(T)) -> isMonoid(T)
+# TODO do this interact dangerously with other definitions?
 
 @traits function neutral(a::T) where {T, isPure(T), isNeutral(eltype(T))}
   pure(T, neutral(eltype(T)))
@@ -172,6 +194,10 @@ end
   mapn(⊕, a, b)
 end
 
+# TODO do we need this?
+# @traits function combine(a::T1, b::T2) where {T1, T2, isAp(T1 ∧ T2), isCombine(eltype(T1 ∧ T2))}
+#   mapn(⊕, a, b)
+# end
 
 
 
@@ -198,6 +224,8 @@ isMonad(a) = isMonad(typeof(a))
 # -------------------
 
 @traits flatmap(f, a) = flatten(map(f, a))
+isFlatten(T::Type) = isdef(flatten, T)
+isFlatten(a) = isFlatten(typeof(a))
 
 
 """
@@ -244,8 +272,11 @@ end
 # Now can define the fallback definition for ap with monad style
 # ==============================================================
 
+# we don't overwrite ``ap`` directly because it can easily conflict with custom @traits definitions
+# instead it is offered as a default definition which you can use for your custom type
+
 # for monadic code we actually don't need Pure
-@traits ap(f, a) where {isFunctor(a), isFlatten(a)} = @syntax_flatmap begin
+@traits default_ap(f, a) where {isFunctor(a), isFlatten(a)} = @syntax_flatmap begin
   f = f
   a = a
   @pure f(a)

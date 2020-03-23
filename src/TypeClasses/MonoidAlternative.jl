@@ -20,6 +20,9 @@ isCombine(T::Type) = isdef(combine, T, T)
 isCombine(a) = isCombine(typeof(a))
 isSemigroup(a) = isCombine(a) # this alternative name is just super popular
 
+# fix wrong type-inference
+# Traits.IsDef._return_type(combine, ::Type{Tuple{Any, Any}}) = Union{}
+
 """
     neutral(::Type{T})::T
 
@@ -42,7 +45,7 @@ Right Identity
       ⊕(t::T, neutral(T)) == t
 """
 function neutral end
-neutral(T::Type) = throw(MethodError("neutral($T) not defined"))
+@traits neutral(T::Type) = throw(MethodError("neutral($T) not defined"))
 @traits neutral(a) = neutral(typeof(a))
 
 isNeutral(T::Type) = isdef(neutral, Type{T})
@@ -83,7 +86,7 @@ function foldr end
   reducefn_init = Symbol(reducefn, "_init")
 
   @eval begin
-    @traits function $reducefn(itr, init::T) where {T, isSemigroup(T)}
+    @traits function $reducefn(init::T, itr) where {T, isSemigroup(T)}
       Base.$reducefn(⊕, itr; init=init)
     end
     @traits function $reducefn(itr) where {isMonoid(eltype(itr))}
@@ -106,6 +109,10 @@ end
 # Absorbing
 # =========
 
+"""
+specify an absorbing element for your Type which will stays unaltered when used in ``combine``
+i.e. ``combine(absorbing(T), anything) == absorbing(T)``
+"""
 function absorbing end
 absorbing(T::Type) = throw(MethodError("absorbing($T) not defined"))
 @traits absorbing(a) = absorbing(typeof(a))

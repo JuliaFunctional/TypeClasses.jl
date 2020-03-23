@@ -1,8 +1,14 @@
 name = "TypeClasses"
 uuid = "addcc920-e0cf-11e8-30b7-0fb08706b574"
 authors = ["Sahm Stephan <stephan.sahm@gmx.de>"]
-version = "0.4.0"
+version = "0.5.0"
 
 [deps]
+ASTParser = "3311a090-b55d-11e9-176d-dbdfc6a88253"
+DataTypesBasic = "83eed652-29e8-11e9-12da-a7c29d64ffc9"
+FunctionWrappers = "069b7b12-0de2-55c6-9aab-29f3d0a68a2e"
+Monadic = "4a6f0533-cc52-4fcf-a409-c6c05775ac80"
+ProxyInterface = "90c4b210-f34a-11e9-1a87-5d0d3aaf0cab"
+StructEquality = "6ec83bb0-ed9f-11e9-3b4c-2b04cb4e219c"
 Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 Traits = "5060dc80-e054-11e8-0acc-1dc6592f659e"

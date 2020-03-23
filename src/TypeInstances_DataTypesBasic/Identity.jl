@@ -3,34 +3,42 @@
 
 # just forward definitions from wrapped type
 
-TypeClasses.neutral(traitsof::Traitsof, ::Type{Identity{A}}) where A = Identity(TypeClasses.neutral(traitsof, A))
-
-TypeClasses.absorbing(traitsof::Traitsof, ::Type{Identity{A}}) where A = Identity(TypeClasses.absorbing(traitsof, A))
-
-TypeClasses.combine(traitsof::Traitsof, a::Identity{T}, b::Identity{T}) where T = Identity(TypeClasses.combine(traitsof, a.value, b.value))
-
-TypeClasses.orelse(traitsof::Traitsof, a::Identity{T}, b::Identity{T}) where T = Identity(TypeClasses.orelse(traitsof, a.value, b.value))
+@traits TypeClasses.neutral(::Type{Identity{A}}) where {A, isNeutral(A)} = Identity(TypeClasses.neutral(A))
+@traits TypeClasses.absorbing(::Type{Identity{A}}) where {A, isAbsorbing(A)} = Identity(TypeClasses.absorbing(A))
+@traits TypeClasses.combine(a::Identity{T}, b::Identity{T}) where {T, isCombine(T)} = Identity(a.value ⊕ b.value)
+@traits TypeClasses.orelse(a::Identity{T}, b::Identity{T}) where {T, isOrElse(T)} = Identity(orelse(a.value, b.value))
 
 
 # FunctorApplicativeMonad
 # =======================
 
-TypeClasses.fmap(traitsof::Traitsof, f, a::Identity) = Identity(f(a.value))
-TypeClasses.pure(traitsof::Traitsof, ::Type{<:Identity}, a) = Identity(a)
-TypeClasses.ap(traitsof::Traitsof, f::Identity, a::Identity) = Identity(f.value(a.value))
-TypeClasses.fflatten(traitsof::Traitsof, a::Identity) = a.value
+@traits TypeClasses.map(f, a::Identity) = Base.map(f, a)
+@traits TypeClasses.pure(::Type{<:Identity}, a) = Identity(a)
+@traits TypeClasses.ap(f::Identity, a::Identity) = Identity(f.value(a.value))
+TypeClasses.flatten(a::Identity) = Iterators.flatten(a)
 
 # relaxed flatten definition
 # --------------------------
 
 # Identity is just a Singleton, hence can be flattened out everywhere
-function fflatten_traits_Functor_Identity(traitsof::Traitsof, a)
-  TypeClasses.fmap(traitsof, b -> v.value, a)
-end
 
-TypeClasses.fflatten_traits_Functor(traitsof::Traitsof, a, B::Type{<:Identity}, _, _) = fflatten_traits_Functor_Identity(traitsof, a)
+# TODO is this really wanted? what are the usecases for this?
+# ...
 
-# Sequence
+# FlipTypes
+# =========
+
+@traits TypeClasses.flip_types(i::Identity{A}) where {A, isMap(A)} = TypeClasses.map(Identity, i.value)
+@traits TypeClasses.flip_types(i::Identity{Any}) = TypeClasses.flip_types(fix_type(i))
+
+
+# fix_type
 # ========
 
-TypeClasses.sequence(traitsof::Traitsof, i::Identity{A}) where A = TypeClasses.fmap(traitsof, Identity, i.value)
+"""
+as typeinference sometimes lead to wrong containers, we need to be able to fix them at runtime
+importantly, fix_type never generates Any again
+"""
+function fix_type(x::Identity{Any})
+  Identity{typeof(x.value)}(x.value)
+end

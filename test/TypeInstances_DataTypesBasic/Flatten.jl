@@ -1,18 +1,39 @@
+using TypeClasses
+using Traits
+using Test
+using IsDef
+using DataTypesBasic
+using Suppressor
+
+DataTypesBasic.@overwrite_Base
+TypeClasses.@overwrite_Base
+splitln(str) = split(strip(str), "\n")
+
+load(x) = ContextManager(function (yield)
+  println("preparation $x")
+  result = yield(x)
+  println("cleanup $x")
+  result
+end)
+
+
+
 # Vector
 # ======
 
-@test fflatten([Maybe(3), Maybe(nothing), Maybe(4)]) == [3, 4]
-@test fflatten([Try(4), (@Try error("hi")), Try(5)]) == [4, 5]
-@test fflatten([Either{String}(4), either("left", false, 3), Either{Int, String}("right")]) == [4, "right"]
+@test flatten([Option(3), Option(nothing), Option(4)]) == [3, 4]
+@test flatten([Try(4), (@Try error("hi")), Try(5)]) == [4, 5]
+@test flatten([Either{String}(4), either("left", false, 3), Either{Int, String}("right")]) == [4, "right"]
 
-# Dict
-# ====
-m = Dict(
-  :a => Maybe(4),
-  :b => Maybe(6),
-  :c => Maybe(nothing))
+# FunctorDict
+# ===========
 
-@test fflatten(m) == Dict(:a => 4, :b => 6)
+m = FunctorDict(
+  :a => Option(4),
+  :b => Option(6),
+  :c => Option(nothing))
+
+@test flatten(m) == FunctorDict(:a => 4, :b => 6)
 
 
 # Multiple Combinations
@@ -20,96 +41,22 @@ m = Dict(
 
 # starting with Maybe (nothing new)
 
-h = @syntax_fflatmap begin
+h1 = @syntax_flatmap begin
  a, b = [(1, 2), (2, 3), (3, 4), (4, 5), (5, 6)]
  iftrue(a % 2 == 0) do
    a + b
  end
 end
-@test h == [5, 9]
+@test h1 == [5, 9]
 
 # adding ContextManager
 
-const logging = []
 cmlog(x) = @ContextManager function(cont)
-  push!(logging, "before $x")
+  println("before $x")
   r = cont(x*x)
-  push!(logging, "after $x")
+  println("after $x")
   r
 end
-
-#= DEBUGGING
-  const array_tuple = [(1, 2), (2, 3), (3, 4), (4, 5), (5, 6)]
-
-  t = fmap(array_tuple) do (a, b)
-    fmap(iftrue(a % 2 == 0) do
-      a + b
-    end) do c
-      fmap(cmlog(c)) do d
-        d
-      end
-    end
-  end
-  fflattenrec(t)
-
-
-  t = fmap(array_tuple) do (a, b)
-    fmap(iftrue(a % 2 == 0) do
-      a + b
-    end) do c
-      fmap(cmlog(c)) do d
-        d
-      end
-    end
-  end
-
-  @code_warntype fmap(((a, b),) -> begin
-    fflatmap(c -> begin
-      fmap(d -> begin
-        d
-      end, cmlog(c))
-    end, iftrue(() -> a + b, a % 2 == 0))
-  end, array_tuple)
-
-
-  const func = ((a, b),) -> begin
-    fflatmap(c -> begin
-      fmap(d -> begin
-        d
-      end, cmlog(c))
-    end, iftrue(() -> a + b, a % 2 == 0))
-  end
-
-  eltype(Base.Generator(func,array_tuple))
-  Base.IteratorEltype(Base.Generator(func,array_tuple)))
-  map(func, array_tuple)
-
-  const func2 = ((a, b),) -> begin
-    fmap(c -> begin
-      fmap(d -> begin
-        d
-      end, cmlog(c))
-    end, iftrue(() -> a + b, a % 2 == 0))
-  end
-
-  eltype(Base.Generator(func2,array_tuple))
-  Base.IteratorEltype(Base.Generator(func2,array_tuple))
-  Base.IteratorSize(Base.Generator(func2,array_tuple))
-  map(func2, array_tuple)
-
-
-  @code_warntype @syntax_fflatmap begin
-    a = array_tuple2
-    @pure b = a*a
-    c = iftrue(a % 2 == 0) do
-      a + b
-    end
-    d = cmlog(c)
-    @pure d # (a, b, c, d)
-  end
-=#
-
-
 
 # unfortunately this does not work, as the typeinference does not work
 # and hence an Array of Any is constructed instead of an Array of ContextManager
@@ -117,29 +64,17 @@ end
 
 # the version without the Array component works like a charm
 
-empty!(logging)
-h = @syntax_fflatmap begin
-  a, b = [(1, 2), (2, 3), (3, 4), (4, 5), (5, 6)]
+h2() = @syntax_flatmap begin
+  (a, b) = [(1, 2), (2, 3), (3, 4), (4, 5), (5, 6)]
   c = iftrue(a % 2 == 0) do
     a + b
   end
-  d = cmlog(c)
-  @pure d # (a, b, c, d)
+  d = cmlog(c) # c*c
+  @pure d
 end
-@test h == [25, 81]
-@test logging == ["before 5", "after 5", "before 9", "after 9"]
 
-empty!(logging)
-h = @syntax_fmap_fflattenrec begin
-  a, b = [(1, 2), (2, 3), (3, 4), (4, 5), (5, 6)]
-  c = iftrue(a % 2 == 0) do
-    a + b
-  end
-  d = cmlog(c)
-  @pure d # (a, b, c, d)
-end
-@test h == [25, 81]
-@test logging == ["before 5", "after 5", "before 9", "after 9"]
+@test @suppress(h2()) == [25, 81]
+@test splitln(@capture_out h2()) == ["before 5", "after 5", "before 9", "after 9"]
 
 
 # Try
@@ -147,43 +82,91 @@ end
 
 mytry(x) = x == 4 ? error("error") : x
 
-@syntax_fflatmap begin
+h3() = @syntax_flatmap begin
   (a, b) = [(1, 2), (2, 3), (3, 4), (4, 5), (5, 6)]
   c = iftrue(a % 2 == 0) do
     a + b
   end
-  d = cmlog(c)
-  e = @Try mytry(d / a)
-end
-
-empty!(logging)
-h = @syntax_fflatmap begin
-  @pure (a, b) = (2, 3)
-  c = iftrue(a % 2 == 0) do
-    a + b
-  end
-  d = cmlog(c)
+  d = cmlog(c)  # c*c
   e = @Try mytry(d / a)
   @pure e + 1
 end
-@test h == Try(13.5)
-@test logging == ["before 5", "after 5"]
-
+@test @suppress(h3()) == [(2+3)^2/2 + 1, (4+5)^2/4 + 1]  # TODO not working because of bad type-inference
+@test splitln(@capture_out h3()) == [
+  "before 5",
+  "after 5",
+  "before 9",
+  "after 9",
+]
 
 
 # Either
 # ------
 
-empty!(logging)
-h = @syntax_fflatmap begin
-  @pure (a, b) = (2, 3)
+h4() = @syntax_flatmap begin
+  (a, b) = [(1, 2), (2, 3), (3, 4), (4, 5), (5, 6)]
   c = iftrue(a % 2 == 0) do
     a + b
   end
-  d = cmlog(c)
-  e = @Try mytry(d / a)
-  f = either("left", e > 13, :right)
-  @pure Symbol(f, ":)")
+  d = cmlog(c) # c*c
+  f = either("left", d > 4, :right)
+  e = @Try "$a, $b, $c, $d, $f"
 end
-@test h == Either{String, Symbol}("left")
-@test logging == ["before 5", "after 5"]
+@test @suppress(h4()) == ["2, 3, 5, 25, right", "4, 5, 9, 81, right"]
+@test splitln(@capture_out h4()) == [
+  "before 5",
+  "after 5",
+  "before 9",
+  "after 9",
+]
+
+
+# FunctorDict + ContextManager
+# ----------------------------
+
+
+functordict_cm() = @syntax_flatmap begin
+  i = FunctorDict(:a => 1, :b => 2)
+  ii = load(i*i)
+  j = FunctorDict(:a => 1, :b => ii)
+  @pure i + j
+end
+
+@test @suppress(functordict_cm()) == FunctorDict(:a => 1 + 1*1, :b => 2 + 2*2)
+@test splitln(@capture_out functordict_cm()) == [
+  "preparation 1",
+  "cleanup 1",
+  "preparation 4",
+  "cleanup 4",
+]
+
+functordict_cm_option() = @syntax_flatmap begin
+  i = FunctorDict(:a => 1, :b => 2)
+  ii = load(i*i)
+  j = iftrue(ii % 2 == 0, ii)
+  @pure i + j
+end
+@test @suppress(functordict_cm_option()) == FunctorDict(:b => 2+2*2)
+@test splitln(@capture_out functordict_cm_option()) == [
+  "preparation 1",
+  "cleanup 1",
+  "preparation 4",
+  "cleanup 4",
+]
+
+
+
+# Pair + ContextManager
+# ---------------------
+
+pair_cm() = @syntax_flatmap begin
+  i = "hi" => 4
+  l = load(i)
+  " $l yes" => l+i
+end
+
+@test @suppress(pair_cm()) == ("hi 4 yes" => 4+4)
+@test splitln(@capture_out pair_cm()) == [
+  "preparation 4",
+  "cleanup 4"
+]

@@ -3,66 +3,78 @@
 
 # no instance for neutral
 
-TypeClasses.orelse(::Traitsof, x1::Try{T, Success}, x2::Try) where T = x1
-TypeClasses.orelse(::Traitsof, x1::Try{T, Exception}, x2::Try) where T = x2
+TypeClasses.orelse(x1::Success, x2::Try) = x1
+TypeClasses.orelse(x1::Failure, x2::Try) = x2
 
-TypeClasses.combine(::Traitsof, x1::Try{T, Success}, x2::Try{S, Exception}) where {T, S} = x2
-TypeClasses.combine(::Traitsof, x1::Try{T, Exception}, x2::Try{S, Success}) where {T, S} = x1
-TypeClasses.combine(traitsof::Traitsof, x1::Try{T, Exception}, x2::Try{T, Exception}) where T = Try{T, Exception}(MultipleExceptions(x1.value, x2.value))
-function TypeClasses.combine(traitsof::Traitsof, x1::Try{T, Success}, x2::Try{T, Success}) where T
-  Try{T, Success}(TypeClasses.combine(traitsof, x1.value::T, x2.value::T))
+# Monoid support for Exceptions
+TypeClasses.neutral(::Type{<:Exception}) = MultipleExceptions()
+TypeClasses.combine(e1::Exception, e2::Exception) = MultipleExceptions(e1, e2)
+# Monoid support for Failure
+TypeClasses.neutral(::Type{<:Failure{T}}) where T = Failure{T}(MultipleExceptions(), [])
+TypeClasses.neutral(::Type{<:Failure}) = neutral(Failure{Any})
+
+
+# we keep Success when combining for analogy with Either and Maybe
+TypeClasses.combine(x1::Success, x2::Failure) = x1
+TypeClasses.combine(x1::Failure, x2::Success) = x1
+function TypeClasses.combine(e1::Failure{T1}, e2::Failure{T2}) where {T1, T2}
+  Failure{T1 ∨ T2}(e1.exception ⊕ e2.exception, [e1.stack; e2.stack])
 end
 
-
-# Combine support for exceptions
-TypeClasses.neutral(::Traitsof, ::Type{Exception}) = MultipleExceptions()
-TypeClasses.combine(::Traitsof, e1::Exception, e2::Exception) = MultipleExceptions(e1, e2)
+@traits function TypeClasses.combine(x1::Success{T1}, x2::Success{T2}) where {T1, T2, isCombine(T1 ∨ T2)}
+  Success(x1.value ⊕ x2.value)
+end
 
 
 # FunctorApplicativeMonad
 # =======================
 
-TypeClasses.feltype(::Traitsof, ::Type{F}) where {T, F <: Try{T}} = T
-TypeClasses.change_eltype(::Traitsof, ::Type{Try{T, Tag}}, T2::Type) where {T, Tag} = Try{T2, Tag}
-TypeClasses.change_eltype(::Traitsof, ::Type{Try{T}}, T2::Type) where T = Try{T2}
+TypeClasses.eltype(::Try{T}) where {T} = T
+TypeClasses.change_eltype(::Type{<:Failure}, T) = Failure{T}
+TypeClasses.change_eltype(::Type{<:Success}, T) = Success{T}
+TypeClasses.change_eltype(::Type{<:Try}, T) = Try{T}
 
-TypeClasses.fmap(::Traitsof, f, x::Try{T, Success}) where T = @Try f(x.value)
-function TypeClasses.fmap(::Traitsof, f, x::Try{T, Exception}) where T
-  T2 = Core.Compiler.return_type(f, Tuple{T})
-  Try{T2, Exception}(x.value)
+TypeClasses.map(f, x::Success) = @Try f(x.value)
+
+function TypeClasses.map(f, x::Failure{T}) where T
+  _T2 = Out(f, T)
+  T2 = _T2 === NotApplicable ? Any : _T2
+  Failure{T2}(x)
 end
 
-TypeClasses.ap(::Traitsof, f::Try{F, Success}, x::Try{T, Success}) where {F, T} = @Try f.value(x.value)
-TypeClasses.ap(::Traitsof, f::Try{F, Exception}, x::Try{T, Success}) where {F, T} = ap_Try_Exception(F, T, f.value)
-TypeClasses.ap(::Traitsof, f::Try{F, Exception}, x::Try{T, Exception}) where {F, T} = ap_Try_Exception(F, T, f.value)
-TypeClasses.ap(::Traitsof, f::Try{F, Success}, x::Try{T, Exception}) where {F, T} = ap_Try_Exception(F, T, x.value)
-function ap_Try_Exception(F, T, exception)
-  T2 = return_type_FunctionType(F, Tuple{T}) # TODO this is probably very slow...
-  Try{T2}(exception)
+TypeClasses.ap(f::Success, x::Success) = @Try f.value(x.value)
+TypeClasses.ap(f::Failure{F}, x::Success{T}) where {F, T} = ap_Try_Exception(F, T, f)
+TypeClasses.ap(f::Success{F}, x::Failure{T}) where {F, T} = ap_Try_Exception(F, T, x)
+TypeClasses.ap(f::Failure{F}, x::Failure{T}) where {F, T} = ap_Try_Exception(F, T, f)  # take first exception, short cycling behaviour
+function ap_Try_Exception(F, T, failure)
+  _T2 = return_type_FunctionType(F, Tuple{T}) # TODO this is probably very slow...
+  T2 = _T2 === Union{} ? Any : _T2
+  Failure{T2}(failure)
 end
 
-# flatten implementation which still works with missing type information
-TypeClasses.fflatten(::Traitsof, x::Try{T, Exception}) where T = x
-TypeClasses.fflatten(::Traitsof, x::Try{F, Exception}) where {T, F <: Try{T}} = Try{T, Exception}(x.value)
-TypeClasses.fflatten(::Traitsof, x::Try{<:Any, Success}) = x.value  # TODO more restrictive constrain <:Try needed?
+TypeClasses.flatten(x::Try) = Iterators.flatten(x)
 
-TypeClasses.pure(::Traitsof, ::Type{T}, a) where T <: Try = Try(a)
+TypeClasses.pure(::Type{<:Try}, a) = Success(a)
 
 
-# Sequence
+# FlipTypes
 # ========
 
-TypeClasses.sequence(traitsof::Traitsof, x::Try{T}) where T = sequence_Try_traits(traitsof, x, traitsof(T))
+@traits TypeClasses.flip_types(x::Failure{T}) where {T, isPure(T), isEltype(T)} = pure(T, Failure{eltype(T)}(x))
+@traits TypeClasses.flip_types(x::Failure{T}) where {T, isPure(T), !isEltype(T)} = pure(T, Failure{Any}(x))
+@traits TypeClasses.flip_types(x::Success{T}) where {T, isMap(T)} = map(Success, x.value)
 
-sequence_Try_traits(::Traitsof, x::Try{T, Exception}, ::TypeLB(Pure)) where T = TypeClasses.pure(traitsof, T, Try{Any, Exception}(x.value))
-function sequence_Try_traits(::Traitsof, x::Try{T, Exception}, ::TypeLB(Pure, Functor)) where T
-  E = feltype(traitsof, T)
-  TypeClasses.pure(traitsof, T, Try{E, Exception}(x.value))
+@traits function TypeClasses.flip_types(x::Success{Any})
+  TypeClasses.flip_types(fix_type(x))
 end
-sequence_Try_traits(::Traitsof, x::Try{T, Success}, ::TypeLB(Functor)) where T = TypeClasses.fmap(traitsof, Try, x.value)
 
 
-# flatten implementation which still works with missing type information
-Base.Iterators.flatten(x::Try{T, Exception}) where T = x
-Base.Iterators.flatten(x::Try{F, Exception}) where {T, F <: Try{T}} = Try{T, Exception}(x.value)
-Base.Iterators.flatten(x::Try{<:Any, Success}) = x.value  # TODO more restrictive constrain <:Try needed?
+# fix_type
+# ========
+
+"""
+as typeinference sometimes lead to wrong containers, we need to be able to fix them at runtime
+importantly, fix_type never generates Any again
+"""
+fix_type(x::Success{Any}) = Success{typeof(x.value)}(x.value)
+# we cannot fix the type of Failure unfortunately
