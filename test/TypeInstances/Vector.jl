@@ -32,8 +32,8 @@ end
 # FlipTypes
 # ========
 
-v = [FunctorDict(:a => 2, :b => 3, :c => 1),
-     FunctorDict(:a => 5, :c => 6),
-     FunctorDict(:a => 8, :c => 9)]
+v = [Option(:a),
+     Option(:b),
+     Option(:c)]
 
-@test flip_types(v) == FunctorDict(:a=>[2, 5, 8], :b=>[3], :c=>[1, 6, 9])
+@test flip_types(v) == Option([:a, :b, :c])

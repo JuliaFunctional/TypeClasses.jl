@@ -14,7 +14,7 @@ TypeClasses.pure(::Type{ContextManager}, x) = @ContextManager cont -> cont(x)
 
 # we use the default implementation of ap which follows from flatten
 # TypeClasses.ap
-TypeClasses.ap(f::ContextManager, a::ContextManager) = TypeClasses.default_ap(f, a)
+TypeClasses.ap(f::ContextManager, a::ContextManager) = TypeClasses.default_ap_having_map_flatmap(f, a)
 
 TypeClasses.flatten(c::ContextManager) = Iterators.flatten(c)
 

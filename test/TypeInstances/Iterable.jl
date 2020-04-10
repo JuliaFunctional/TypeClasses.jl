@@ -8,7 +8,7 @@ b = Iterable([4,5,6])
 @test isPure(Iterable)
 @test isFlatten(Iterable)
 
-@test isFlipTypes(Iterable{FunctorDict{Symbol, String}})
+@test isFlipTypes(Iterable{Option{String}})
 @test isFlipTypes(Iterable{Vector{String}})
 
 
@@ -39,8 +39,8 @@ end
 # FlipTypes
 # =========
 
-it = Iterable(FunctorDict(:a => i, :b => i+1, :c => i+2) for i ∈ 1:3:7)
-@test map(collect, flip_types(it)) == FunctorDict(:a => [1, 4, 7], :b => [2,5,8], :c => [3, 6, 9])
+it = Iterable(Option(i) for i ∈ 1:3:7)
+@test map(collect, flip_types(it)) == Option([1, 3, 7])
 
 
 # it2 = Iterable([i, i+2] for i ∈ 1:4)

@@ -2,7 +2,7 @@
 module TypeClasses
 # we export only Types and special helpers which do not depend on traitsof
 # all functionalities which depend on traitsof are collected into `traitsof_linkall` below
-export FunctorDict, Iterable, Callable,
+export Iterable, Callable,
   neutral, combine, ⊕, isNeutral, isCombine, isSemigroup, isMonoid, reduce, foldr, foldr,
   absorbing, orelse, ⊛, isAbsorbing, isOrElse, isAlternative,
   foreach, isForeach, @syntax_foreach,
@@ -15,36 +15,15 @@ export FunctorDict, Iterable, Callable,
   ExtensibleEffects
 
 using Traits
-using Suppressor: @suppress, @suppress_err, @suppress_out  # this is to surpress unnecessary method overwritten warnings
 using DataTypesBasic
-DataTypesBasic.@overwrite_Base
+DataTypesBasic.@overwrite_Some
 
-"""
-  macro to import all functionality as using
-
-this includes const values for those which are both in Base and TypeClasses
-"""
-macro overwrite_Base()
-  esc(quote
-    using TypeClasses
-    # MonoidAlternative
-    const reduce = TypeClasses.reduce
-    const foldr = TypeClasses.foldr
-    const foldl = TypeClasses.foldl
-    # FunctorApplicativeMonad
-    const foreach = TypeClasses.foreach
-    const map = TypeClasses.map
-    const eltype = TypeClasses.eltype
-    nothing  # for invisible output
-  end)
-end
 
 include("Utils/Utils.jl")
 using .Utils
 
 include("DataTypes/DataTypes.jl")
 using .DataTypes
-
 
 # TypeClasses
 # ===========
@@ -61,7 +40,6 @@ include("TypeClasses/FlipTypes.jl")  # depends on both Monoid and Applicative
 # =========
 
 include("TypeInstances/Dict.jl")
-include("TypeInstances/FunctorDict.jl")
 include("TypeInstances/Callable.jl")
 include("TypeInstances/Iterable.jl")  # only supplies default functions, no actual dispatch is done (Reason: there had been too many conflicts with Dict already)
 include("TypeInstances/Pair.jl")
@@ -70,6 +48,7 @@ include("TypeInstances/String.jl")
 include("TypeInstances/Tuple.jl")
 include("TypeInstances/Vector.jl")
 include("TypeInstances/Monoid.jl")
+include("TypeInstances/Writer.jl")
 
 include("TypeInstances_DataTypesBasic/Const.jl")
 include("TypeInstances_DataTypesBasic/ContextManager.jl")

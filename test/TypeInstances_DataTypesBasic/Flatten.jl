@@ -25,16 +25,6 @@ end)
 @test flatten([Try(4), (@Try error("hi")), Try(5)]) == [4, 5]
 @test flatten([Either{String}(4), either("left", false, 3), Either{Int, String}("right")]) == [4, "right"]
 
-# FunctorDict
-# ===========
-
-m = FunctorDict(
-  :a => Option(4),
-  :b => Option(6),
-  :c => Option(nothing))
-
-@test flatten(m) == FunctorDict(:a => 4, :b => 6)
-
 
 # Multiple Combinations
 # =====================
@@ -121,52 +111,18 @@ end
 ]
 
 
-# FunctorDict + ContextManager
-# ----------------------------
 
-
-functordict_cm() = @syntax_flatmap begin
-  i = FunctorDict(:a => 1, :b => 2)
-  ii = load(i*i)
-  j = FunctorDict(:a => 1, :b => ii)
-  @pure i + j
-end
-
-@test @suppress(functordict_cm()) == FunctorDict(:a => 1 + 1*1, :b => 2 + 2*2)
-@test splitln(@capture_out functordict_cm()) == [
-  "preparation 1",
-  "cleanup 1",
-  "preparation 4",
-  "cleanup 4",
-]
-
-functordict_cm_option() = @syntax_flatmap begin
-  i = FunctorDict(:a => 1, :b => 2)
-  ii = load(i*i)
-  j = iftrue(ii % 2 == 0, ii)
-  @pure i + j
-end
-@test @suppress(functordict_cm_option()) == FunctorDict(:b => 2+2*2)
-@test splitln(@capture_out functordict_cm_option()) == [
-  "preparation 1",
-  "cleanup 1",
-  "preparation 4",
-  "cleanup 4",
-]
-
-
-
-# Pair + ContextManager
+# Writer + ContextManager
 # ---------------------
 
-pair_cm() = @syntax_flatmap begin
-  i = "hi" => 4
+writer_cm() = @syntax_flatmap begin
+  i = Writer("hi", 4)
   l = load(i)
-  " $l yes" => l+i
+  Writer(" $l yes", l+i)
 end
 
-@test @suppress(pair_cm()) == ("hi 4 yes" => 4+4)
-@test splitln(@capture_out pair_cm()) == [
+@test @suppress(writer_cm()) == Writer("hi 4 yes", 4+4)
+@test splitln(@capture_out write_cm()) == [
   "preparation 4",
   "cleanup 4"
 ]

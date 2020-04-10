@@ -1,8 +1,8 @@
 using Test
 
 left = flip_types([
-  FunctorDict(:a => 1, :b => 2),
-  FunctorDict(:b => 1, :c => 2)])
-right = FunctorDict(:a => [1], :b => [2,1], :c => [2])
+  Option(1),
+  Option(:b)])
+right = Option([1, :b])
 
 @test left == right

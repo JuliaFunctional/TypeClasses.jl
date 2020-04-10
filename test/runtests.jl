@@ -25,9 +25,6 @@ end
   @testset "Dict" begin
     include("TypeInstances/Dict.jl")
   end
-  @testset "FunctorDict" begin
-    include("TypeInstances/FunctorDict.jl")
-  end
   @testset "Function" begin
     include("TypeInstances/Callable.jl")
   end
@@ -42,6 +39,9 @@ end
   end
   @testset "Vector" begin
     include("TypeInstances/Vector.jl")
+  end
+  @testset "Writer" begin
+    include("TypeInstances/Writer.jl")
   end
 end
 

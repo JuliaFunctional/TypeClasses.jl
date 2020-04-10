@@ -13,10 +13,22 @@ map, flatmap and foreach should have same semantics.
 Note that this does not work for all Functors (e.g. not for Callables), however is handy in many cases.
 This is also the reason why we don't use the default fallback to map, as this may make no sense for your custom Functor.
 """
-@traits foreach(f, a) = Base.foreach(f, a)
+const foreach = Base.foreach
 isForeach(T::Type) = isdef(foreach, typeof(identity), T)
 isForeach(a) = isForeach(typeof(a))
 
+"""
+    @syntax_foreach begin
+      # Vectors behaves like nested for loops within @syntax_foreach
+      a = [1, 2, 3]
+      b = [10, 20]
+      @pure a + b
+    end
+    # [[11, 21], [12, 22], [13, 23]]
+
+This is a variant of the monadic syntax which uses ``foreach`` for both map_like and flatmap_like.
+See ``Monadic.@monadic`` for more details.
+"""
 macro syntax_foreach(block::Expr)
   block = macroexpand(__module__, block)
   esc(monadic(:(TypeClasses.foreach), :(TypeClasses.foreach), block))
@@ -36,19 +48,18 @@ end
 The core functionality of a functor, applying a normal function "into" the context defined by the functor.
 Think of map and vector as best examples.
 """
-@traits map(f, a) = Base.map(f, a)
+const map = Base.map
 isMap(T::Type) = isdef(map, typeof(identity), T)  # we check for a concrete function to have better typeinference
 isMap(value) = isMap(typeof(value))
+const isFunctor = isMap
 
 """
   eltype(functor)
 
 return the type of the functor "element"
 """
-@traits eltype(T::Type) = Base.eltype(T)
-@traits eltype(value) = eltype(typeof(value))
-isEltype(T::Type) = isdef(eltype, Type{T})
-isEltype(value) = isEltype(typeof(value))
+const eltype = Base.eltype
+# we don't need isEltype, as Base.eltype has a default returning Any
 
 """
   change_eltype(FunctorType::Type, NewElementType::Type)
@@ -60,27 +71,21 @@ function change_eltype end
 const ⫙ = change_eltype
 
 # advanced default implementation using https://discourse.julialang.org/t/how-can-i-create-a-function-type-with-custom-input-and-output-type/31719
-# Note that is very important to use @traits here as there may be implementations using only traits
-@traits change_eltype(T::Type, E) = Out(map, FunctionWrapper{E, Tuple{Any}}, T)
+change_eltype(T::Type, E) = Out(map, FunctionWrapper{E, Tuple{Any}}, T)
 
 
-# TODO is this still needed?
-# """
-#   eltype_unionall_implementationdetails(functor)
-#
-# Convenience wrapper around ``unionall_implementationdetails`` to capsulate the feltype
-#
-# This is most typical application of unionall, as the difficulty appears only as typevar not as mere value.
-# """
-# eltype_unionall_implementationdetails(functor) = change_eltype(functor, unionall_implementationdetails(eltype(typeof(functor))))
+"""
+    @syntax_map begin
+      # Vectors behave similar to nested for loops within @syntax_map
+      a = [1, 2, 3]
+      b = [10, 20]
+      @pure a + b
+    end
+    # [[11, 21], [12, 22], [13, 23]]
 
-
-function isFunctor(T::Type)
-  # TODO Functions for example don't have an eltype function, maybe we should just check for map
-  isMap(T) && isEltype(T)
-end
-isFunctor(a) = isFunctor(typeof(a))
-
+This is a variant of the monadic syntax which uses ``map`` for both map_like and flatmap_like.
+See ``Monadic.@monadic`` for more details.
+"""
 macro syntax_map(block::Expr)
   block = macroexpand(__module__, block)
   esc(monadic(:(TypeClasses.map), :(TypeClasses.map), block))
@@ -88,6 +93,7 @@ end
 macro syntax_map(wrapper, block::Expr)
   esc(monadic(:(TypeClasses.map), :(TypeClasses.map), wrapper, block))
 end
+
 
 # Applicative
 # ===========
@@ -186,7 +192,7 @@ end
 # default implementations collide to often with other traits definitions and rather do harm than good
 # hence we just give a default definition to use for custom definitions
 
-@traits default_map(f, a::A) where {A, isAp(A), isPure(A)} = ap(pure(A, f), a)
+default_map_having_ap_pure(f, a::A) where {A} = ap(pure(A, f), a)
 
 
 
@@ -217,7 +223,7 @@ end
 # we use flatten as default, as we have full type information about the nested levels
 # this we wouldn't have with flatmap, as all the type information is hidden in the function
 """
-  flatten(::F{F}) -> F
+    flatten(::A{A})::A
 
 flatten gets rid of one level of nesting
 """
@@ -233,29 +239,28 @@ isMonad(a) = isMonad(typeof(a))
 # basic functionality
 # -------------------
 
-@traits flatmap(f, a) = flatten(map(f, a))
-isFlatten(T::Type) = isdef(flatten, T)
-isFlatten(a) = isFlatten(typeof(a))
+"""
+    flatmap(function_returning_A, a::A) = flatten(map(function_returning_A, a))
 
+flatmap maps and flattens at once.
+
+Overload `flatten` instead usually gives you more control over the type handling.
+Still you can overload this function directly, e.g. for performance reasons.
+"""
+flatmap(f, a) = flatten(map(f, a))
 
 """
-  flattenrec(traitsof::Traitsof, nested_monad)
+    @syntax_flatmap begin
+      # Vector behave similar to nested for loops within @syntax_flatmap
+      a = [1, 2, 3]
+      b = [10, 20]
+      @pure a + b
+    end
+    # [11, 21, 12, 22, 13, 23]
 
-flattens out everything which it can, also mapping over Functors to flatten
-out sublevels
+This is the standard monadic syntax which uses ``map`` for map_like and ``flatmap`` for flatmap_like.
+See ``Monadic.@monadic`` for more details.
 """
-# recursion anchor
-@traits flattenrec(a) where {!isFlatten(a)} = a
-# only flatten if type defines flatten
-@traits flattenrec(a) where {isFlatten(a)} = flattenrec(flatten(a))
-# if not Flatten but Functor, map flattenrec over it
-@traits flattenrec(a) where {isFunctor(a)} = map(b -> flattenrec(b), a)
-# solve conflicting dispatch
-@traits flattenrec(a) where {isFlatten(a), isFunctor(a)} = flattenrec(flatten(a))
-
-
-# we can create a bunch of different syntaxes with this, all versions of the same
-
 macro syntax_flatmap(block::Expr)
   block = macroexpand(__module__, block)
   esc(monadic(:(TypeClasses.map), :(TypeClasses.flatmap), block))
@@ -273,7 +278,7 @@ end
 # instead it is offered as a default definition which you can use for your custom type
 
 # for monadic code we actually don't need Pure
-@traits default_ap(f, a) where {isFunctor(a), isFlatten(a)} = @syntax_flatmap begin
+default_ap_having_map_flatmap(f, a) = @syntax_flatmap begin
   f = f
   a = a
   @pure f(a)

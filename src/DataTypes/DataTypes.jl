@@ -1,11 +1,10 @@
 module DataTypes
-export FunctorDict, IterateEmpty, IterateSingleton, Iterable, Callable
-
-include("FunctorDicts.jl")
-using .FunctorDicts
+export IterateEmpty, IterateSingleton, Iterable, Callable
 
 include("Iterables.jl")
 using .Iterables
 
 include("Callable.jl")
+
+include("Writer.jl")
 end

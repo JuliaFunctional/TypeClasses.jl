@@ -13,8 +13,8 @@ function TypeClasses.flatten(v::Right{<:Any, <:Union{Option, Try}})
 end
 
 
-# FunctorDict, Vector, Iterable
-# =============================
+# Vector, Iterable
+# ================
 
 
 """
@@ -23,7 +23,7 @@ we define them such that their ``TypeClasses.foreach`` definitions are matching
 
 I.e. using @syntax_flatmap should be similar to using @syntax_foreach.
 
-For the interaction with Vector, Iterable and FunctorDict, this means to treat all Option, Either, Try as mere filters.
+For the interaction with Vector and Iterable this means to treat all Option, Either, Try as mere filters.
 """
 
 
@@ -31,10 +31,6 @@ const FilterTypes = Union{Option, Try, Either}
 keep(v::Option) = issomething(v)
 keep(v::Try) = issuccess(v)
 keep(v::Either) = isright(v)
-
-function TypeClasses.flatten(d::FunctorDict{K,<:FilterTypes}) where K
-  FunctorDict(k => v.value for (k, v) ∈ d if keep(v))
-end
 
 function TypeClasses.flatten(v::Vector{<:FilterTypes})
   [a.value for a ∈ v if keep(a)]
@@ -72,10 +68,12 @@ FunctorsWithPure = [
   (Right_{R} = Right{<:Any, R}; Right_),
   Success,
   Iterable,
-  Vector]
+  Vector,
+]
+
 FunctorsWithoutPure = [
-  (Pair_{T} = Pair{<:Any, T}; Pair_),
-  (FunctorDict_{T} = FunctorDict{<:Any, T}; FunctorDict_)]
+  (Writer_{T} = Writer{<:Any, T}; Writer_),
+]
 
 for F in FunctorsWithPure
   @eval function TypeClasses.flatten(a::$(F{<:ContextManager}))

@@ -45,8 +45,8 @@ Right Identity
       ⊕(t::T, neutral(T)) == t
 """
 function neutral end
-@traits neutral(T::Type) = throw(MethodError("neutral($T) not defined"))
-@traits neutral(a) = neutral(typeof(a))
+neutral(T::Type) = throw(MethodError("neutral($T) not defined"))
+neutral(a) = neutral(typeof(a))
 
 isNeutral(T::Type) = isdef(neutral, Type{T})
 isNeutral(a) = isNeutral(typeof(a))
@@ -54,53 +54,48 @@ isNeutral(a) = isNeutral(typeof(a))
 isMonoid(a) = isSemigroup(a) && isNeutral(a)
 
 
-"""
-    reduce(itr)::eltype(itr)
-    reduce(itr, init::T)::T
-
-Shortcut functions for Monoid and Semigroup (⊕) instances.
-"""
-function reduce end
-
-"""
-    foldl(itr)::eltype(itr)
-    foldl(itr, init::T)::T
-
-Shortcut functions for Monoid and Semigroup (⊕) instances.
-"""
-function foldl end
-
-"""
-    foldr(itr)::eltype(itr)
-    foldr(itr, init::T)::T
-
-Shortcut functions for Monoid and Semigroup (⊕) instances.
-"""
-function foldr end
-
-# we want to suppress warnings of redefining methods, as everything works despite the warnings say different
-# unfortunately non of the suppress methods seem to work...
-@suppress @suppress_out @suppress_err for reducefn ∈ [:reduce, :foldl, :foldr]
-  reducefn_eltp = Symbol(reducefn, "_eltype")
-  reducefn_neutral = Symbol(reducefn, "_neutral")
-  reducefn_init = Symbol(reducefn, "_init")
+for reduce ∈ [:reduce, :foldl, :foldr]
+  reduce_monoid = Symbol(reduce, "_monoid")
 
   @eval begin
-    @traits function $reducefn(init::T, itr) where {T, isSemigroup(T)}
-      Base.$reducefn(⊕, itr; init=init)
+    """
+        $$reduce_monoid(init, itr) where isSemigroup(init)
+
+    Combines all elements of `itr` using the initial element `init` and `combine`.
+    """
+    @traits function $reduce_monoid(init::T, itr) where {T, isSemigroup(T)}
+      Base.$reduce(⊕, itr; init=init)
     end
-    @traits function $reducefn(itr) where {isMonoid(eltype(itr))}
-      Base.$reducefn(⊕, itr; init=neutral(eltype(itr)))
+    """
+        $$reduce_monoid(itr) where isMonoid(eltype(itr))
+        $$reduce_monoid(itr; [init]) where {isSemigroup(eltype(itr)), !isempty(itr)}
+
+    Combines all elements of `itr` using `neutral` and `combine`.
+    """
+    @traits function $reduce_monoid(itr) where {isMonoid(eltype(itr))}
+      Base.$reduce(⊕, itr; init=neutral(eltype(itr)))
+    end
+    @traits function $reduce_monoid(itr) where {isSemigroup(eltype(itr)), !isempty(itr)}
+      Base.$reduce(⊕, itr)
     end
 
+    """
+        $$reduce_monoid(func, itr) where isNeutral(func)
+
+    We assume that ``neutral`` for functions will give back a normal neutral function with which we can construct an
+    initial element.
+
+    E.g. think of `+` which has `zero` as function creating neutral elements,
+    and similarly `neutral(::typeof(*)) = one`.
+    """
     # we assume that ``neutral`` for functions will give back a normal neutral function
-    @traits function $reducefn(op::Union{Function, Type}, itr) where {isNeutral(op)}
-      Base.$reducefn(op, itr; init = neutral(op)(eltype(itr)))
+    @traits function $reduce_monoid(op::Union{Function, Type}, itr) where {isNeutral(op)}
+      Base.$reduce(op, itr; init = neutral(op)(eltype(itr)))
     end
 
-    # default fallback to Base
-    @traits function $reducefn(args...; kwargs...)
-      Base.$reducefn(args...; kwargs...)
+    # throw error if something does not match
+    @traits function $reduce_monoid(args...; kwargs...)
+      error("$$reduce_monoid is only defined for Monoid or Semigroup")
     end
   end
 end
@@ -115,7 +110,7 @@ i.e. ``combine(absorbing(T), anything) == absorbing(T)``
 """
 function absorbing end
 absorbing(T::Type) = throw(MethodError("absorbing($T) not defined"))
-@traits absorbing(a) = absorbing(typeof(a))
+absorbing(a) = absorbing(typeof(a))
 
 isAbsorbing(T::Type) = isdef(absorbing, Type{T})
 isAbsorbing(a) = isAbsorbing(typeof(a))
