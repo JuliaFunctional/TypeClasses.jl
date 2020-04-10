@@ -18,8 +18,14 @@ isForeach(T::Type) = isdef(foreach, typeof(identity), T)
 isForeach(a) = isForeach(typeof(a))
 
 macro syntax_foreach(block::Expr)
-  esc(monadic(:(TypeClasses.foreach), :(TypeClasses.foreach), macroexpand(__module__, block)))
+  block = macroexpand(__module__, block)
+  esc(monadic(:(TypeClasses.foreach), :(TypeClasses.foreach), block))
 end
+macro syntax_foreach(wrapper, block::Expr)
+  block = macroexpand(__module__, block)
+  esc(monadic(:(TypeClasses.foreach), :(TypeClasses.foreach), wrapper, block))
+end
+
 
 # Functor
 # =======
@@ -76,7 +82,11 @@ end
 isFunctor(a) = isFunctor(typeof(a))
 
 macro syntax_map(block::Expr)
-  esc(monadic(:(TypeClasses.map), :(TypeClasses.map), macroexpand(__module__, block)))
+  block = macroexpand(__module__, block)
+  esc(monadic(:(TypeClasses.map), :(TypeClasses.map), block))
+end
+macro syntax_map(wrapper, block::Expr)
+  esc(monadic(:(TypeClasses.map), :(TypeClasses.map), wrapper, block))
 end
 
 # Applicative
@@ -247,27 +257,14 @@ out sublevels
 # we can create a bunch of different syntaxes with this, all versions of the same
 
 macro syntax_flatmap(block::Expr)
-  esc(monadic(:(TypeClasses.map), :(TypeClasses.flatmap), macroexpand(__module__, block)))
+  block = macroexpand(__module__, block)
+  esc(monadic(:(TypeClasses.map), :(TypeClasses.flatmap), block))
+end
+macro syntax_flatmap(wrapper, block::Expr)
+  block = macroexpand(__module__, block)
+  esc(monadic(:(TypeClasses.map), :(TypeClasses.flatmap), wrapper, block))
 end
 
-"""
-this is very interesting syntax in that it is similar to but can be different from syntax_flatmap
-
-concretely if your final Type defines flatten for non-functor types (Example: Maybe)
-  then ``@syntax_map_flattenrec`` will call ``flatten`` also on the final result
-  while ``syntax_flatmap`` won't do any extra flatten call
-
-also this syntax may be more type stable, as first the overall type is constructed
-  and then everything is flattend out
-
-finally you can easily create flatten overloadings which work on nested triples
-"""
-macro syntax_flattenrec(block::Expr)
-  quote
-    r = $(esc(monadic(:(TypeClasses.map), :(TypeClasses.map), macroexpand(__module__, block))))
-    flattenrec(r)
-  end
-end
 
 # Now can define the fallback definition for ap with monad style
 # ==============================================================

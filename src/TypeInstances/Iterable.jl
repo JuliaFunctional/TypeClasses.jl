@@ -25,9 +25,9 @@ Iterable(myiterable)
 # MonoidAlternative
 # =================
 
-@traits TypeClasses.neutral(iter::Type{<:Iterable{ElemT}}) where ElemT = Iterable{ElemT}()
-@traits TypeClasses.neutral(iter::Type{<:Iterable}) where ElemT = Iterable{Any}()
-@traits TypeClasses.combine(it1::Iterable{ET1}, it2::Iterable{ET2}) where {ET1, ET2} = Iterable{promote_type(ET1, ET2)}(chain(it1.iter, it2.iter))
+TypeClasses.neutral(iter::Type{<:Iterable{ElemT}}) where ElemT = Iterable{ElemT}()
+TypeClasses.neutral(iter::Type{<:Iterable}) where ElemT = Iterable{Any}()
+TypeClasses.combine(it1::Iterable{ET1}, it2::Iterable{ET2}) where {ET1, ET2} = Iterable{ET1 ∨ ET2}(chain(it1.iter, it2.iter))
 
 
 # FunctorApplicativeMonad
@@ -35,25 +35,25 @@ Iterable(myiterable)
 
 # implementation for Iter wrapper
 
-@traits TypeClasses.eltype(::Type{<:Iterable{ElemT}}) where ElemT = ElemT
+TypeClasses.eltype(::Type{<:Iterable{ElemT}}) where ElemT = ElemT
 
 change_eltype(::Type{Iterable{A, IterT}}, B::Type) where {A, IterT} = Iterable{B, IterT}
 change_eltype(::Type{Iterable{A}}, B::Type) where {A} = Iterable{B}
 
-@traits function TypeClasses.foreach(f, it::Iterable)
+function TypeClasses.foreach(f, it::Iterable)
   for a in it.iter
     f(a)
   end
 end
 
 
-@traits TypeClasses.map(f, it::Iterable) = Iterable(f(x) for x ∈ it.iter)
+TypeClasses.map(f, it::Iterable) = Iterable(f(x) for x ∈ it.iter)
 
-@traits TypeClasses.pure(::Type{<:Iterable}, a) = Iterable(IterateSingleton(a))
-@traits TypeClasses.ap(fs::Iterable, it::Iterable) = Iterable(f(a) for f ∈ fs.iter for a ∈ it.iter)
+TypeClasses.pure(::Type{<:Iterable}, a) = Iterable(IterateSingleton(a))
+TypeClasses.ap(fs::Iterable, it::Iterable) = Iterable(f(a) for f ∈ fs.iter for a ∈ it.iter)
 
-@traits TypeClasses.flatten(it::Iterable) = Iterable(Iterators.flatten(it.iter))
-@traits TypeClasses.flatten(it::Iterable{<:Iterable{ElemT}}) where ElemT = Iterable{ElemT}(Iterators.flatten(it.iter))
+TypeClasses.flatten(it::Iterable) = Iterable(Iterators.flatten(it.iter))
+TypeClasses.flatten(it::Iterable{<:Iterable{ElemT}}) where ElemT = Iterable{ElemT}(Iterators.flatten(it.iter))
 
 
 # flip_types

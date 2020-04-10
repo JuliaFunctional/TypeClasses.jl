@@ -8,7 +8,7 @@ export FunctorDict, Iterable, Callable,
   foreach, isForeach, @syntax_foreach,
   map, isMap, isFunctor, @syntax_map, eltype, isEltype, change_eltype, ⫙,
   pure, ap, isPure, isAp, isMapN, isApplicative, curry, mapn, @mapn, sequence, tupled,
-  flatten, isFlatten, flatmap, isMonad, @pure, @syntax_flatmap, @syntax_flattenrec,
+  flatten, isFlatten, flatmap, isMonad, @pure, @syntax_flatmap,
   flip_types, isFlipTypes,
   Iterable, # special wrapper for Iterate to support TypeClasses on them
   unionall_implementationdetails,  # special helper to get a generic type from a possible too concrete type

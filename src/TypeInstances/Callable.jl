@@ -13,7 +13,7 @@ import FunctionWrappers: FunctionWrapper
 # this is standard Applicative combine implementation, however functions have a too complex type signature
 # for the standard implementation to kick in
 # hence we reimplement it for more relaxed types
-@traits TypeClasses.combine(a::Callable, b::Callable) = mapn(⊕, a, b)
+TypeClasses.combine(a::Callable, b::Callable) = mapn(⊕, a, b)
 
 
 # Monad instances
@@ -23,13 +23,13 @@ import FunctionWrappers: FunctionWrapper
 # but for FunctionWrapper it is possible
 eltype(T::Type{Callable{FunctionWrapper{Return, Args}}}) where {Return, Args} = Return
 
-@traits TypeClasses.map(f, g::Callable) = Callable((args...; kwargs...) -> f(g(args...; kwargs...)))
+TypeClasses.map(f, g::Callable) = Callable((args...; kwargs...) -> f(g(args...; kwargs...)))
 
-@traits TypeClasses.change_eltype(T::Callable, Elem) = Callable{FunctionWrapper{Elem, Tuple}}
+TypeClasses.change_eltype(T::Callable, Elem) = Callable{FunctionWrapper{Elem, Tuple}}
 
-# @traits TypeClasses.pure(G, a) where {iscallable(G)} = (args...; kwargs...) -> a
-@traits TypeClasses.ap(f::Callable, g::Callable) = Callable((args...; kwargs...) -> f(args...; kwargs...)(g(args...; kwargs...)))
-@traits TypeClasses.flatten(g::Callable) = Callable((args...; kwargs...) -> g(args...; kwargs...)(args...; kwargs...))
+TypeClasses.pure(::Type{<:Callable}, a) = (args...; kwargs...) -> a
+TypeClasses.ap(f::Callable, g::Callable) = Callable((args...; kwargs...) -> f(args...; kwargs...)(g(args...; kwargs...)))
+TypeClasses.flatten(g::Callable) = Callable((args...; kwargs...) -> g(args...; kwargs...)(args...; kwargs...))
 
 
 # FlipTypes instance

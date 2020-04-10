@@ -27,12 +27,12 @@ end
 # FunctorApplicativeMonad
 # =======================
 
-@traits TypeClasses.eltype(::Type{Pair{L, R}}) where {L, R} = R
-@traits TypeClasses.eltype(::Type{<:Pair}) = Any
-@traits TypeClasses.change_eltype(::Type{<:Pair{L}}, ::Type{R}) where {L, R} = Pair{L, R}
+TypeClasses.eltype(::Type{Pair{L, R}}) where {L, R} = R
+TypeClasses.eltype(::Type{<:Pair}) = Any
+TypeClasses.change_eltype(::Type{<:Pair{L}}, ::Type{R}) where {L, R} = Pair{L, R}
 
-@traits TypeClasses.foreach(f, p::Pair) = f(p.second); nothing
-@traits TypeClasses.map(f, p::Pair) = p.first => f(p.second)
+TypeClasses.foreach(f, p::Pair) = f(p.second); nothing
+TypeClasses.map(f, p::Pair) = p.first => f(p.second)
 
 # pure needs Neutral on First
 @traits function TypeClasses.pure(::Type{<:Pair{F}}, a) where {F, isNeutral(F)}

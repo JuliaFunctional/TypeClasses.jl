@@ -1,4 +1,4 @@
 # extra Monoid instances
 
-@traits TypeClasses.neutral(::typeof(+)) = zero
-@traits TypeClasses.neutral(::typeof(*)) = one
+TypeClasses.neutral(::typeof(+)) = zero
+TypeClasses.neutral(::typeof(*)) = one
