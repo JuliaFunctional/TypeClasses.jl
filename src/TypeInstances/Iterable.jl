@@ -33,21 +33,8 @@ TypeClasses.combine(it1::Iterable{ET1}, it2::Iterable{ET2}) where {ET1, ET2} = I
 # FunctorApplicativeMonad
 # =======================
 
-# implementation for Iter wrapper
-
-TypeClasses.eltype(::Type{<:Iterable{ElemT}}) where ElemT = ElemT
-
 change_eltype(::Type{Iterable{A, IterT}}, B::Type) where {A, IterT} = Iterable{B, IterT}
 change_eltype(::Type{Iterable{A}}, B::Type) where {A} = Iterable{B}
-
-function TypeClasses.foreach(f, it::Iterable)
-  for a in it.iter
-    f(a)
-  end
-end
-
-
-TypeClasses.map(f, it::Iterable) = Iterable(f(x) for x ∈ it.iter)
 
 TypeClasses.pure(::Type{<:Iterable}, a) = Iterable(IterateSingleton(a))
 TypeClasses.ap(fs::Iterable, it::Iterable) = Iterable(f(a) for f ∈ fs.iter for a ∈ it.iter)

@@ -12,7 +12,6 @@
 # FunctorApplicativeMonad
 # =======================
 
-@traits TypeClasses.map(f, a::Identity) = Base.map(f, a)
 @traits TypeClasses.pure(::Type{<:Identity}, a) = Identity(a)
 @traits TypeClasses.ap(f::Identity, a::Identity) = Identity(f.value(a.value))
 TypeClasses.flatten(a::Identity) = Iterators.flatten(a)

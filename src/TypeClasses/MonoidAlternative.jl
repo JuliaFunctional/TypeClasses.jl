@@ -59,7 +59,7 @@ for reduce ∈ [:reduce, :foldl, :foldr]
 
   @eval begin
     """
-        $$reduce_monoid(init, itr) where isSemigroup(init)
+        $($reduce_monoid)(init, itr) where isSemigroup(init)
 
     Combines all elements of `itr` using the initial element `init` and `combine`.
     """
@@ -67,8 +67,8 @@ for reduce ∈ [:reduce, :foldl, :foldr]
       Base.$reduce(⊕, itr; init=init)
     end
     """
-        $$reduce_monoid(itr) where isMonoid(eltype(itr))
-        $$reduce_monoid(itr; [init]) where {isSemigroup(eltype(itr)), !isempty(itr)}
+        $($reduce_monoid)(itr) where isMonoid(eltype(itr))
+        $($reduce_monoid)(itr; [init]) where {isSemigroup(eltype(itr)), !isempty(itr)}
 
     Combines all elements of `itr` using `neutral` and `combine`.
     """
@@ -80,7 +80,7 @@ for reduce ∈ [:reduce, :foldl, :foldr]
     end
 
     """
-        $$reduce_monoid(func, itr) where isNeutral(func)
+        $($reduce_monoid)(func, itr) where isNeutral(func)
 
     We assume that ``neutral`` for functions will give back a normal neutral function with which we can construct an
     initial element.
@@ -90,12 +90,12 @@ for reduce ∈ [:reduce, :foldl, :foldr]
     """
     # we assume that ``neutral`` for functions will give back a normal neutral function
     @traits function $reduce_monoid(op::Union{Function, Type}, itr) where {isNeutral(op)}
-      Base.$reduce(op, itr; init = neutral(op)(eltype(itr)))
+      Base.$reduce(op, itr; init = neutral(typeof(op))(eltype(itr)))
     end
 
     # throw error if something does not match
     @traits function $reduce_monoid(args...; kwargs...)
-      error("$$reduce_monoid is only defined for Monoid or Semigroup")
+      error("$($reduce_monoid) is only defined for Monoid or Semigroup")
     end
   end
 end

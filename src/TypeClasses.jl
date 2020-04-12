@@ -2,17 +2,14 @@
 module TypeClasses
 # we export only Types and special helpers which do not depend on traitsof
 # all functionalities which depend on traitsof are collected into `traitsof_linkall` below
-export Iterable, Callable,
-  neutral, combine, ⊕, isNeutral, isCombine, isSemigroup, isMonoid, reduce, foldr, foldr,
+export Iterable, Callable, Writer,
+  neutral, combine, ⊕, isNeutral, isCombine, isSemigroup, isMonoid, reduce_monoid, foldr_monoid, foldl_monoid,
   absorbing, orelse, ⊛, isAbsorbing, isOrElse, isAlternative,
   foreach, isForeach, @syntax_foreach,
   map, isMap, isFunctor, @syntax_map, eltype, isEltype, change_eltype, ⫙,
   pure, ap, isPure, isAp, isMapN, isApplicative, curry, mapn, @mapn, sequence, tupled,
   flatten, isFlatten, flatmap, isMonad, @pure, @syntax_flatmap,
-  flip_types, isFlipTypes,
-  Iterable, # special wrapper for Iterate to support TypeClasses on them
-  unionall_implementationdetails,  # special helper to get a generic type from a possible too concrete type
-  ExtensibleEffects
+  flip_types, isFlipTypes
 
 using Traits
 using DataTypesBasic

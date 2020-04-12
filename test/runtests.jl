@@ -1,12 +1,12 @@
+using Test
 using TypeClasses
 using Traits
-using Test
 using IsDef
 using DataTypesBasic
+DataTypesBasic.@overwrite_Some
 using Suppressor
 
-DataTypesBasic.@overwrite_Base
-TypeClasses.@overwrite_Base
+
 splitln(str) = split(strip(str), "\n")
 
 @testset "TypeClasses" begin

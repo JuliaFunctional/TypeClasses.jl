@@ -1,5 +1,5 @@
 module DataTypes
-export IterateEmpty, IterateSingleton, Iterable, Callable
+export IterateEmpty, IterateSingleton, Iterable, Callable, Writer
 
 include("Iterables.jl")
 using .Iterables

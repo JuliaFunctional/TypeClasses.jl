@@ -2,6 +2,8 @@ using TypeClasses
 using Traits
 using IsDef
 
+# TODO AbstractVector??
+
 # MonoidAlternative
 # =================
 
@@ -14,22 +16,6 @@ using IsDef
 
 @traits TypeClasses.change_eltype(::Type{Array{E1, N}}, ::Type{E2}) where {N, E1, E2} = Array{E2, N}
 
-@traits function TypeClasses.foreach(f, v::Vector)
-  for a in v
-    f(a)
-  end
-end
-
-@traits function TypeClasses.map(f, v::Vector)
-  # standard map forgets type already with 2 different element types
-  # with manual type-inference we can do better
-  neweltype = Out(f, eltype(v))
-  out = similar(v, neweltype)
-  for i in eachindex(v)
-    out[i] = f(v[i])
-  end
-  out
-end
 @traits TypeClasses.pure(::Type{<:Vector}, a) = [a]
 @traits TypeClasses.ap(fs::Vector, v::Vector) = [f(a) for f ∈ fs for a ∈ v]
 # TODO this function is not typesafe unfortunately... due to empty Array

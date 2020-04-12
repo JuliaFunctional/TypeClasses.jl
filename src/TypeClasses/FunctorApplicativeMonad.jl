@@ -1,6 +1,7 @@
 using Traits
 using Monadic
 using ASTParser
+using IsDef
 import FunctionWrappers: FunctionWrapper
 
 """
@@ -206,14 +207,9 @@ default_map_having_ap_pure(f, a::A) where {A} = ap(pure(A, f), a)
   pure(T, neutral(eltype(T)))
 end
 
-@traits function combine(a::T, b::T) where {T, isAp(T), isCombine(eltype(T))}
+@traits function combine(a::T1, b::T2) where {T1, T2, isAp(T1 ∨ T2), isCombine(eltype(T1 ∨ T2))}
   mapn(⊕, a, b)
 end
-
-# TODO do we need this?
-# @traits function combine(a::T1, b::T2) where {T1, T2, isAp(T1 ∧ T2), isCombine(eltype(T1 ∧ T2))}
-#   mapn(⊕, a, b)
-# end
 
 
 

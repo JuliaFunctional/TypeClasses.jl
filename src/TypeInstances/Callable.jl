@@ -19,12 +19,6 @@ TypeClasses.combine(a::Callable, b::Callable) = mapn(⊕, a, b)
 # Monad instances
 # ===============
 
-# there is no general definition for eltype, as this depends on the argument parameters
-# but for FunctionWrapper it is possible
-TypeClasses.eltype(T::Type{Callable{FunctionWrapper{Return, Args}}}) where {Return, Args} = Return
-
-TypeClasses.map(f, g::Callable) = Callable((args...; kwargs...) -> f(g(args...; kwargs...)))
-
 TypeClasses.change_eltype(T::Callable, Elem) = Callable{FunctionWrapper{Elem, Tuple}}
 
 TypeClasses.pure(::Type{<:Callable}, a) = (args...; kwargs...) -> a

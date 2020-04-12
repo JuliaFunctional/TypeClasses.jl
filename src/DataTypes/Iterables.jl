@@ -75,6 +75,15 @@ Iterable(iter::IterateSingleton{T}) where T = Iterable{T}(iter)  # singleton ite
 Base.iterate(it::Iterable) = Base.iterate(it.iter)
 Base.iterate(it::Iterable, state) = Base.iterate(it.iter, state)
 
+function Base.foreach(f, it::Iterable)
+  for a in it.iter
+    f(a)
+  end
+end
+
+Base.map(f, it::Iterable) = Iterable(f(x) for x ∈ it.iter)
+
+
 #= Typed Versions of iterate
 # we don't use these right now because the cast is a big overhead for fast iterators
 # and the tag
@@ -90,8 +99,8 @@ end
 =#
 
 Base.IteratorEltype(::Type{<:Iterable}) = Base.HasEltype()
-Base.eltype(::Type{Iterable{T}}) where T = T
-Base.eltype(::Type{Iterable}) = Any
+Base.eltype(::Type{<:Iterable{T}}) where T = T
+Base.eltype(::Type{<:Iterable}) = Any
 
 Base.IteratorSize(it::Type{Iterable{E, I}}) where {E, I} = Base.IteratorSize(I)  # this is the one reason why I = IterType is included in the type definition
 Base.length(it::Iterable) = Base.length(it.iter)

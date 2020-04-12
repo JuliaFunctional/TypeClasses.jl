@@ -25,7 +25,7 @@
 @test eltype(Failure{Int}) == Int
 @test change_eltype(Success{Int}, Bool) == Success{Bool}
 @test change_eltype(Try{Int}, Bool) == Try{Bool}
-
+@which Base.map(Try(3))
 @test map(Try(3)) do x
   x*x
 end == Try(9)

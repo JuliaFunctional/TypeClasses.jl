@@ -21,32 +21,16 @@ TypeClasses.orelse(x1::None, x2::Option) = x2
 # FunctorApplicativeMonad
 # =======================
 
-TypeClasses.eltype(::Type{<:Option{T}}) where {T} = T
-TypeClasses.eltype(::Type{<:Option}) = Any
-
 TypeClasses.change_eltype(::Type{<:Option}, Elem) = Option{Elem}
 TypeClasses.change_eltype(::Type{<:Some}, Elem) = Some{Elem}
 TypeClasses.change_eltype(::Type{<:None}, Elem) = None{Elem}
 
-function TypeClasses.map(f, ::None{T}) where T
-  T2 = Out(f, T)
-  if T2 === NotApplicable
-    Option{Any}()
-  else
-    Option{T2}()
-  end
-end
-TypeClasses.map(f, x::Some) where T = Base.map(f, x)
-
 TypeClasses.ap(f::Some, x::Some) = Option(f.value(x.value))
 TypeClasses.ap(f::Option{F}, x::Option{T}) where {F, T} = ap_Option_nothing(F, T)
 function ap_Option_nothing(F, T)
-  T2 = return_type_FunctionType(F, Tuple{T}) # TODO this is probably very slow...
-  if T2 === Union{}
-    Option{Any}()
-  else
-    Option{T2}()
-  end
+  _T2 = Out(apply, F, T)
+  T2 = _T2 === NotApplicable ? Any : _T2
+  Option{T2}()
 end
 
 TypeClasses.pure(::Type{<:Option}, a) = Some(a)

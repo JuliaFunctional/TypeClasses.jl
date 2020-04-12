@@ -28,16 +28,9 @@ end
 # FunctorApplicativeMonad
 # =======================
 
-TypeClasses.eltype(::Type{<:Either{L, R}}) where {L, R} = R
 TypeClasses.change_eltype(::Type{<:Either{L}}, R) where {L} = Either{L, R}
 TypeClasses.change_eltype(::Type{<:Left{L}}, R) where {L} = Left{L, R}
 TypeClasses.change_eltype(::Type{<:Right{L}}, R) where {L} = Right{L, R}
-
-TypeClasses.map(f, x::Right{L}) where {L} = Base.map(f, x)
-function TypeClasses.map(f, x::Left{L, R}) where {L, R}
-  R2 = Out(f, R)
-  Left{L, R2}(x.value)
-end
 
 TypeClasses.ap(f::Right{L, F}, x::Right{L, R}) where {F, L, R} = Right{L}(f.value(x.value))
 TypeClasses.ap(f::Left{L, F}, x::Right{L, R}) where {F, L, R} = ap_Either_left(F, L, R, f.value)
@@ -45,7 +38,8 @@ TypeClasses.ap(f::Right{L, F}, x::Left{L, R}) where {F, L, R} = ap_Either_left(F
 TypeClasses.ap(f::Left{L, F}, x::Left{L, R}) where {F, L, R} = ap_Either_left(F, L, R, f.value)
 
 function ap_Either_left(F, L, R, left)
-  R2 = return_type_FunctionType(F, Tuple{R}) # TODO this is probably very slow...
+  _R2 = Out(apply, F, R)
+  R2 = _R2 === NotApplicable ? Any : _R2
   Left{L, R2}(left)
 end
 

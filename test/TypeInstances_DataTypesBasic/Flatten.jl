@@ -2,11 +2,9 @@ using TypeClasses
 using Traits
 using Test
 using IsDef
-using DataTypesBasic
 using Suppressor
-
-DataTypesBasic.@overwrite_Base
-TypeClasses.@overwrite_Base
+using DataTypesBasic
+TypeClasses.@overwrite_Some
 splitln(str) = split(strip(str), "\n")
 
 load(x) = ContextManager(function (yield)
@@ -122,7 +120,7 @@ writer_cm() = @syntax_flatmap begin
 end
 
 @test @suppress(writer_cm()) == Writer("hi 4 yes", 4+4)
-@test splitln(@capture_out write_cm()) == [
+@test splitln(@capture_out writer_cm()) == [
   "preparation 4",
   "cleanup 4"
 ]

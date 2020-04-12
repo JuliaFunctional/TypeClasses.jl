@@ -39,8 +39,8 @@ end
 # FlipTypes
 # =========
 
-it = Iterable(Option(i) for i ∈ 1:3:7)
-@test map(collect, flip_types(it)) == Option([1, 3, 7])
+it = Iterable(Option(i) for i ∈ [1, 4, 7])
+@test map(collect, flip_types(it)) == Option([1, 4, 7])
 
 
 # it2 = Iterable([i, i+2] for i ∈ 1:4)

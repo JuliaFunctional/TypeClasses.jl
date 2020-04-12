@@ -20,7 +20,7 @@ end
 
 @traits function TypeClasses.orelse(p1::Writer{Acc1, T1}, p2::Writer{Acc2, T2}) where
   {Acc1, T1, Acc2, T2, isOrElse(Acc1 ∨ Acc2), isOrElse(T1 ∨ T2)}
-  Writer(orelse(p1.acc, p2.acc), orelse(p1.value, p2.value)
+  Writer(orelse(p1.acc, p2.acc), orelse(p1.value, p2.value))
 end
 
 
@@ -32,7 +32,7 @@ TypeClasses.eltype(::Type{<:Writer}) = Any
 TypeClasses.change_eltype(::Type{<:Writer{Acc}}, ::Type{T}) where {Acc, T} = Writer{Acc, T}
 
 TypeClasses.foreach(f, p::Writer) = f(p.value); nothing
-TypeClasses.map(f, p::Writer) = Writer(p.acc, f(p.second))
+TypeClasses.map(f, p::Writer) = Writer(p.acc, f(p.value))
 
 # pure needs Neutral on First
 @traits function TypeClasses.pure(::Type{<:Writer{Acc}}, a) where {Acc, isNeutral(Acc)}
@@ -41,11 +41,11 @@ end
 
 # Writer always define `combine` on `acc`
 function TypeClasses.ap(f::Writer, a::Writer)
-  combine(f.acc, a.acc) => f.value(a.value)
+  Writer(combine(f.acc, a.acc), f.value(a.value))
 end
 
 @traits function TypeClasses.flatten(a::Writer{F, <:Writer{F}}) where {F}
-  combine(a.acc, a.value.acc) => a.value.value
+  Writer(combine(a.acc, a.value.acc), a.value.value)
 end
 
 # we need to handle the case of incomplete typeinference and detail Types at runtime

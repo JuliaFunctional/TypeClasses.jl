@@ -29,26 +29,17 @@ end
 # FunctorApplicativeMonad
 # =======================
 
-TypeClasses.eltype(::Try{T}) where {T} = T
 TypeClasses.change_eltype(::Type{<:Failure}, T) = Failure{T}
 TypeClasses.change_eltype(::Type{<:Success}, T) = Success{T}
 TypeClasses.change_eltype(::Type{<:Try}, T) = Try{T}
-
-TypeClasses.map(f, x::Success) = @Try f(x.value)
-
-function TypeClasses.map(f, x::Failure{T}) where T
-  _T2 = Out(f, T)
-  T2 = _T2 === NotApplicable ? Any : _T2
-  Failure{T2}(x)
-end
 
 TypeClasses.ap(f::Success, x::Success) = @Try f.value(x.value)
 TypeClasses.ap(f::Failure{F}, x::Success{T}) where {F, T} = ap_Try_Exception(F, T, f)
 TypeClasses.ap(f::Success{F}, x::Failure{T}) where {F, T} = ap_Try_Exception(F, T, x)
 TypeClasses.ap(f::Failure{F}, x::Failure{T}) where {F, T} = ap_Try_Exception(F, T, f)  # take first exception, short cycling behaviour
 function ap_Try_Exception(F, T, failure)
-  _T2 = return_type_FunctionType(F, Tuple{T}) # TODO this is probably very slow...
-  T2 = _T2 === Union{} ? Any : _T2
+  _T2 = Out(apply, F, T)
+  T2 = _T2 === NotApplicable ? Any : _T2
   Failure{T2}(failure)
 end
 
