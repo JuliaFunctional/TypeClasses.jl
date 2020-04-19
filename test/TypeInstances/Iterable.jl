@@ -8,9 +8,6 @@ b = Iterable([4,5,6])
 @test isPure(Iterable)
 @test isFlatten(Iterable)
 
-@test isFlipTypes(Iterable{Option{String}})
-@test isFlipTypes(Iterable{Vector{String}})
-
 
 # MonoidAlternative
 # =================

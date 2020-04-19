@@ -1,6 +1,6 @@
 module DataTypes
 export IterateEmpty, IterateSingleton, Iterable, Callable, Writer,
-  State, Get, Put
+  State, getstate, putstate
 
 include("Iterables.jl")
 using .Iterables
@@ -9,5 +9,6 @@ include("Callable.jl")
 
 include("Writer.jl")
 
-include("State.jl")
+include("States.jl")
+using .States
 end

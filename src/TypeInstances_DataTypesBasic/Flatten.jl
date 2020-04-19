@@ -36,11 +36,6 @@ function TypeClasses.flatten(v::Vector{<:FilterTypes})
   [a.value for a ∈ v if keep(a)]
 end
 
-function TypeClasses.flatten(v::Iterable{<:FilterTypes})
-  Iterable(a.value for a ∈ v if keep(a))
-end
-
-
 
 # ContextManager
 # ==============
@@ -67,7 +62,6 @@ FunctorsWithPure = [
   Some,
   (Right_{R} = Right{<:Any, R}; Right_),
   Success,
-  Iterable,
   Vector,
 ]
 

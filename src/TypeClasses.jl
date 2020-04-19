@@ -1,7 +1,9 @@
 # TODO add Foldable class to refer to the reduce, foldr, foldl?
 
 module TypeClasses
-export Iterable, Callable, Writer, State, Get, Put,
+export Iterable, IterateEmpty, IterateSingleton,
+  Callable, Writer,
+  State, getstate, putstate,
   neutral, combine, ⊕, isNeutral, isCombine, isSemigroup, isMonoid, reduce_monoid, foldr_monoid, foldl_monoid,
   absorbing, orelse, ⊛, isAbsorbing, isOrElse, isAlternative,
   foreach, isForeach, @syntax_foreach,

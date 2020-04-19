@@ -1,7 +1,6 @@
 using TypeClasses
 using Traits
 using IsDef
-import Traits.BasicTraits: isiterable
 
 """
 Iterables can be seen two ways. On the one hand, an iterable is mainly defined by its `iterate` method, which can be
@@ -25,43 +24,28 @@ Iterable(myiterable)
 # MonoidAlternative
 # =================
 
-TypeClasses.neutral(iter::Type{<:Iterable{ElemT}}) where ElemT = Iterable{ElemT}()
-TypeClasses.neutral(iter::Type{<:Iterable}) where ElemT = Iterable{Any}()
-TypeClasses.combine(it1::Iterable{ET1}, it2::Iterable{ET2}) where {ET1, ET2} = Iterable{ET1 ∨ ET2}(chain(it1.iter, it2.iter))
+TypeClasses.neutral(iter::Type{<:Iterable}) = IterateEmpty{eltype(iter)}()
+TypeClasses.combine(it1::Iterable, it2::Iterable) = Iterable(chain(it1.iter, it2.iter))
 
 
 # FunctorApplicativeMonad
 # =======================
 
-change_eltype(::Type{Iterable{A, IterT}}, B::Type) where {A, IterT} = Iterable{B, IterT}
-change_eltype(::Type{Iterable{A}}, B::Type) where {A} = Iterable{B}
-
 TypeClasses.pure(::Type{<:Iterable}, a) = Iterable(IterateSingleton(a))
 TypeClasses.ap(fs::Iterable, it::Iterable) = Iterable(f(a) for f ∈ fs.iter for a ∈ it.iter)
 
+# Flattening iterables is only the simple flatten.
+# We don't support extra distinction between different nested types
+# as a general iterable might not have a well-defined eltype.
+# Even the simple Base.Generator may loose the elementtype, so that you need to come up with a way how to reconstruct
+# the true elementtype. That is again difficult as iterables might be infinite.
+# Using FlattenMe runtime wrapper, like we do for ContextManager, is also complicated, as you may encounter
+# an iterable which first yields FlattenMe(another_iterable), but than FlattenMe(option). That is difficult to handle
+# at runtime.
+# Bottomline: Only flatten iterables of iterables. If you want to do more complex flattening, use Vector instead.
 TypeClasses.flatten(it::Iterable) = Iterable(Iterators.flatten(it.iter))
-TypeClasses.flatten(it::Iterable{<:Iterable{ElemT}}) where ElemT = Iterable{ElemT}(Iterators.flatten(it.iter))
-@traits function TypeClasses.flatten(it::Iterable{Any}) where {Base.IteratorSize(it)::Union{Base.HasLength, Base.HasShape}}
-  TypeClasses.flatten(fix_type(it))
-end
 
 # flip_types
 # ==========
 
 # flip_types follows from applicative and iterable
-
-# here only the type-fix, which we can only apply for something with length
-@traits function TypeClasses.flip_types(it::Iterable{Any}) where {Base.IteratorSize(it)::Union{Base.HasLength, Base.HasShape}}
-  flip_types(fix_type(it))
-end
-
-# fix_type
-# ========
-
-@traits function TypeClasses.fix_type(it::Iterable{Any}) where {Base.IteratorSize(it)::Union{Base.HasLength, Base.HasShape}}
-  newtype = Union{}
-  for x in it
-    newtype = Union{newtype, typeof(x)}
-  end
-  Iterable{newtype}{it.iter}
-end

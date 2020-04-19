@@ -26,6 +26,7 @@ C(ABC) = eltype(eltype(ABC))
 AC(ABC) = ABC ⫙ C(ABC)
 BAC(ABC) = B(ABC) ⫙ AC(ABC)
 
+
 @traits function TypeClasses.flip_types(iter::ABC) where {ABC, isiterable(ABC), isPure(ABC), isCombine(BAC(ABC))}
   default_flip_types_having_pure_combineBAC(iter)
 end
@@ -47,5 +48,37 @@ function default_flip_types_having_pure_combineBAC(iter::ABC) where ABC
   end
 end
 
-# TODO better reimplement this using Ap, as Ap works for everything in julia, while BAC() only works for things which
-# know its eltype
+# there is an alternative implementation of flip_types on top of the following TypeClasses:
+# {isiterable(ABC), isPure(ABC), isCombine(AC(ABC)), isAp(BAC(ABC))}
+#
+# This is a special case of the above, because {isCombine(AC(ABC)), isAp(BAC(ABC))} -> isCombine(BAC(ABC))
+
+@traits function flip_types(iter::T) where {T, isiterable(T), isPure(T), isCombine(T), isAp(eltype(T))}
+  default_flip_types_having_pure_combine_apEltype(iter)
+end
+
+function default_flip_types_having_pure_combine_ap_apEltype(iter::T) where T
+  first = iterate(iter)
+  if first == nothing
+    ABC = T
+    # only in this case we actually need `pure(B)` and `neutral(AC)`
+    # for non-empty sequences everything works for Types without both
+    pure(B(ABC), neutral(AC(ABC)))
+  else
+    b, state = first
+    # we need to abstract out details so that combine can actually work
+    # note that because of its definition, pure(ABC, x) == pure(A, x)
+    # start = feltype_unionall_implementationdetails(fmap(traitsof, a -> pure(traitsof, T, a), x)) # we can only combine on S
+    start = map(c -> pure(T, c), b)  # we can only combine on ABC
+    Base.foldl(Iterators.rest(iter, state); init = start) do acc, b
+      mapn(acc, b) do acc′, c  # working in applicative context B
+        acc′ ⊕ pure(T, c)  # combining on T
+      end
+    end
+  end
+end
+
+# in case a type implements both actually the apEltype version should be more type-stable, hence we fallback to that one
+@traits function flip_types(iter::T) where {T, isiterable(T), isPure(T), isCombine(T), isAp(eltype(T)), isCombine(BAC(T))}
+  default_flip_types_having_pure_combine_apEltype(iter)
+end

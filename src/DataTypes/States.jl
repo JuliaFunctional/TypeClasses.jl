@@ -1,3 +1,6 @@
+module States
+export State, getstate, putstate
+
 """
 defining state monad, which capsulate a state within a monadic type
 """
@@ -8,10 +11,11 @@ function (s::State)(state)
   s.func(state)
 end
 
-Get = State() do state
+getstate = State() do state
   state, state
 end
 
-Put(x) = State() do state
+putstate(x) = State() do state
   (), x
 end
+end # module
