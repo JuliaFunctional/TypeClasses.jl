@@ -46,3 +46,6 @@ function default_flip_types_having_pure_combineBAC(iter::ABC) where ABC
     end
   end
 end
+
+# TODO better reimplement this using Ap, as Ap works for everything in julia, while BAC() only works for things which
+# know its eltype

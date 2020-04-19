@@ -25,8 +25,11 @@ end
   @testset "Dict" begin
     include("TypeInstances/Dict.jl")
   end
-  @testset "Function" begin
+  @testset "Callable" begin
     include("TypeInstances/Callable.jl")
+  end
+  @testset "State" begin
+    include("TypeInstances/State.jl")
   end
   @testset "Pair" begin
     include("TypeInstances/Pair.jl")
@@ -42,6 +45,12 @@ end
   end
   @testset "Writer" begin
     include("TypeInstances/Writer.jl")
+  end
+  @testset "Task" begin
+    include("TypeInstances/Task.jl")
+  end
+  @testset "Future" begin
+    include("TypeInstances/Future.jl")
   end
 end
 

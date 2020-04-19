@@ -1,7 +1,7 @@
 # FunctorApplicativeMonad
 # =======================
 
-TypeClasses.pure(::Type{ContextManager}, x) = @ContextManager cont -> cont(x)
+TypeClasses.pure(::Type{<:ContextManager}, x) = @ContextManager cont -> cont(x)
 
 # we use the default implementation of ap which follows from flatten
 # TypeClasses.ap

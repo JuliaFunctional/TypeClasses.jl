@@ -41,9 +41,27 @@ TypeClasses.ap(fs::Iterable, it::Iterable) = Iterable(f(a) for f ∈ fs.iter for
 
 TypeClasses.flatten(it::Iterable) = Iterable(Iterators.flatten(it.iter))
 TypeClasses.flatten(it::Iterable{<:Iterable{ElemT}}) where ElemT = Iterable{ElemT}(Iterators.flatten(it.iter))
-
+@traits function TypeClasses.flatten(it::Iterable{Any}) where {Base.IteratorSize(it)::Union{Base.HasLength, Base.HasShape}}
+  TypeClasses.flatten(fix_type(it))
+end
 
 # flip_types
 # ==========
 
 # flip_types follows from applicative and iterable
+
+# here only the type-fix, which we can only apply for something with length
+@traits function TypeClasses.flip_types(it::Iterable{Any}) where {Base.IteratorSize(it)::Union{Base.HasLength, Base.HasShape}}
+  flip_types(fix_type(it))
+end
+
+# fix_type
+# ========
+
+@traits function TypeClasses.fix_type(it::Iterable{Any}) where {Base.IteratorSize(it)::Union{Base.HasLength, Base.HasShape}}
+  newtype = Union{}
+  for x in it
+    newtype = Union{newtype, typeof(x)}
+  end
+  Iterable{newtype}{it.iter}
+end

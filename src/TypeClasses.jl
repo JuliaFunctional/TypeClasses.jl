@@ -1,15 +1,15 @@
-# TODO add Foldable class to refer to the reduce, foldr, foldl
+# TODO add Foldable class to refer to the reduce, foldr, foldl?
+
 module TypeClasses
-# we export only Types and special helpers which do not depend on traitsof
-# all functionalities which depend on traitsof are collected into `traitsof_linkall` below
-export Iterable, Callable, Writer,
+export Iterable, Callable, Writer, State, Get, Put,
   neutral, combine, ⊕, isNeutral, isCombine, isSemigroup, isMonoid, reduce_monoid, foldr_monoid, foldl_monoid,
   absorbing, orelse, ⊛, isAbsorbing, isOrElse, isAlternative,
   foreach, isForeach, @syntax_foreach,
   map, isMap, isFunctor, @syntax_map, eltype, isEltype, change_eltype, ⫙,
-  pure, ap, isPure, isAp, isMapN, isApplicative, curry, mapn, @mapn, sequence, tupled,
+  pure, ap, isPure, isAp, isMapN, isApplicative, curry, gmapn, mapn, @mapn, sequence, tupled,
   flatten, isFlatten, flatmap, isMonad, @pure, @syntax_flatmap,
-  flip_types, isFlipTypes
+  flip_types, isFlipTypes,
+  fix_type
 
 using Traits
 using DataTypesBasic
@@ -38,6 +38,7 @@ include("TypeClasses/FlipTypes.jl")  # depends on both Monoid and Applicative
 
 include("TypeInstances/Dict.jl")
 include("TypeInstances/Callable.jl")
+include("TypeInstances/State.jl")
 include("TypeInstances/Iterable.jl")  # only supplies default functions, no actual dispatch is done (Reason: there had been too many conflicts with Dict already)
 include("TypeInstances/Pair.jl")
 include("TypeInstances/Tuple.jl")
@@ -46,6 +47,8 @@ include("TypeInstances/Tuple.jl")
 include("TypeInstances/Vector.jl")
 include("TypeInstances/Monoid.jl")
 include("TypeInstances/Writer.jl")
+include("TypeInstances/Task.jl")
+include("TypeInstances/Future.jl")
 
 include("TypeInstances_DataTypesBasic/Const.jl")
 include("TypeInstances_DataTypesBasic/ContextManager.jl")

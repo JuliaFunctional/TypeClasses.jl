@@ -13,7 +13,8 @@ import FunctionWrappers: FunctionWrapper
 # this is standard Applicative combine implementation, however functions have a too complex type signature
 # for the standard implementation to kick in
 # hence we reimplement it for more relaxed types
-TypeClasses.combine(a::Callable, b::Callable) = mapn(⊕, a, b)
+TypeClasses.combine(a::Callable, b::Callable) = mapn(combine, a, b)
+TypeClasses.orelse(a::Callable, b::Callable) = mapn(orelse, a, b)
 
 
 # Monad instances
