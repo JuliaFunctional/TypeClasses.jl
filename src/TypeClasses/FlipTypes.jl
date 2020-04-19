@@ -1,3 +1,5 @@
+import Traits.BasicTraits: isiterable
+
 function flip_types end
 isFlipTypes(T::Type) = isdef(flip_types, T)
 isFlipTypes(a) = isFlipTypes(typeof(a))
@@ -57,7 +59,7 @@ end
   default_flip_types_having_pure_combine_apEltype(iter)
 end
 
-function default_flip_types_having_pure_combine_ap_apEltype(iter::T) where T
+function default_flip_types_having_pure_combine_apEltype(iter::T) where T
   first = iterate(iter)
   if first == nothing
     ABC = T

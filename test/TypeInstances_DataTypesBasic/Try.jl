@@ -40,7 +40,7 @@ end == Try("3, hi")
 
 @test mapn(Try(3), Try(ErrorException("error"))) do x, y
   "$x, $y"
-end == Try(ErrorException("error"))
+end isa Failure
 
 h = @syntax_flatmap begin
   a = Try(3)

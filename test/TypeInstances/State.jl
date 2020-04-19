@@ -15,7 +15,7 @@ splitln(str) = split(strip(str), "\n")
 a = State(s -> ("hello $s", s+1))
 b = State(s -> ("!", s+10))
 
-@test (a ⊕ b)(4) == ("hello 14!", 15)
+@test (a ⊕ b)(4) == ("hello 4!", 15)
 
 # FunctorApplicativeMonad
 # =======================
@@ -40,6 +40,14 @@ fPRODg = @syntax_flatmap begin
 end
 
 @test fPRODg(3) == (9*6, 4)
+
+
+putget = @syntax_flatmap begin
+  putstate(4)
+  x = getstate
+  @pure x
+end
+@test putget(()) == (4, 4)
 
 
 # FlipTypes

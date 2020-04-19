@@ -40,7 +40,7 @@ end == Option("3, hi")
 
 @test mapn(Option(3), Option(nothing)) do x, y
   "$x, $y"
-end == Option(nothing)
+end isa None
 
 ho = @syntax_flatmap begin
   a = Option(3)
