@@ -28,6 +28,21 @@ end
 
 @test pure(Vector{Int}, 3) == [3]
 
+# flatten combinations with other Monads
+# --------------------------------------
+
+@test flatten([Identity(3), Identity(4)]) == [3, 4]
+@test flatten([Option(3), Option(nothing), Option(4)]) == [3, 4]
+@test flatten([Try(4), (@Try error("hi")), Try(5)]) == [4, 5]
+@test flatten([Either{String}(4), either("left", false, 3), Either{Int, String}("right")]) == [4, "right"]
+
+h1 = @syntax_flatmap begin
+ a, b = [(1, 2), (2, 3), (3, 4), (4, 5), (5, 6)]
+ iftrue(a % 2 == 0) do
+   a + b
+ end
+end
+@test h1 == [5, 9]
 
 # FlipTypes
 # ========

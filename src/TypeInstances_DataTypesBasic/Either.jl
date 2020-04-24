@@ -54,29 +54,10 @@ TypeClasses.pure(::Type{<:Either}, a) = Right{Any}(a)
 # FlipTypes
 # =========
 
-@traits function TypeClasses.flip_types(x::Right{L, R}) where {L, R, isMap(R)}
+@traits function TypeClasses.flip_types(x::Right{L, R}) where {L, R, isMap(x.value)}
   TypeClasses.map(y -> Right{L}(y), x.value)
 end
 
-@traits function TypeClasses.flip_types(x::Left{L, R}) where {L, R, isMap(L)}
+@traits function TypeClasses.flip_types(x::Left{L, R}) where {L, R, isMap(x.value)}
   TypeClasses.map(y -> Left{typeof(y), R}(y), x.value)
-end
-
-
-@traits function TypeClasses.flip_types(x::Right{<:Any, Any})
-  flip_types(fix_type(x))
-end
-@traits function TypeClasses.flip_types(x::Left{Any, <:Any})
-  flip_types(fix_type(x))
-end
-
-
-# fix_type
-# ========
-
-function TypeClasses.fix_type(x::Right{L, Any}) where L
-  Right{L, typeof(x.value)}(x.value)
-end
-function TypeClasses.fix_type(x::Left{Any, R}) where R
-  Left{typeof(x.value), R}(x.value)
 end

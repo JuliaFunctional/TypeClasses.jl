@@ -73,12 +73,4 @@ end
   @testset "ContextManager" begin
     include("TypeInstances_DataTypesBasic/ContextManager.jl")
   end
-
-  # cross tests:
-  @testset "Flatten" begin
-    include("TypeInstances_DataTypesBasic/Flatten.jl")
-  end
-  @testset "FlipTypes" begin
-    include("TypeInstances_DataTypesBasic/FlipTypes.jl")
-  end
 end

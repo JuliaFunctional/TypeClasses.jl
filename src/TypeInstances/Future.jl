@@ -26,7 +26,7 @@ TypeClasses.pure(::Type{<:Future}, x) = @spawnat :any x
 TypeClasses.ap(f::Future, x::Future) = @spawnat :any fetch(f)(fetch(x))
 # we don't use convert for typesafety, as fetch is more flexible and also enables typechecks
 # e.g. this works seamlessly to combine a Task into a Future
-TypeClasses.flatmap(f, x::Future) = @spawnat :any fetch(f(fetch(x))))
+TypeClasses.flatmap(f, x::Future) = @spawnat :any fetch(f(fetch(x)))
 
 
 

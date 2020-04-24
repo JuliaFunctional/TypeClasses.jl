@@ -24,7 +24,7 @@ TypeClasses.pure(::Type{<:Task}, x) = @async x
 TypeClasses.ap(f::Task, x::Task) = @async fetch(f)(fetch(x))
 # we don't use convert for typesafety, as fetch is more flexible and also enables typechecks
 # e.g. this works seamlessly to combine a Future into a Task
-TypeClasses.flatmap(f, x::Task) = @async fetch(f(fetch(x))))
+TypeClasses.flatmap(f, x::Task) = @async fetch(f(fetch(x)))
 
 
 

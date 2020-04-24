@@ -1,7 +1,6 @@
 using TypeClasses
-TypeClasses.@overwrite_Base
 using DataTypesBasic
-DataTypesBasic.@overwrite_Base
+DataTypesBasic.@overwrite_Some
 using Test
 
 # MonoidAlternative
