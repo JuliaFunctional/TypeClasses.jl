@@ -14,30 +14,12 @@
 
 @traits TypeClasses.pure(::Type{<:Identity}, a) = Identity(a)
 @traits TypeClasses.ap(f::Identity, a::Identity) = Identity(f.value(a.value))
+
+TypeClasses.flatmap(f, x::Identity) = flatten(map(f, x))
 TypeClasses.flatten(a::Identity) = Iterators.flatten(a)
 
-# relaxed flatten definition
-# --------------------------
-
-# Identity is just a Singleton, hence can be flattened out everywhere
-
-# TODO is this really wanted? what are the usecases for this?
-# ...
 
 # FlipTypes
 # =========
 
-@traits TypeClasses.flip_types(i::Identity{A}) where {A, isMap(A)} = TypeClasses.map(Identity, i.value)
-@traits TypeClasses.flip_types(i::Identity{Any}) = TypeClasses.flip_types(fix_type(i))
-
-
-# fix_type
-# ========
-
-"""
-as typeinference sometimes lead to wrong containers, we need to be able to fix them at runtime
-importantly, fix_type never generates Any again
-"""
-function fix_type(x::Identity{Any})
-  Identity{typeof(x.value)}(x.value)
-end
+@traits TypeClasses.flip_types(i::Identity) where {isMap(i.value)} = TypeClasses.map(Identity, i.value)

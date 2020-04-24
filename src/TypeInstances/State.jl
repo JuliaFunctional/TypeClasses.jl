@@ -30,8 +30,7 @@ end
 
 TypeClasses.flatmap(f, a::State) = State() do state0
   value, state1 = a(state0)
-  f(value)(state1)
+  convert(State, f(value))(state1)
 end
-TypeClasses.flatten(a::State) = flatmap(identity, a)
 
 # neither flip_types nor fix_type is possible or makes sense

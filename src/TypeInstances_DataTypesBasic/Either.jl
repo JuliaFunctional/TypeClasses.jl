@@ -43,7 +43,7 @@ function ap_Either_left(F, L, R, left)
   Left{L, R2}(left)
 end
 
-# left implementation which still works with missing type information
+TypeClasses.flatmap(f, x::Either) = flatten(map(f, x))
 TypeClasses.flatten(x::Either) = Iterators.flatten(x)
 
 TypeClasses.pure(::Type{<:Either{L}}, a) where {L} = Right{L}(a)

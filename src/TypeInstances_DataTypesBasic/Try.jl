@@ -43,6 +43,7 @@ function ap_Try_Exception(F, T, failure)
   Failure{T2}(failure)
 end
 
+TypeClasses.flatmap(f, x::Try) = flatten(map(f, x))
 TypeClasses.flatten(x::Try) = Iterators.flatten(x)
 
 TypeClasses.pure(::Type{<:Try}, a) = Success(a)

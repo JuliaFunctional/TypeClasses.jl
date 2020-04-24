@@ -24,7 +24,9 @@ TypeClasses.change_eltype(T::Callable, Elem) = Callable{FunctionWrapper{Elem, Tu
 
 TypeClasses.pure(::Type{<:Callable}, a) = (args...; kwargs...) -> a
 TypeClasses.ap(f::Callable, g::Callable) = Callable((args...; kwargs...) -> f(args...; kwargs...)(g(args...; kwargs...)))
-TypeClasses.flatten(g::Callable) = Callable((args...; kwargs...) -> g(args...; kwargs...)(args...; kwargs...))
+# we don't use convert, but directly use function call,
+# which should give readable errors that a something is not callable, and is a bit more flexible
+TypeClasses.flatmap(f, g::Callable) = Callable((args...; kwargs...) -> f(g(args...; kwargs...))(args...; kwargs...))
 
 
 # FlipTypes instance

@@ -261,34 +261,56 @@ end
 # Monad
 # =====
 
-# we use flatten as default, as we have full type information about the nested levels
-# this we wouldn't have with flatmap, as all the type information is hidden in the function
-"""
-    flatten(::A{A})::A
+# we use flatmap instead of flatten as the default function, because of the following reasons:
+# - flatmap has a similar signature as map and ap, and hence should fit more intuitively into the overal picture for beginners
+# - flatmap is what is most often used in e.g. `@syntax_flatmap`, and hence this should optimal code
+# - flatten seams to have more information about the nested types, however as julia's typeinference is incomplete
+#     and may not correctly infer subtypes, it is actually quite tricky to dispatch correctly on nested typevariables.
+#     Concretely you want the functionality to not differ whether typeinference worked or not, and hence you have
+#     To deal with Vector{Any} and similar missing typeinformation on the typeparameters. You can fix the types,
+#     but you always have to be careful that you do so.
+#     And of course this approach only works for containers where you actually have a proper `eltype`.
+#     A last point to raise is that not dispatching on nested Functors prevents the possibility of flattening
+#     multiple different Functors. This is partly, however the same result can be achieved much better using
+#     ExtensibleEffects.
+#     Hence we don't see any real use of complex nested dispatch any longer and recommend rather not to use it
+#     because of the unintuitive complexity.
 
-flatten gets rid of one level of nesting
 """
-function flatten end
-isFlatten(T::Type) = isdef(flatten, T)
-isFlatten(a) = isFlatten(typeof(a))
+    flatmap(function_returning_A, a::A)::A
 
-isMonad(T::Type) = isApplicative(T) && isFlatten(T)
+`flatmap` applies a function to a container and immediately flattens it out.
+While map would give you `A{A{...}}`, flatmap gives you a plain `A{...}`, without any nesting.
+
+If you define your own versions of flatmap, the recommendation is to apply a `Base.convert` after applying `f`.
+This makes sure your flatmap is typesafe, and actually enables sound interactions with other types which may be
+convertable to your A.
+
+E.g. for Vector the implementation looks as follows:
+```
+TypeClasses.flatmap(f, v::Vector) = vcat((convert(Vector, f(x)) for x in v)...)
+```
+"""
+flatmap(f, a) = flatten(map(f, a))
+
+
+isFlatMap(T::Type) = isdef(flatmap, Function, T)
+isFlatMap(a) = isFlatMap(typeof(a))
+
+const isFlatten = isFlatMap
+
+isMonad(T::Type) = isApplicative(T) && isFlatMap(T)
 isMonad(a) = isMonad(typeof(a))
-
-
 
 # basic functionality
 # -------------------
 
 """
-    flatmap(function_returning_A, a::A) = flatten(map(function_returning_A, a))
+    flatten(::A{A})::A = flatmap(identity, a)
 
-flatmap maps and flattens at once.
-
-Overload `flatten` instead usually gives you more control over the type handling.
-Still you can overload this function directly, e.g. for performance reasons.
+`flatten` gets rid of one level of nesting. Has a default fallback to use `flatmap`.
 """
-flatmap(f, a) = flatten(map(f, a))
+flatten(a) = flatmap(identity, a)
 
 """
     @syntax_flatmap begin

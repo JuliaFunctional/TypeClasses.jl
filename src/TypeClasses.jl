@@ -29,7 +29,6 @@ using .DataTypes
 # (they may already include default implementations in terms of other typeclasses)
 
 # we decided for a flat module without submodules to simplify overloading the functions
-include("TypeClasses/fix_type.jl")
 include("TypeClasses/MonoidAlternative.jl")
 include("TypeClasses/FunctorApplicativeMonad.jl")
 include("TypeClasses/FlipTypes.jl")  # depends on both Monoid and Applicative
@@ -55,7 +54,6 @@ include("TypeInstances/Future.jl")
 include("TypeInstances_DataTypesBasic/Const.jl")
 include("TypeInstances_DataTypesBasic/ContextManager.jl")
 include("TypeInstances_DataTypesBasic/Either.jl")
-include("TypeInstances_DataTypesBasic/Flatten.jl")
 include("TypeInstances_DataTypesBasic/Identity.jl")
 include("TypeInstances_DataTypesBasic/Option.jl")
 include("TypeInstances_DataTypesBasic/Try.jl")

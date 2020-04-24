@@ -35,6 +35,7 @@ end
 
 TypeClasses.pure(::Type{<:Option}, a) = Some(a)
 
+TypeClasses.flatmap(f, x::Option) = flatten(map(f, x))
 TypeClasses.flatten(x::Option) = Iterators.flatten(x)
 
 

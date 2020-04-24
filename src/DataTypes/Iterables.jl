@@ -2,6 +2,10 @@
 module Iterables
 export IterateEmpty, IterateSingleton, Iterable
 import ProxyInterface
+using DataTypesBasic
+@overwrite_Some
+using Traits
+import Traits.BasicTraits: isiterable
 
 # Iterable Wrapper
 # ================
@@ -21,6 +25,8 @@ ProxyInterface.iterator(it::Iterable) = it.iter
 ProxyInterface.@iterator Iterable
 
 Base.map(f, it::Iterable) = Iterable(f(x) for x ∈ it.iter)
+# generic convert method
+@traits Base.convert(::Type{<:Iterable}, x) where {isiterable(x)} = Iterable(x)
 
 # Iterable Helpers
 # ================
@@ -48,5 +54,6 @@ Base.IteratorSize(::Type{<:IterateSingleton}) = Base.HasLength()
 Base.length(::IterateSingleton) = 1
 Base.IteratorEltype(::Type{<:IterateSingleton}) = Base.HasEltype()
 Base.eltype(::Type{IterateSingleton{T}}) where T = T
+
 
 end # module

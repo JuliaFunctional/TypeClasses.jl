@@ -34,15 +34,7 @@ TypeClasses.combine(it1::Iterable, it2::Iterable) = Iterable(chain(it1.iter, it2
 TypeClasses.pure(::Type{<:Iterable}, a) = Iterable(IterateSingleton(a))
 TypeClasses.ap(fs::Iterable, it::Iterable) = Iterable(f(a) for f ∈ fs.iter for a ∈ it.iter)
 
-# Flattening iterables is only the simple flatten.
-# We don't support extra distinction between different nested types
-# as a general iterable might not have a well-defined eltype.
-# Even the simple Base.Generator may loose the elementtype, so that you need to come up with a way how to reconstruct
-# the true elementtype. That is again difficult as iterables might be infinite.
-# Using FlattenMe runtime wrapper, like we do for ContextManager, is also complicated, as you may encounter
-# an iterable which first yields FlattenMe(another_iterable), but than FlattenMe(option). That is difficult to handle
-# at runtime.
-# Bottomline: Only flatten iterables of iterables. If you want to do more complex flattening, use Vector instead.
+# Flattening Iterables works with everything being iterable itself (it is treated as iterable)
 TypeClasses.flatten(it::Iterable) = Iterable(Iterators.flatten(it.iter))
 
 # flip_types

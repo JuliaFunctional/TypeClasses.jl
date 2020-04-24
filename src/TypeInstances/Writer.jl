@@ -44,39 +44,15 @@ function TypeClasses.ap(f::Writer, a::Writer)
   Writer(combine(f.acc, a.acc), f.value(a.value))
 end
 
-@traits function TypeClasses.flatten(a::Writer{F, <:Writer{F}}) where {F}
-  Writer(combine(a.acc, a.value.acc), a.value.value)
-end
-
-# we need to handle the case of incomplete typeinference and detail Types at runtime
-# the second Any indeed has to be plain Any (and not <:Any) to prevent infinite recursions
-@traits function TypeClasses.flatten(a::Writer{<:Any, Any})
-  flatten(fix_type(a))
+function TypeClasses.flatmap(f, a::Writer)
+  nested_writer = convert(Writer, f(a.value))
+  Writer(combine(a.acc, nested_writer.acc), nested_writer.value)
 end
 
 
 # flip_types
 # ==========
 
-@traits function TypeClasses.flip_types(a::Writer{Acc, T}) where {Acc, T, isMap(T)}
+@traits function TypeClasses.flip_types(a::Writer) where {isMap(a.value)}
   TypeClasses.map(x -> Writer(a.acc, x), a.value)
-end
-
-# we need to handle the case of incomplete typeinference and detail Types at runtime
-# the second Any indeed has to be plain Any (and not <:Any) to prevent infinite recursions
-@traits function TypeClasses.flip_types(a::Writer{<:Any, Any})
-  flip_types(fix_type(a))
-end
-
-
-# fix_type
-# ========
-
-function TypeClasses.fix_type(a::Writer{<:Any, <:Any})
-  if a.value isa Writer
-    # we also need fix type on nested Writer, because we need to know whether it has the same accumulator type
-    Writer(a.acc, Writer(a.value.acc, a.value.value))
-  else
-    Writer(a.acc, a.value)
-  end
 end

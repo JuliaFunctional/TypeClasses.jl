@@ -22,8 +22,9 @@ TypeClasses.pure(::Type{<:Task}, x) = @async x
 # we use the default implementation of ap which follows from flatten
 # TypeClasses.ap
 TypeClasses.ap(f::Task, x::Task) = @async fetch(f)(fetch(x))
-# Note that there is no way for a Task to know its eltype
-TypeClasses.flatten(x::Task) = @async fetch(fetch(x))
+# we don't use convert for typesafety, as fetch is more flexible and also enables typechecks
+# e.g. this works seamlessly to combine a Future into a Task
+TypeClasses.flatmap(f, x::Task) = @async fetch(f(fetch(x))))
 
 
 
