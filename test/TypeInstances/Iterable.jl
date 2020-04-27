@@ -32,6 +32,25 @@ h = @syntax_flatmap begin
 end
 @test h |> collect == product_ab
 
+# Everything Iterable works with Iterable
+h2 = @syntax_flatmap begin
+  x = a
+  y = isodd(x) ? Option(x*x) : Option()
+  @pure x + y
+end
+@test h2 |> collect == [2, 12]
+
+# However note that the following does not work
+h3 = @syntax_flatmap begin
+  x = a
+  y = isodd(x) ? Option(x*x) : Option()
+  z = b
+  @pure x + y + z
+end
+# ERROR: MethodError: Cannot `convert` an object of type Iterable{Base.Generator{Array{Int64,1},var"#671#674"{Int64,Int64}}} to an object of type Option
+@test_throws MethodError collect(h3)
+# Tip: use ExtensibleEffects for such more complex multi effect interaction
+
 
 # FlipTypes
 # =========
