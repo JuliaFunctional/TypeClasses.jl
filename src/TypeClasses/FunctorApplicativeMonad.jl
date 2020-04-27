@@ -1,7 +1,7 @@
 using Traits
 using Monadic
-using ASTParser
 using IsDef
+using ExprParsers
 import FunctionWrappers: FunctionWrapper
 
 """
@@ -135,7 +135,7 @@ translates to
     mapn(f, a, b, c, d)
 """
 macro mapn(call_expr)
-  parsed = Parsers.Call()(call_expr)
+  parsed = parse_expr(EP.Call(), call_expr)
   @assert isempty(parsed.kwargs) "mapn does not support keyword arguments, but found $(parsed.kwargs)."
   callee = if isempty(parsed.curlies)
     parsed.name
