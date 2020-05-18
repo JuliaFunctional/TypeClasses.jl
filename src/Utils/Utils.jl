@@ -4,8 +4,6 @@ export chain, @ifsomething
 # include("unionall_implementationdetails.jl")  # TODO do we need this?
 
 chain(itr...) = Iterators.flatten(itr)
-# fix length issue with flatten https://discourse.julialang.org/t/length-iterators-flatten-not-working/22846
-Base.length(f::Iterators.Flatten) = sum(length, f.it)
 
 
 """

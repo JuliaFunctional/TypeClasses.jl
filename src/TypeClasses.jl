@@ -15,7 +15,6 @@ export Iterable, IterateEmpty, IterateSingleton,
 
 using Traits
 using DataTypesBasic
-DataTypesBasic.@overwrite_Some
 
 
 include("Utils/Utils.jl")
@@ -51,6 +50,7 @@ include("TypeInstances/Writer.jl")
 include("TypeInstances/Task.jl")
 include("TypeInstances/Future.jl")
 
+include("TypeInstances_DataTypesBasic/Nothing.jl")
 include("TypeInstances_DataTypesBasic/Const.jl")
 include("TypeInstances_DataTypesBasic/ContextManager.jl")
 include("TypeInstances_DataTypesBasic/Either.jl")

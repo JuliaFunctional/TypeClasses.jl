@@ -18,6 +18,8 @@ const ⊕ = combine
 
 isCombine(T::Type) = isdef(combine, T, T)
 isCombine(a) = isCombine(typeof(a))
+isCombine(T1::Type, T2::Type) = isdef(combine, T1, T2)
+isCombine(a, b) = isCombine(typeof(a), typeof(b))
 isSemigroup(a) = isCombine(a) # this alternative name is just super popular
 
 # fix wrong type-inference
@@ -125,6 +127,8 @@ function orelse end
 const ⊛ = orelse
 isOrElse(T::Type) = isdef(orelse, T, T)
 isOrElse(a) = isOrElse(typeof(a))
+isOrElse(T1::Type, T2::Type) = isdef(orelse, T1, T2)
+isOrElse(a, b) = isOrElse(typeof(a), typeof(b))
 
 # we choose Neutral instead of defining a new "empty" because the semantics is the same
 isAlternative(a) = isNeutral(a) && isOrElse(a)

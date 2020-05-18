@@ -20,8 +20,6 @@ TypeClasses.orelse(a::Callable, b::Callable) = mapn(orelse, a, b)
 # Monad instances
 # ===============
 
-TypeClasses.change_eltype(T::Callable, Elem) = Callable{FunctionWrapper{Elem, Tuple}}
-
 TypeClasses.pure(::Type{<:Callable}, a) = (args...; kwargs...) -> a
 TypeClasses.ap(f::Callable, g::Callable) = Callable((args...; kwargs...) -> f(args...; kwargs...)(g(args...; kwargs...)))
 # we don't use convert, but directly use function call,

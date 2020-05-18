@@ -5,7 +5,6 @@ using IsDef
 using DataTypesBasic
 using Suppressor
 
-DataTypesBasic.@overwrite_Some
 splitln(str) = split(strip(str), "\n")
 
 # Combine

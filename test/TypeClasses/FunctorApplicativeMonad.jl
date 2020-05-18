@@ -13,7 +13,7 @@ struct TestApDefault
   x
 end
 # we need to define change_eltype, as the default version assumes to have `map` already defined
-TypeClasses.change_eltype(::Type{TestApDefault}, E) = TestApDefault
+# TODO deleteme TypeClasses.change_eltype(::Type{TestApDefault}, E) = TestApDefault
 TypeClasses.ap(f::TestApDefault, x::TestApDefault) = TestApDefault(f.x(x.x))
 TypeClasses.pure(::Type{TestApDefault}, x) = TestApDefault(x)
 TypeClasses.map(f, x::TestApDefault) = TypeClasses.default_map_having_ap_pure(f, x)

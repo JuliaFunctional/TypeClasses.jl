@@ -20,12 +20,9 @@
 # FunctorApplicativeMonad
 # =======================
 
-@test eltype(Try{Int}) == Int
-@test eltype(Success{Int}) == Int
-@test eltype(Failure{Int}) == Int
-@test change_eltype(Success{Int}, Bool) == Success{Bool}
-@test change_eltype(Try{Int}, Bool) == Try{Bool}
-@which Base.map(Try(3))
+@test change_eltype(Identity{Int}, Bool) == Identity{Bool}
+@test change_eltype(Try{Int}, Bool) == Try{Bool}  # IsDef typeinference actually flattens out <:Exception to Union of all Exceptions
+
 @test map(Try(3)) do x
   x*x
 end == Try(9)
@@ -40,7 +37,7 @@ end == Try("3, hi")
 
 @test mapn(Try(3), Try(ErrorException("error"))) do x, y
   "$x, $y"
-end isa Failure
+end isa Const{<:Exception}
 
 h = @syntax_flatmap begin
   a = Try(3)
@@ -57,9 +54,3 @@ end
 @test h == Try{String}(ErrorException("error"))
 
 @test pure(Try, 4) == Try(4)
-
-
-# FlipTypes
-# =========
-
-# TODO

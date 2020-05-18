@@ -3,7 +3,6 @@ module Iterables
 export IterateEmpty, IterateSingleton, Iterable
 import ProxyInterface
 using DataTypesBasic
-@overwrite_Some
 using Traits
 import Traits.BasicTraits: isiterable
 

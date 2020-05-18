@@ -1,6 +1,5 @@
 using TypeClasses
 using DataTypesBasic
-DataTypesBasic.@overwrite_Some
 using Test
 
 # MonoidAlternative
@@ -18,13 +17,9 @@ using Test
 # FunctorApplicativeMonad
 # =======================
 
-@test eltype(Option{Int}) == Int
-@test eltype(Some{Int}) == Int
-@test eltype(None{Int}) == Int
-@test change_eltype(Some{Int}, Bool) == Some{Bool}
+@test change_eltype(Identity{Int}, Bool) == Identity{Bool}
 @test change_eltype(Option{Int}, Bool) == Option{Bool}
 
-# TODO
 @test map(Option(3)) do x
   x*x
 end == Option(9)
@@ -39,7 +34,7 @@ end == Option("3, hi")
 
 @test mapn(Option(3), Option(nothing)) do x, y
   "$x, $y"
-end isa None
+end == nothing
 
 ho = @syntax_flatmap begin
   a = Option(3)
@@ -61,4 +56,5 @@ end
 # FlipTypes
 # =========
 
-# TODO
+@test flip_types(Identity([1,2,3])) == Identity.([1,2,3])
+@test_throws ErrorException flip_types(nothing)

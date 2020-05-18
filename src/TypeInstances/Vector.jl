@@ -14,8 +14,6 @@ TypeClasses.combine(v1::Vector, v2::Vector) = [v1; v2]
 # FunctorApplicativeMonad
 # =======================
 
-TypeClasses.change_eltype(::Type{Array{E1, N}}, ::Type{E2}) where {N, E1, E2} = Array{E2, N}
-
 TypeClasses.pure(::Type{<:Vector}, a) = [a]
 TypeClasses.ap(fs::Vector, v::Vector) = [f(a) for f ∈ fs for a ∈ v]
 # for flattening we solve type-safety by converting to Vector elementwise

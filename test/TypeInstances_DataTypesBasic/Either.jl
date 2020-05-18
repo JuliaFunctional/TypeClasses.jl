@@ -14,11 +14,8 @@
 # FunctorApplicativeMonad
 # =======================
 
-@test eltype(Either{Int, String}) == String
-@test eltype(Right{Int, String}) == String
-@test change_eltype(Right{Int, String}, Bool) == Right{Int, Bool}
+@test change_eltype(Identity{String}, Bool) == Identity{Bool}
 @test change_eltype(Either{Int, String}, Bool) == Either{Int, Bool}
-
 
 @test map(Either{String}(3)) do x
   x * x
@@ -30,16 +27,16 @@ end == Either{String, Int}("hi")
 
 @test mapn(Either{String, Int}(2), Either{String, Int}("ho")) do x, y
   x + y
-end == Left{String, Any}("ho")
+end == Const{String}("ho")
 # TODO we loose type information here, however it is tough to infer through the generic curry function constructed by mapn
 
 @test mapn(Either{String, Int}("hi"), Either{String, Int}(3)) do x, y
   x + y
-end == Left{String, Any}("hi")
+end == Const{String}("hi")
 
 @test mapn(Either{String, Int}("hi"), Either{String, Int}("ho")) do x, y
   x + y
-end == Left{String, Any}("hi")
+end == Const{String}("hi")
 
 
 he = @syntax_flatmap begin
@@ -66,11 +63,12 @@ end
 @test h == Either{String, Int}("ho")
 
 
-@test pure(Either{String}, 3) == Right{String}(3)
-@test pure(Either, 3) == Right{Any}(3)
+@test pure(Either{String}, 3) == Identity(3)
+@test pure(Either, 3) == Identity(3)
 
 
 # FlipTypes
 # =========
 
-# TODO
+@test flip_types(Const([1,2,3])) == Const.([1,2,3])
+@test flip_types(Identity([1,2,3])) == Identity.([1,2,3])

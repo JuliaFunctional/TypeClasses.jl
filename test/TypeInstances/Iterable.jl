@@ -38,7 +38,7 @@ h2 = @syntax_flatmap begin
   y = isodd(x) ? Option(x*x) : Option()
   @pure x + y
 end
-@test h2 |> collect == [2, 12]
+@test collect(h2) == [2, 12]
 
 # However note that the following does not work
 h3 = @syntax_flatmap begin

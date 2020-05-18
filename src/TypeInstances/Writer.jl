@@ -10,7 +10,7 @@ using IsDef
 end
 
 @traits function TypeClasses.combine(p1::Writer{Acc1, T1}, p2::Writer{Acc2, T2}) where
-  {Acc1, T1, Acc2, T2, isCombine(Acc1 ∨ Acc2), isCombine(T1 ∨ T2)}
+  {Acc1, T1, Acc2, T2, isCombine(Acc1, Acc2), isCombine(T1, T2)}
   Writer(combine(p1.acc, p2.acc), combine(p1.value, p2.value))
 end
 
@@ -19,7 +19,7 @@ end
 end
 
 @traits function TypeClasses.orelse(p1::Writer{Acc1, T1}, p2::Writer{Acc2, T2}) where
-  {Acc1, T1, Acc2, T2, isOrElse(Acc1 ∨ Acc2), isOrElse(T1 ∨ T2)}
+  {Acc1, T1, Acc2, T2, isOrElse(Acc1, Acc2), isOrElse(T1, T2)}
   Writer(orelse(p1.acc, p2.acc), orelse(p1.value, p2.value))
 end
 
@@ -29,7 +29,6 @@ end
 
 TypeClasses.eltype(::Type{Writer{Acc, T}}) where {Acc, T} = T
 TypeClasses.eltype(::Type{<:Writer}) = Any
-TypeClasses.change_eltype(::Type{<:Writer{Acc}}, ::Type{T}) where {Acc, T} = Writer{Acc, T}
 
 TypeClasses.foreach(f, p::Writer) = f(p.value); nothing
 TypeClasses.map(f, p::Writer) = Writer(p.acc, f(p.value))
