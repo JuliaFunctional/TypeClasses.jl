@@ -1,10 +1,10 @@
 # DEPRECATED, no longer needed
 module Iterables
 export IterateEmpty, IterateSingleton, Iterable
-import ProxyInterface
+import ProxyInterfaces
 using DataTypesBasic
-using Traits
-import Traits.BasicTraits: isiterable
+using TypeClasses.Utils
+
 
 # Iterable Wrapper
 # ================
@@ -19,13 +19,15 @@ end
 Iterable() = Iterable(IterateEmpty())  # empty iter
 Iterable(it::Iterable) = it  # don't nest Iterable wrappers
 
-ProxyInterface.iterator(::Type{Iterable{IterT}}) where {IterT} = IterT
-ProxyInterface.iterator(it::Iterable) = it.iter
-ProxyInterface.@iterator Iterable
+ProxyInterfaces.iterator(::Type{Iterable{IterT}}) where {IterT} = IterT
+ProxyInterfaces.iterator(it::Iterable) = it.iter
+ProxyInterfaces.@iterator Iterable
 
-Base.map(f, it::Iterable) = Iterable(f(x) for x ∈ it.iter)
 # generic convert method
-@traits Base.convert(::Type{<:Iterable}, x) where {isiterable(x)} = Iterable(x)
+function Base.convert(::Type{<:Iterable}, x)
+  @assert(isiterable(x), "Only iterables can be converted to Iterable, please overload `Base.isiterable` respectively")
+  Iterable(x)
+end
 
 # Iterable Helpers
 # ================
@@ -53,6 +55,5 @@ Base.IteratorSize(::Type{<:IterateSingleton}) = Base.HasLength()
 Base.length(::IterateSingleton) = 1
 Base.IteratorEltype(::Type{<:IterateSingleton}) = Base.HasEltype()
 Base.eltype(::Type{IterateSingleton{T}}) where T = T
-
 
 end # module

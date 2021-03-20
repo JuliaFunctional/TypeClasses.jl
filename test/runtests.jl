@@ -1,9 +1,12 @@
 using Test
 using TypeClasses
-using Traits
-using IsDef
 using DataTypesBasic
 using Suppressor
+
+# detect_ambiguities unfortunately seems to be buggy
+# @test isempty(detect_ambiguities(TypeClasses))
+# 1-element Array{Tuple{Method,Method},1}:
+#  (pure(::Type{Union{DataTypesBasic.Const{L}, DataTypesBasic.Identity{#s42}} where #s42}, a) where L in TypeClasses at /Users/s.sahm/.julia/dev/TypeClasses/src/TypeInstances_DataTypesBasic/Either.jl:27, pure(::Type{Union{DataTypesBasic.Const{L}, DataTypesBasic.Identity{R}}}, a) where {L, R} in TypeClasses at /Users/s.sahm/.julia/dev/TypeClasses/src/TypeInstances_DataTypesBasic/Either.jl:29)
 
 splitln(str) = split(strip(str), "\n")
 

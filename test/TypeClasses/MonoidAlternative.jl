@@ -12,13 +12,14 @@ TypeClasses.neutral(::Type{Int}) = 0
 # Test default Semigroup instance for String
 # ------------------------------------------
 
-@test reduce_monoid("!", ["hi"," ","du"]) == "!hi du"
+@test reduce_monoid(["hi"," ","du"], init="!") == "!hi du"
 
 
 # Define and Test neutral for functions
 # -------------------------------------
 
 myfunction(a, b) = a * b
+TypeClasses.isNeutral(::Type{typeof(myfunction)}) = true
 TypeClasses.neutral(::Type{typeof(myfunction)}) = one
 @test isNeutral(myfunction)
 @test isNeutral(typeof(myfunction))

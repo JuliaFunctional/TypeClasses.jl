@@ -1,7 +1,5 @@
 using TypeClasses
-using Traits
 using Test
-using IsDef
 using DataTypesBasic
 using Suppressor
 

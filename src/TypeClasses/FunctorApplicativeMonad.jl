@@ -1,8 +1,6 @@
-using Traits
 using Monadic
-using IsDef
 using ExprParsers
-import FunctionWrappers: FunctionWrapper
+import Base: foreach, map, eltype
 
 """
   foreach(f, functor)
@@ -14,9 +12,15 @@ map, flatmap and foreach should have same semantics.
 Note that this does not work for all Functors (e.g. not for Callables), however is handy in many cases.
 This is also the reason why we don't use the default fallback to map, as this may make no sense for your custom Functor.
 """
-const foreach = Base.foreach
-isForeach(T::Type) = isdef(foreach, typeof(identity), T)
-isForeach(a) = isForeach(typeof(a))
+
+"""
+    isForeach(type)
+    isForeach(value) = isForeach(typeof(value))
+
+trait for checking whether a given Type defines `Base.foreach`
+"""
+isForeach(T::Type) = error("Could not find definition for `TypeClasses.isForeach(::Type{$T})`. Please define it.")
+isForeach(value) = isForeach(typeof(value))
 
 """
     @syntax_foreach begin
@@ -27,8 +31,8 @@ isForeach(a) = isForeach(typeof(a))
     end
     # [[11, 21], [12, 22], [13, 23]]
 
-This is a variant of the monadic syntax which uses ``foreach`` for both map_like and flatmap_like.
-See ``Monadic.@monadic`` for more details.
+This is a variant of the monadic syntax which uses `foreach` for both map_like and flatmap_like.
+See `Monadic.@monadic` for more details.
 """
 macro syntax_foreach(block::Expr)
   block = macroexpand(__module__, block)
@@ -49,30 +53,18 @@ end
 The core functionality of a functor, applying a normal function "into" the context defined by the functor.
 Think of map and vector as best examples.
 """
-const map = Base.map
-isMap(T::Type) = isdef(map, typeof(identity), T)  # we check for a concrete function to have better typeinference
+
+"""
+    isMap(type)
+    isMap(value) = isMap(typeof(value))
+    isFunctor(type)
+    isFunctor(value) = isFunctor(typeof(value))
+
+trait for checking whether a given Type defines `Base.map`
+"""
+isMap(T::Type) = error("Could not find definition for `TypeClasses.isMap(::Type{$T})`. Please define it.")
 isMap(value) = isMap(typeof(value))
 const isFunctor = isMap
-
-"""
-  eltype(functor)
-
-return the type of the functor "element"
-"""
-const eltype = Base.eltype
-# we don't need isEltype, as Base.eltype has a default returning Any
-
-"""
-  change_eltype(FunctorType::Type, NewElementType::Type)
-  FunctorType ⫙ NewElementType
-
-return new type with inner element changed
-"""
-function change_eltype end
-const ⫙ = change_eltype
-
-# advanced default implementation using https://discourse.julialang.org/t/how-can-i-create-a-function-type-with-custom-input-and-output-type/31719
-change_eltype(T::Type, E) = Out(map, FunctionWrapper{E, Tuple{Any}}, T)
 
 
 """
@@ -84,8 +76,8 @@ change_eltype(T::Type, E) = Out(map, FunctionWrapper{E, Tuple{Any}}, T)
     end
     # [[11, 21], [12, 22], [13, 23]]
 
-This is a variant of the monadic syntax which uses ``map`` for both map_like and flatmap_like.
-See ``Monadic.@monadic`` for more details.
+This is a variant of the monadic syntax which uses `map` for both map_like and flatmap_like.
+See `Monadic.@monadic` for more details.
 """
 macro syntax_map(block::Expr)
   block = macroexpand(__module__, block)
@@ -106,8 +98,14 @@ wraps value a into container T
 """
 function pure end
 
-isPure(T::Type) = isdef(pure, Type{T}, Any)
-isPure(a) = isPure(typeof(a))
+"""
+    isPure(type)
+    isPure(value) = isPure(typeof(value))
+
+trait for checking whether a given Type defines `TypeClasses.pure`
+"""
+isPure(T::Type) = error("Could not find definition for `TypeClasses.isPure(::Type{$T})`. Please define it.")
+isPure(value) = isPure(typeof(value))
 
 """
   ap(f::F1, a::F2)
@@ -115,14 +113,27 @@ isPure(a) = isPure(typeof(a))
 apply function in container F1 to element in container F2
 """
 function ap end
-isAp(T::Type) = isdef(ap, change_eltype(T, Function), T)
+
+"""
+    isAp(type)
+    isAp(value) = isAp(typeof(value))
+    isMapN(type)
+    isMapN(value) = isMapN(typeof(value))
+
+trait for checking whether a given Type defines `TypeClasses.ap`
+"""
+isAp(T::Type) = error("Could not find definition for `TypeClasses.isAp(::Type{$T})`. Please define it.")
 isAp(a) = isAp(typeof(a))
 const isMapN = isAp  # alias because `mapn` is actually equal in power to `ap`, but more self explanatory and more used
 
-function isApplicative(T::Type)
-  isFunctor(T) && isPure(T) && isAp(T)
-end
-isApplicative(a) = isApplicative(typeof(a))
+
+"""
+    isApplicative(type)
+    isApplicative(value) = isApplicative(typeof(value))
+
+combining traits [`TypeClasses.isMap`](@ref), [`TypeClasses.isPure`](@ref) and [`TypeClasses.isAp`](@ref)
+"""
+isApplicative(a) = isFunctor(T) && isPure(T) && isAp(T)
 
 # basic functionality
 # -------------------
@@ -231,7 +242,7 @@ end
 # -----------------------
 
 # default implementations collide to often with other traits definitions and rather do harm than good
-# hence we just give a default definition to use for custom definitions
+# hence we just give a default definition which can be used for custom definitions
 default_map_having_ap_pure(f, a::A) where {A} = ap(pure(A, f), a)
 
 
@@ -240,23 +251,26 @@ default_map_having_ap_pure(f, a::A) where {A} = ap(pure(A, f), a)
 # ----------------------------------------------
 
 # isApplicative(T) && isMonoid(eltype(T)) -> isMonoid(T)
-# TODO do this interact dangerously with other definitions?
 
-@traits function neutral(a::T) where {T, isPure(T), isNeutral(eltype(T))}
+# it is tempting to overload `neutral`, `combine` and so forth directly,
+# however dispatching on eltype is not allowed if used for different semantics,
+
+function neutral_applicative(T::Type)
   pure(T, neutral(eltype(T)))
 end
 
-@traits function combine(a::T1, b::T2) where {T1, T2, isAp(T1 ∨ T2), isCombine(eltype(T1 ∨ T2))}
+function combine_applicative(a, b)
   mapn(⊕, a, b)
 end
 
-@traits function absorbing(a::T) where {T, isPure(T), isAbsorbing(eltype(T))}
+function absorbing_applicative(T::Type)
   pure(T, absorbing(eltype(T)))
 end
 
-@traits function orelse(a::T1, b::T2) where {T1, T2, isAp(T1 ∨ T2), isOrElse(eltype(T1 ∨ T2))}
+function orelse_applicative(a, b)
   mapn(orelse, a, b)
 end
+
 
 # Monad
 # =====
@@ -291,16 +305,29 @@ E.g. for Vector the implementation looks as follows:
 TypeClasses.flatmap(f, v::Vector) = vcat((convert(Vector, f(x)) for x in v)...)
 ```
 """
-flatmap(f, a) = flatten(map(f, a))
+function flatmap end
 
 
-isFlatMap(T::Type) = isdef(flatmap, Function, T)
+"""
+    isFlatMap(type)
+    isFlatMap(value) = isFlatMap(typeof(value))
+    isFlatten(type)
+    isFlatten(value) = isFlatten(typeof(value))
+
+trait for checking whether a given Type defines `TypeClasses.isFlatMap`
+"""
+isFlatMap(T::Type) = error("Could not find definition for `TypeClasses.isFlatMap(::Type{$T})`. Please define it.")
 isFlatMap(a) = isFlatMap(typeof(a))
 
 const isFlatten = isFlatMap
 
-isMonad(T::Type) = isApplicative(T) && isFlatMap(T)
-isMonad(a) = isMonad(typeof(a))
+"""
+    isMonad(type)
+    isMonad(value) = isMonad(typeof(value))
+
+combining traits [`TypeClasses.isMap`](@ref), [`TypeClasses.isPure`](@ref), [`TypeClasses.isAp`](@ref) (which together make up [`isApplicative`](@ref)), and in addition also [`isFlatMap`](@ref).
+"""
+isMonad(a) = isApplicative(a) && isFlatMap(a)
 
 # basic functionality
 # -------------------
@@ -321,8 +348,8 @@ flatten(a) = flatmap(identity, a)
     end
     # [11, 21, 12, 22, 13, 23]
 
-This is the standard monadic syntax which uses ``map`` for map_like and ``flatmap`` for flatmap_like.
-See ``Monadic.@monadic`` for more details.
+This is the standard monadic syntax which uses `map` for map_like and `flatmap` for flatmap_like.
+See `Monadic.@monadic` for more details.
 """
 macro syntax_flatmap(block::Expr)
   block = macroexpand(__module__, block)
@@ -337,7 +364,7 @@ end
 # Now can define the fallback definition for ap with monad style
 # ==============================================================
 
-# we don't overwrite ``ap`` directly because it can easily conflict with custom @traits definitions
+# we don't overwrite `ap` directly because it can easily conflict with custom definitions
 # instead it is offered as a default definition which you can use for your custom type
 
 # for monadic code we actually don't need Pure

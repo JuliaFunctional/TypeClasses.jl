@@ -1,5 +1,8 @@
 using TypeClasses
 
+TypeClasses.isNeutral(::Type{String}) = true
+TypeClasses.isCombine(::Type{String}) = true
+
 # Monoid
 # ======
 

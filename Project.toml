@@ -7,10 +7,14 @@ version = "0.5.0"
 DataTypesBasic = "83eed652-29e8-11e9-12da-a7c29d64ffc9"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 ExprParsers = "c5caad1f-83bd-4ce8-ac8e-4b29921e994e"
-FunctionWrappers = "069b7b12-0de2-55c6-9aab-29f3d0a68a2e"
-IsDef = "2704c575-34db-4e2b-9135-fc0075949e5a"
 Monadic = "4a6f0533-cc52-4fcf-a409-c6c05775ac80"
-ProxyInterface = "90c4b210-f34a-11e9-1a87-5d0d3aaf0cab"
+ProxyInterfaces = "9b3bf0c4-f070-48bc-ae01-f2584e9c23bc"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 StructEquality = "6ec83bb0-ed9f-11e9-3b4c-2b04cb4e219c"
 Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
-Traits = "5060dc80-e054-11e8-0acc-1dc6592f659e"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

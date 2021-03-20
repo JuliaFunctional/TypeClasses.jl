@@ -1,5 +1,6 @@
 using StructEquality
 using TypeClasses
+using DataTypesBasic
 
 """
 like Pair, however ensures that `combine` is defined for the accumulator `acc`
@@ -16,3 +17,6 @@ struct Writer{Acc, Value}
 end
 
 @def_structequal Writer
+
+Base.eltype(::Type{Writer{Acc, T}}) where {Acc, T} = T
+Base.eltype(::Type{<:Writer}) = Any

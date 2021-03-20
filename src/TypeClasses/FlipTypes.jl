@@ -1,20 +1,34 @@
-import Traits.BasicTraits: isiterable
+using TypeClasses.Utils
 
 function flip_types end
-# TODO what would be a better standard check for fliptypes?
-isFlipTypes(T::Type) = isdef(flip_types, T)
-isFlipTypes(a) = isFlipTypes(typeof(a))
 
+function isFlipTypes end
+isFlipTypes(T::Type) = error("Could not find definition for `TypeClasses.isFlipTypes(::Type{$T})`. Please define it")
+isFlipTypes(value) = isFlipTypes(typeof(value))
 
-@traits function flip_types(iter::T) where {
-    T, isiterable(T), isPure(T), isCombine(T), isAp(eltype(T))  # do we want to dispatch on eltype?
-  }
-  default_flip_types_having_pure_combine_apEltype(iter)
-end
+eltype
 
+"""
+    default_flip_types_having_pure_combine_apEltype(container)
+
+Use this helper function to ease the definition of `flip_types` for your own type.
+
+Note that the following interfaces are assumed:
+- iterable
+- pure
+- combine
+- ap on eltype
+
+And in case of empty iterable in addition the following:
+- neutral
+- pure on eltype
+
+We do not overload `flip_types` directly because this would require dispatching on whether `isAp(eltype(T))`.
+But relying on `eltype` to define different semantics is strongly discouraged.
+"""
 function default_flip_types_having_pure_combine_apEltype(iter::T) where T
   first = iterate(iter)
-  if first == nothing
+  if first === nothing
     # only in this case we actually need `pure(eltype(T))` and `neutral(T)`
     # for non-empty sequences everything works for Types without both
     pure(eltype(T), neutral(T))

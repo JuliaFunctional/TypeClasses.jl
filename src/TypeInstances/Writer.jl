@@ -1,50 +1,37 @@
 using TypeClasses
-using Traits
-using IsDef
+
+TypeClasses.isForeach(::Type{Writer}) = true
+TypeClasses.isMap(::Type{Writer}) = true
+TypeClasses.isAp(::Type{Writer}) = true
+TypeClasses.isFlatMap(::Type{Writer}) = true
+TypeClasses.isPure(::Type{<:Writer{Acc}}) where Acc = isNeutral(Acc)
+TypeClasses.isFlipTypes(::Type{<:Writer{<:Any, T}}) where T = isMap(T)
+
 
 # MonoidAlternative
 # =================
 
-@traits function TypeClasses.neutral(::Type{Writer{Acc, T}}) where {Acc, T, isNeutral(Acc), isNeutral(T)}
-  Writer(neutral(Acc), neutral(T))
-end
-
-@traits function TypeClasses.combine(p1::Writer{Acc1, T1}, p2::Writer{Acc2, T2}) where
-  {Acc1, T1, Acc2, T2, isCombine(Acc1, Acc2), isCombine(T1, T2)}
-  Writer(combine(p1.acc, p2.acc), combine(p1.value, p2.value))
-end
-
-@traits function TypeClasses.absorbing(::Type{Writer{Acc, T}}) where {Acc, T, isAbsorbing(Acc), isAbsorbing(T)}
-  Writer(absorbing(Acc), absorbing(T))
-end
-
-@traits function TypeClasses.orelse(p1::Writer{Acc1, T1}, p2::Writer{Acc2, T2}) where
-  {Acc1, T1, Acc2, T2, isOrElse(Acc1, Acc2), isOrElse(T1, T2)}
-  Writer(orelse(p1.acc, p2.acc), orelse(p1.value, p2.value))
-end
+# We do not define MonoidAlternative for Writer, Pair and Tuple are already enough for this
 
 
 # FunctorApplicativeMonad
 # =======================
 
-TypeClasses.eltype(::Type{Writer{Acc, T}}) where {Acc, T} = T
-TypeClasses.eltype(::Type{<:Writer}) = Any
-
 TypeClasses.foreach(f, p::Writer) = f(p.value); nothing
 TypeClasses.map(f, p::Writer) = Writer(p.acc, f(p.value))
 
 # pure needs Neutral on First
-@traits function TypeClasses.pure(::Type{<:Writer{Acc}}, a) where {Acc, isNeutral(Acc)}
+function TypeClasses.pure(::Type{<:Writer{Acc}}, a) where {Acc}
   Writer(neutral(Acc), a)
 end
 
-# Writer always define `combine` on `acc`
+# Writer always defines `combine` on `acc`
 function TypeClasses.ap(f::Writer, a::Writer)
   Writer(combine(f.acc, a.acc), f.value(a.value))
 end
 
-function TypeClasses.flatmap(f, a::Writer)
-  nested_writer = convert(Writer, f(a.value))
+function TypeClasses.flatmap(f, a::Writer{Acc}) where Acc
+  nested_writer = convert(Writer{Acc}, f(a.value))
   Writer(combine(a.acc, nested_writer.acc), nested_writer.value)
 end
 
@@ -52,6 +39,6 @@ end
 # flip_types
 # ==========
 
-@traits function TypeClasses.flip_types(a::Writer) where {isMap(a.value)}
+function TypeClasses.flip_types(a::Writer)
   TypeClasses.map(x -> Writer(a.acc, x), a.value)
 end

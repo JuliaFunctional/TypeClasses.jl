@@ -8,8 +8,10 @@
 TypeClasses.orelse(x1::Identity, x2::Union{Const, Identity}) = x1
 TypeClasses.orelse(x1::Const, x2::Identity) = x2
 
-@traits TypeClasses.neutral(::Type{Either{L, R}}) where {L, R, isNeutral(R)} = Identity(neutral(R))
-@traits TypeClasses.neutral(::Type{Either{<:Any, R}}) where {R, isNeutral(R)} = Identity(neutral(R))
+TypeClasses.neutral(::Type{Either{L, R}}) where {L, R} = Identity(neutral(R))
+TypeClasses.neutral(::Type{Either{<:Any, R}}) where {R} = Identity(neutral(R))
+TypeClasses.neutral(::Type{Option{T}}) where T = Const(nothing)
+TypeClasses.neutral(::Type{Option}) =  Const(nothing)
 
 # analog to definition of Option
 # combine keeps Right as Lefts could be regarded as neutral elements which must have no effect on combine by convention
@@ -24,7 +26,7 @@ TypeClasses.ap(f::Const, x::Identity) = f
 TypeClasses.ap(f::Identity, x::Const) = x
 
 TypeClasses.pure(::Type{Either}, a) = Identity(a)
-TypeClasses.pure(::Type{Either{L}}, a) where L = Identity(a)
+TypeClasses.pure(::Type{Either{L, <:Any}}, a) where L = Identity(a)
 TypeClasses.pure(::Type{Either{<:Any, R}}, a) where R = Identity(a)
 TypeClasses.pure(::Type{Either{L, R}}, a) where {L, R} = Identity(a)
 

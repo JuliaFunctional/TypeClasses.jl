@@ -1,24 +1,22 @@
 using TypeClasses
-using IsDef
-using Traits
-import FunctionWrappers: FunctionWrapper
 
-# TODO we encountered a couple of bad Errors, because this generically goes on all callable types, which still are
-# too many it seems. We can do the same as for Iterable and provide a Callable wrapper
 
 # Monoid instances
 # ================
 
-
-# this is standard Applicative combine implementation, however functions have a too complex type signature
-# for the standard implementation to kick in
-# hence we reimplement it for more relaxed types
+# this is standard Applicative combine implementation
+# there is no other sensible definition for combine and hence if this does fail, it fails correctly
 TypeClasses.combine(a::Callable, b::Callable) = mapn(combine, a, b)
 TypeClasses.orelse(a::Callable, b::Callable) = mapn(orelse, a, b)
+
+# it is not possible to implement neutral, as we do not know the element type without executing the function
 
 
 # Monad instances
 # ===============
+
+# there is no definition for Base.foreach, as a callable is not runnable without knowing the arguments
+TypeClasses.map(f, g::Callable) = Callable((args...; kwargs...) -> f(g(args...; kwargs...)))
 
 TypeClasses.pure(::Type{<:Callable}, a) = (args...; kwargs...) -> a
 TypeClasses.ap(f::Callable, g::Callable) = Callable((args...; kwargs...) -> f(args...; kwargs...)(g(args...; kwargs...)))

@@ -7,21 +7,21 @@
 
 # orelse Try
 @test Try(3) ⊛ Try(4) == Try(3)  # take the first non-ErrorException("error")
-@test Try{Int}(ErrorException("error")) ⊛ Try(4) == Try(4)  # take the first non-ErrorException("error")
+@test Try(ErrorException("error")) ⊛ Try(4) == Try(4)  # take the first non-ErrorException("error")
 @test Try(ErrorException("error")) ⊛ Try(4) == Try(4)  # take the first non-ErrorException("error")
 @test (@Try error("error")) ⊛ Try(4) == Try(4)  # take the first non-ErrorException("error")
 
 # combine Try
 @test Try("hi") ⊕ Try("ho") == Try("hiho")
-@test Try{Int}(ErrorException("error")) ⊕ Try(4) == Try{Int}(ErrorException("error"))
-@test Try{Int}(ErrorException("error")) ⊕ Try{Int}(ErrorException("exception")) == Try{Int}(MultipleExceptions(ErrorException("error"), ErrorException("exception")))
+@test Try(ErrorException("error")) ⊕ Try(4) == Try(ErrorException("error"))
+@test Try(ErrorException("error")) ⊕ Try(ErrorException("exception")) == Try(MultipleExceptions(ErrorException("error"), ErrorException("exception")))
 
 
 # FunctorApplicativeMonad
 # =======================
 
 @test change_eltype(Identity{Int}, Bool) == Identity{Bool}
-@test change_eltype(Try{Int}, Bool) == Try{Bool}  # IsDef typeinference actually flattens out <:Exception to Union of all Exceptions
+@test change_eltype(Try{Int}, Bool) == Try{Bool}
 
 @test map(Try(3)) do x
   x*x
@@ -51,6 +51,6 @@ h = @syntax_flatmap begin
   b = Try(ErrorException("error"))
   @pure "$a, $b"
 end
-@test h == Try{String}(ErrorException("error"))
+@test h == Try(ErrorException("error"))
 
 @test pure(Try, 4) == Try(4)

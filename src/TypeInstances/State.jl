@@ -3,15 +3,16 @@ using TypeClasses
 # Monoid instances
 # ================
 
-# this is standard Applicative combine implementation, however functions have a too complex type signature
-# for the standard implementation to kick in
-# hence we reimplement it for more relaxed types
+# this is standard Applicative combine implementation
+# there is no other sensible definition for combine and hence if this does fail, it fails correctly
 TypeClasses.combine(a::State, b::State) = mapn(combine, a, b)
 TypeClasses.orelse(a::State, b::State) = mapn(orelse, a, b)
 
 
 # FunctorApplicativeMonad
 # =======================
+
+# there is no implementation of foreach for State, as we cannot look into the state function
 
 TypeClasses.map(f, a::State) = State() do state
   value, newstate = a(state)
@@ -33,4 +34,9 @@ TypeClasses.flatmap(f, a::State) = State() do state0
   convert(State, f(value))(state1)
 end
 
-# neither flip_types nor fix_type is possible or makes sense
+
+# FlipTypes
+# =========
+
+# flip_types does not makes sense for State, as we cannot evalute the State without running the statefunctions on top
+# of a given initial state

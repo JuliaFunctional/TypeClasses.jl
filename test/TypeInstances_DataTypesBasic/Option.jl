@@ -34,7 +34,7 @@ end == Option("3, hi")
 
 @test mapn(Option(3), Option(nothing)) do x, y
   "$x, $y"
-end == nothing
+end == Option()
 
 ho = @syntax_flatmap begin
   a = Option(3)
@@ -57,4 +57,4 @@ end
 # =========
 
 @test flip_types(Identity([1,2,3])) == Identity.([1,2,3])
-@test_throws ErrorException flip_types(nothing)
+@test_throws MethodError flip_types(Const(nothing))

@@ -3,9 +3,8 @@ import Distributed: Future, @spawnat
 # Monoid instances
 # ================
 
-# this is standard Applicative combine implementation, however functions have a too complex type signature
-# for the standard implementation to kick in
-# hence we reimplement it for more relaxed types
+# this is standard Applicative combine implementation
+# there is no other sensible definition for combine and hence if this does fail, it fails correctly
 TypeClasses.combine(a::Future, b::Future) = mapn(combine, a, b)
 TypeClasses.orelse(a::Future, b::Future) = mapn(orelse, a, b)
 

@@ -1,59 +1,36 @@
 using TypeClasses
-using Traits
-using IsDef
+
 
 # MonoidAlternative
 # =================
 
-@traits function TypeClasses.neutral(::Type{Tuple{A}}) where {A, isNeutral(A)}
-  (neutral(A),)
+function create_tuple_monoid_definitions(n)
+  # unary and type arguments, for both `neutral` and `absorbing`
+  unary_typevars = Symbol.(:A, 1:n)
+  unary_args = [:(a::Type{Tuple{$(unary_typevars...)}})]
+  unary_return(unary) = :(tuple($(unary.(unary_typevars)...)))
+
+  # binary and value arguments, for both `combine` and `orelse`
+  binary_typevars_1 = Symbol.(:A, 1:n)
+  binary_typevars_2 = Symbol.(:B, 1:n)
+  binary_args = [:(a::Tuple{$(binary_typevars_1...)}), :(b::Tuple{$(binary_typevars_2...)})]
+  binary_return(binary) = :(tuple($(binary.([:(getfield(a, $i)) for i in 1:n], [:(getfield(b, $i)) for i in 1:n])...)))
+  quote
+    function TypeClasses.neutral($(unary_args...)) where {$(unary_typevars...)}
+      $(unary_return(A -> :(neutral($A))))
+    end
+    function TypeClasses.combine($(binary_args...)) where {$(binary_typevars_1...), $(binary_typevars_2...)}
+      $(binary_return((a, b) -> :($a ⊕ $b)))
+    end
+    function TypeClasses.absorbing($(unary_args...)) where {$(unary_typevars...)}
+      $(unary_return(A -> :(absorbing($A))))
+    end
+    function TypeClasses.orelse($(binary_args...)) where {$(binary_typevars_1...), $(binary_typevars_2...)}
+      $(binary_return((a, b) -> :($a ⊗ $b)))
+    end
+  end
 end
 
-@traits function TypeClasses.combine(x::Tuple{A}, y::Tuple{A}) where {A, isCombine(A)}
-  (x.:1 ⊕ y.:1,)
+for n in 1:20  # 20 is an arbitrary number
+  eval(create_tuple_monoid_definitions(n))
 end
-
-@traits function TypeClasses.neutral(::Type{Tuple{A,B}}) where {A, B, isNeutral(A), isNeutral(B)}
-  (neutral(A), neutral(B))
-end
-
-@traits function TypeClasses.combine(x::Tuple{A,B}, y::Tuple{A,B}) where {A, B, isCombine(A), isCombine(B)}
-  (x.:1 ⊕ y.:1, x.:2 ⊕ y.:2)
-end
-
-@traits function TypeClasses.neutral(::Type{Tuple{A,B,C}}) where {A, B, C, isNeutral(A), isNeutral(B), isNeutral(C)}
-  (neutral(A), neutral(B), neutral(C))
-end
-
-@traits function TypeClasses.combine(x::Tuple{A,B,C}, y::Tuple{A,B,C}) where {A, B, C, isCombine(A), isCombine(B), isCombine(C)}
-  (x.:1 ⊕ y.:1, x.:2 ⊕ y.:2, x.:3 ⊕ y.:3)
-end
-
-# TODO create others by macro
-
-
-@traits function TypeClasses.absorbing(::Type{Tuple{A}}) where {A, isAbsorbing(A)}
-  (neutral(A),)
-end
-
-@traits function TypeClasses.orelse(x::Tuple{A}, y::Tuple{A}) where {A, isOrElse(A)}
-  (x.:1 ⊗ y.:1,)
-end
-
-@traits function TypeClasses.absorbing(::Type{Tuple{A,B}}) where {A, B, isAbsorbing(A), isAbsorbing(B)}
-  (absorbing(A), absorbing(B))
-end
-
-@traits function TypeClasses.orelse(x::Tuple{A,B}, y::Tuple{A,B}) where {A, B, isOrElse(A), isOrElse(B)}
-  (x.:1 ⊗ y.:1, x.:2 ⊗ y.:2)
-end
-
-@traits function TypeClasses.absorbing(::Type{Tuple{A,B,C}}) where {A, B, C, isAbsorbing(A), isAbsorbing(B), isAbsorbing(C)}
-  (absorbing(A), absorbing(B), absorbing(C))
-end
-
-@traits function TypeClasses.orelse(x::Tuple{A,B,C}, y::Tuple{A,B,C}) where {A, B, C, isOrElse(A), isOrElse(B), isOrElse(C)}
-  (x.:1 ⊗ y.:1, x.:2 ⊗ y.:2, x.:3 ⊗ y.:3)
-end
-
-# TODO create others by macro
