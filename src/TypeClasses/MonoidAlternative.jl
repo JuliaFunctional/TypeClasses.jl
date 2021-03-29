@@ -84,27 +84,6 @@ for reduce ∈ [:reduce, :foldl, :foldr]
 end
 
 
-# Absorbing
-# =========
-
-"""
-specify an absorbing element for your Type which will stays unaltered when used in `combine`
-i.e. `combine(absorbing(T), anything) == absorbing(T)`
-"""
-function absorbing end
-absorbing(T::Type) = throw(MethodError("absorbing($T) not defined"))
-absorbing(a) = absorbing(typeof(a))
-
-"""
-    isAbsorbing(type)
-    isAbsorbing(value) = isAbsorbing(typeof(value))
-    
-trait for checking whether a given Type defines `TypeClasses.neutral`
-"""
-isAbsorbing(T::Type) = error("Could not find definition for `TypeClasses.isAbsorbing(::Type{$T})`. Please define it.")
-isAbsorbing(a) = isAbsorbing(typeof(a))
-
-
 # Alternative
 # ===========
 

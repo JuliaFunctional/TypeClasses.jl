@@ -4,7 +4,6 @@
 # just forward definitions from wrapped type
 
 TypeClasses.neutral(::Type{Identity{T}}) where {T} = Identity(TypeClasses.neutral(T))
-TypeClasses.absorbing(::Type{Identity{T}}) where {T} = Identity(TypeClasses.absorbing(T))
 TypeClasses.combine(a::Identity, b::Identity) = Identity(a.value ⊕ b.value)
 TypeClasses.orelse(a::Identity, b::Identity) = a  # should return first correct value
 

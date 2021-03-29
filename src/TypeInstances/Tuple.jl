@@ -5,7 +5,7 @@ using TypeClasses
 # =================
 
 function create_tuple_monoid_definitions(n)
-  # unary and type arguments, for both `neutral` and `absorbing`
+  # unary and type arguments for `neutral`
   unary_typevars = Symbol.(:A, 1:n)
   unary_args = [:(a::Type{Tuple{$(unary_typevars...)}})]
   unary_return(unary) = :(tuple($(unary.(unary_typevars)...)))
@@ -21,9 +21,6 @@ function create_tuple_monoid_definitions(n)
     end
     function TypeClasses.combine($(binary_args...)) where {$(binary_typevars_1...), $(binary_typevars_2...)}
       $(binary_return((a, b) -> :($a ⊕ $b)))
-    end
-    function TypeClasses.absorbing($(unary_args...)) where {$(unary_typevars...)}
-      $(unary_return(A -> :(absorbing($A))))
     end
     function TypeClasses.orelse($(binary_args...)) where {$(binary_typevars_1...), $(binary_typevars_2...)}
       $(binary_return((a, b) -> :($a ⊗ $b)))
