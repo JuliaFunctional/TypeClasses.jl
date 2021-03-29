@@ -5,10 +5,12 @@
 # orelse
 @test Either{String, Int}("hi") ⊛ Either{String, Int}(1) == Either{String, Int}(1)
 @test Either{String, Int}("hi") ⊛ Either{String, Int}("ho") == Either{String, Int}("ho")
+@test Either{String, Int}(1) ⊛ Either{String, Int}(4) == Either{String, Int}(1)
 
 # combine
+@test_throws MethodError Either{Int}(true) ⊕ Either{Int}("ho")
 @test Either{Int, String}("hi") ⊕ Either{Int, String}("ho") == Either{Int, String}("hiho")
-@test Either{String, Int}("hi") ⊕ Either{String, Int}("ho") == Either{String, Int}("hiho")
+@test Either{String, Int}("hi") ⊕ Either{String, Int}("ho") == Either{String, Int}("ho")
 
 
 # FunctorApplicativeMonad

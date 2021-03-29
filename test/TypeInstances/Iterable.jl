@@ -33,14 +33,14 @@ end
 @test collect(h2) == [2, 12]
 
 # However note that the following does not work
-h3 = @syntax_flatmap begin
+h3() = @syntax_flatmap begin
   x = a
   y = isodd(x) ? Option(x*x) : Option()
   z = b
   @pure x + y + z
 end
-# ERROR: MethodError: Cannot `convert` an object of type Iterable{Base.Generator{Array{Int64,1},var"#671#674"{Int64,Int64}}} to an object of type Option
-@test_throws MethodError collect(h3)
+# ERROR: MethodError: Cannot `convert` an object of type Iterable{Array{Int64,1}} to an object of type Identity
+@test_throws MethodError collect(h3())
 # Tip: use ExtensibleEffects for such more complex multi effect interaction
 
 

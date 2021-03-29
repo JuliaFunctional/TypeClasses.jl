@@ -4,7 +4,8 @@
 a = Writer("a", [1])
 b = Writer("b", [2,3,4])
 
-@test a ⊕ b == Writer("ab", [1,2,3,4])
+# monoid is not supported, as Tuple and Pair seem enough for these usecases
+@test_throws MethodError a ⊕ b == Writer("ab", [1,2,3,4])
 
 # FunctorApplicativeMonad
 # =======================

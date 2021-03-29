@@ -13,8 +13,9 @@
 
 # combine Try
 @test Try("hi") ⊕ Try("ho") == Try("hiho")
-@test Try(ErrorException("error")) ⊕ Try(4) == Try(ErrorException("error"))
-@test Try(ErrorException("error")) ⊕ Try(ErrorException("exception")) == Try(MultipleExceptions(ErrorException("error"), ErrorException("exception")))
+@test Try(ErrorException("error")) ⊕ Try(4) == Try(4)
+@test Try(ErrorException("error")) ⊕ Try(ErrorException("exception")) == Try(ErrorException("exception"))
+@test flip_left_right(Try(ErrorException("error"))) ⊕ flip_left_right(Try(ErrorException("exception"))) == flip_left_right(Try(MultipleExceptions(ErrorException("error"), ErrorException("exception"))))
 
 
 # FunctorApplicativeMonad
