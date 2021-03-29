@@ -17,9 +17,6 @@ using Test
 # FunctorApplicativeMonad
 # =======================
 
-@test change_eltype(Identity{Int}, Bool) == Identity{Bool}
-@test change_eltype(Option{Int}, Bool) == Option{Bool}
-
 @test map(Option(3)) do x
   x*x
 end == Option(9)

@@ -10,9 +10,6 @@ b = Writer("b", [2,3,4])
 # =======================
 
 @test eltype(Writer{Int, String}) == String
-@test change_eltype(Writer{String, Int}, String) == Writer{String, String}
-
-
 
 @test map(x -> [x; x], a) == Writer("a", [1,1])
 

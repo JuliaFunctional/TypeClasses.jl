@@ -14,9 +14,6 @@
 # FunctorApplicativeMonad
 # =======================
 
-@test change_eltype(Identity{String}, Bool) == Identity{Bool}
-@test change_eltype(Either{Int, String}, Bool) == Either{Int, Bool}
-
 @test map(Either{String}(3)) do x
   x * x
 end == Either{String}(9)

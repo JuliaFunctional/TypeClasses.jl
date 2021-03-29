@@ -10,7 +10,6 @@ b = [4,5,6]
 # =======================
 
 @test eltype(Vector{Int}) == Int
-@test change_eltype(Vector{Int}, String) == Vector{String}
 
 @test map(x -> x*x, a) == [1, 4, 9]
 

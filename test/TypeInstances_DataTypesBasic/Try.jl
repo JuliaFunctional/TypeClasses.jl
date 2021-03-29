@@ -20,9 +20,6 @@
 # FunctorApplicativeMonad
 # =======================
 
-@test change_eltype(Identity{Int}, Bool) == Identity{Bool}
-@test change_eltype(Try{Int}, Bool) == Try{Bool}
-
 @test map(Try(3)) do x
   x*x
 end == Try(9)
