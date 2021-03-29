@@ -1,13 +1,5 @@
 using TypeClasses
 
-TypeClasses.isForeach(::Type{Writer}) = true
-TypeClasses.isMap(::Type{Writer}) = true
-TypeClasses.isAp(::Type{Writer}) = true
-TypeClasses.isFlatMap(::Type{Writer}) = true
-TypeClasses.isPure(::Type{<:Writer{Acc}}) where Acc = isNeutral(Acc)
-TypeClasses.isFlipTypes(::Type{<:Writer{<:Any, T}}) where T = isMap(T)
-
-
 # MonoidAlternative
 # =================
 

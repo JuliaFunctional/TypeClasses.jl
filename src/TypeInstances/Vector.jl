@@ -2,12 +2,6 @@
 using TypeClasses
 
 # TODO AbstractVector??
-TypeClasses.isNeutral(::Type{<:Vector}) = true
-TypeClasses.isCombine(::Type{<:Vector}) = true
-TypeClasses.isPure(::Type{<:Vector}) = true
-TypeClasses.isAp(::Type{<:Vector}) = true
-TypeClasses.isFlatMap(::Type{<:Vector}) = true
-TypeClasses.isFlipTypes(::Type{<:Vector}) = true
 
 # MonoidAlternative
 # =================
