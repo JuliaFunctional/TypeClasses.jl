@@ -26,12 +26,10 @@ end
 # construct acc via neutral
 
 function Base.convert(::Type{<:Writer{Acc}}, x::ContextManager) where Acc
-  @assert(isNeutral(Acc), "Tried to convert ContextManager to Writer{Acc}, however `Acc = $Acc` is not Neutral, and hence we cannot come up with an initial element for the Writer aggregation.")
   Writer(neutral(Acc), x(identity))
 end
 
 function Base.convert(::Type{<:Writer{Acc}}, x::Identity) where Acc
-  @assert(isNeutral(Acc), "Tried to convert Identity to Writer{Acc}, however `Acc = $Acc` is not Neutral, and hence we cannot come up with an initial element for the Writer aggregation.")
   Writer(neutral(Acc), x.value)
 end
 
