@@ -54,17 +54,6 @@ The core functionality of a functor, applying a normal function "into" the conte
 Think of map and vector as best examples.
 """
 
-"""
-    isMap(type)
-    isMap(value) = isMap(typeof(value))
-    isFunctor(type)
-    isFunctor(value) = isFunctor(typeof(value))
-
-trait for checking whether a given Type defines `Base.map`
-"""
-isMap(T::Type) = error("Could not find definition for `TypeClasses.isMap(::Type{$T})`. Please define it.")
-isMap(value) = isMap(typeof(value))
-const isFunctor = isMap
 
 
 """
@@ -98,14 +87,6 @@ wraps value a into container T
 """
 function pure end
 
-"""
-    isPure(type)
-    isPure(value) = isPure(typeof(value))
-
-trait for checking whether a given Type defines `TypeClasses.pure`
-"""
-isPure(T::Type) = error("Could not find definition for `TypeClasses.isPure(::Type{$T})`. Please define it.")
-isPure(value) = isPure(typeof(value))
 
 """
   ap(f::F1, a::F2)
@@ -114,26 +95,6 @@ apply function in container F1 to element in container F2
 """
 function ap end
 
-"""
-    isAp(type)
-    isAp(value) = isAp(typeof(value))
-    isMapN(type)
-    isMapN(value) = isMapN(typeof(value))
-
-trait for checking whether a given Type defines `TypeClasses.ap`
-"""
-isAp(T::Type) = error("Could not find definition for `TypeClasses.isAp(::Type{$T})`. Please define it.")
-isAp(a) = isAp(typeof(a))
-const isMapN = isAp  # alias because `mapn` is actually equal in power to `ap`, but more self explanatory and more used
-
-
-"""
-    isApplicative(type)
-    isApplicative(value) = isApplicative(typeof(value))
-
-combining traits [`TypeClasses.isMap`](@ref), [`TypeClasses.isPure`](@ref) and [`TypeClasses.isAp`](@ref)
-"""
-isApplicative(a) = isFunctor(T) && isPure(T) && isAp(T)
 
 # basic functionality
 # -------------------
@@ -250,10 +211,8 @@ default_map_having_ap_pure(f, a::A) where {A} = ap(pure(A, f), a)
 # generic Monoid implementations for Applicative
 # ----------------------------------------------
 
-# isApplicative(T) && isMonoid(eltype(T)) -> isMonoid(T)
-
 # it is tempting to overload `neutral`, `combine` and so forth directly,
-# however dispatching on eltype is not allowed if used for different semantics,
+# however dispatching on eltype is not allowed if used for different semantics, as the element-type is an unstable property of a return value, so it should not lead to different results the one or the other way.
 
 function neutral_applicative(T::Type)
   pure(T, neutral(eltype(T)))
@@ -307,27 +266,6 @@ TypeClasses.flatmap(f, v::Vector) = vcat((convert(Vector, f(x)) for x in v)...)
 """
 function flatmap end
 
-
-"""
-    isFlatMap(type)
-    isFlatMap(value) = isFlatMap(typeof(value))
-    isFlatten(type)
-    isFlatten(value) = isFlatten(typeof(value))
-
-trait for checking whether a given Type defines `TypeClasses.isFlatMap`
-"""
-isFlatMap(T::Type) = error("Could not find definition for `TypeClasses.isFlatMap(::Type{$T})`. Please define it.")
-isFlatMap(a) = isFlatMap(typeof(a))
-
-const isFlatten = isFlatMap
-
-"""
-    isMonad(type)
-    isMonad(value) = isMonad(typeof(value))
-
-combining traits [`TypeClasses.isMap`](@ref), [`TypeClasses.isPure`](@ref), [`TypeClasses.isAp`](@ref) (which together make up [`isApplicative`](@ref)), and in addition also [`isFlatMap`](@ref).
-"""
-isMonad(a) = isApplicative(a) && isFlatMap(a)
 
 # basic functionality
 # -------------------

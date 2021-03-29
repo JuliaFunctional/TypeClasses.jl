@@ -1,12 +1,12 @@
 using TypeClasses.Utils
 
+"""
+    flip_types(value::T{S{A}})::S{T{A}}
+
+reverses the two outer containers, e.g. making an Array of Options into an Option of an Array.
+"""
 function flip_types end
 
-function isFlipTypes end
-isFlipTypes(T::Type) = error("Could not find definition for `TypeClasses.isFlipTypes(::Type{$T})`. Please define it")
-isFlipTypes(value) = isFlipTypes(typeof(value))
-
-eltype
 
 """
     default_flip_types_having_pure_combine_apEltype(container)
