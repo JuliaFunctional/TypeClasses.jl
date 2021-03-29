@@ -2,8 +2,18 @@
 
 TypeClasses defines general programmatic abstractions taken from Scala cats and Haskell TypeClasses.
 
-# TODO describe how easy it is to define a flip_types definition for custom types
+The following interfaces are defined:
 
+TypeClass   | Methods                             | Description
+----------- | ----------------------------------- | --------------------------------------------------------------------
+Functor     | `Base.map`                          | The basic definition of a container or computational context.
+Applicative | Functor & `TypeClasses.ap`          | Computational context with support for parallel execution.
+Monad       | Applicative & `TypeClasses.flatmap` | Computational context with support for sequential, nested execution.
+Semigroup   | `TypeClasses.combine`, alias `⊕`    | The notion of something which can be combined with other things of its kind.
+Monoid      | Semigroup & `TypeClasses.neutral`   | A semigroup with a neutral element is called a Monoid, a category which is used quite a lot.
+Alternative | `TypeClasses.neutral` & `TypeClasses.orelse`, alias `⊛` | Slightly different than Monoid, the `orelse` semantic does not merge two values, but just takes one of the two. The neutral element is not used.
+
+TODO add details
 
 # Design Decisions
 
@@ -17,6 +27,6 @@ If you dispatch on `Vector{Number}` in order to implement something specific for
 
 With Functors, specifically with Monads, we have exactly the setting where we may dispatch on `eltype` to define different semantics. They key reason is that there are a couple of Monads where you cannot inspect the concrete elements, for instance `Callable` where the element is hidden behind an arbitrary function. Hence you may not be able to implement a function for `Callable{Any}` in a sensible way, while it actually is well-defined for `Callable{Callable}`. That is not Julia.
 
-Another example is the typeclass `neutral`. It turns out you can define `neutral` for each `Applicative` which ElementType itself implements `neutral`. It is really tempting to define the generic implementation for Applicatives, dispatching on `eltype`... Instead we provide specific applicative versions `neutral_applicative` and `combine_applicative` which assume the elements comply to the `Neutral` and `Semigroup` interface respectively. Similar for `absorbing` and `orelse`.
+Another example is the typeclass `neutral`. It turns out you can define `neutral` for each `Applicative` which ElementType itself implements `neutral`. It is really tempting to define the generic implementation for Applicatives, dispatching on `eltype`... Instead we provide specific applicative versions `neutral_applicative` and `combine_applicative` which assume the elements comply to the `Neutral` and `Semigroup` interface respectively. Similar for `orelse`.
 
 As we cannot safely dispatch on `eltype`, the Julia way is to just assume your ElementType has the characteristics needed for your function, i.e. use duck-typing instead of dispatch. Naturally, this will work for all containers with the right elements. And in case the elements do not implement the required interfaces, it will fail with a well self-explaining `MethodError`. This you can then debug which will bring you directly to the place where you can inspect the elements in detail.
