@@ -5,7 +5,8 @@ export State, getstate, putstate
 defining state monad, which capsulate a state within a monadic type
 """
 struct State{T}
-  func::T # s -> (a, s)
+  "s -> (a, s)"
+  func::T
 end
 function (s::State)(state)
   s.func(state)
