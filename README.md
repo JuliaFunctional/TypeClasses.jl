@@ -20,10 +20,3 @@ With Functors, specifically with Monads, we have exactly the setting where we ma
 Another example is the typeclass `neutral`. It turns out you can define `neutral` for each `Applicative` which ElementType itself implements `neutral`. It is really tempting to define the generic implementation for Applicatives, dispatching on `eltype`... Instead we provide specific applicative versions `neutral_applicative` and `combine_applicative` which assume the elements comply to the `Neutral` and `Semigroup` interface respectively. Similar for `absorbing` and `orelse`.
 
 As we cannot safely dispatch on `eltype`, the Julia way is to just assume your ElementType has the characteristics needed for your function, i.e. use duck-typing instead of dispatch. Naturally, this will work for all containers with the right elements. And in case the elements do not implement the required interfaces, it will fail with a well self-explaining `MethodError`. This you can then debug which will bring you directly to the place where you can inspect the elements in detail.
-
-
-### No `change_eltype` function
-
-During the development of this package we initially used a further function, quite related to `eltype`, called `change_eltype`. It took a container type like `Vector` and tried to change its ElementType, e.g. `change_eltype(Vector{Int}, String) == Vector{String}`. While this may seem intuitively reasonable for example to define `isAp`, namely to check whether for some Container `Container` the key function `ap` is defined for `ap(::Container{Function}, ::Container)`, this is a version of dispatching on `eltype` and hence should be avoided.
-
-The resolution is that we assume `ap` is always overloaded with the first argument being of the general Container-type, i.e. without any restrictions to the eltype.
