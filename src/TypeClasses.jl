@@ -11,6 +11,8 @@ export Iterable, IterateEmpty, IterateSingleton,
   pure, ap, curry, mapn, @mapn, sequence, tupled,
   flatten, flatmap, @pure, @syntax_flatmap,
   flip_types
+  # re-export
+  @pure
 
 using DataTypesBasic
 
