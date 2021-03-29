@@ -24,10 +24,13 @@ ProxyInterfaces.iterator(it::Iterable) = it.iter
 ProxyInterfaces.@iterator Iterable
 
 # generic convert method
+Base.convert(::Type{Iterable{T}}, x::Iterable{T}) where T = x
 function Base.convert(::Type{<:Iterable}, x)
   @assert(isiterable(x), "Only iterables can be converted to Iterable, please overload `Base.isiterable` respectively")
   Iterable(x)
 end
+
+
 
 # Iterable Helpers
 # ================
