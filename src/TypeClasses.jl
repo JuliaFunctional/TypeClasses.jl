@@ -4,14 +4,13 @@ module TypeClasses
 export Iterable, IterateEmpty, IterateSingleton,
   Callable, Writer,
   State, getstate, putstate,
-  neutral, combine, ⊕, isNeutral, isCombine, isSemigroup, isMonoid, reduce_monoid, foldr_monoid, foldl_monoid,
-  absorbing, orelse, ⊛, isAbsorbing, isOrElse, isAlternative,
+  neutral, combine, ⊕, reduce_monoid, foldr_monoid, foldl_monoid,
+  absorbing, orelse, ⊛,
   foreach, isForeach, @syntax_foreach,
-  map, isMap, isFunctor, @syntax_map, eltype, isEltype, change_eltype, ⫙,
-  pure, ap, isPure, isAp, isMapN, isApplicative, curry, gmapn, mapn, @mapn, sequence, tupled,
-  flatten, isFlatten, flatmap, isMonad, @pure, @syntax_flatmap,
-  flip_types, isFlipTypes,
-  fix_type
+  map, @syntax_map, eltype,
+  pure, ap, curry, mapn, @mapn, sequence, tupled,
+  flatten, flatmap, @pure, @syntax_flatmap,
+  flip_types
 
 using DataTypesBasic
 
