@@ -10,8 +10,8 @@ Functor     | `Base.map`                          | The basic definition of a co
 Applicative | Functor & `TypeClasses.ap`          | Computational context with support for parallel execution.
 Monad       | Applicative & `TypeClasses.flatmap` | Computational context with support for sequential, nested execution.
 Semigroup   | `TypeClasses.combine`, alias `⊕`    | The notion of something which can be combined with other things of its kind.
-Monoid      | Semigroup & `TypeClasses.neutral`   | A semigroup with a neutral element is called a Monoid, a category which is used quite a lot.
-Alternative | `TypeClasses.neutral` & `TypeClasses.orelse`, alias `⊛` | Slightly different than Monoid, the `orelse` semantic does not merge two values, but just takes one of the two. The neutral element is not used.
+Monoid      | Semigroup & `TypeClasses.neutral`   | A semigroup with a neutral element is called a Monoid, an often used category.
+Alternative | `TypeClasses.neutral` & `TypeClasses.orelse`, alias `⊛` | Slightly different than Monoid, the `orelse` semantic does not merge two values, but just takes one of the two.
 
 TODO add details
 
