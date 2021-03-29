@@ -19,10 +19,7 @@ TypeClasses.neutral(::Type{Int}) = 0
 # -------------------------------------
 
 myfunction(a, b) = a * b
-TypeClasses.isNeutral(::Type{typeof(myfunction)}) = true
 TypeClasses.neutral(::Type{typeof(myfunction)}) = one
-@test isNeutral(myfunction)
-@test isNeutral(typeof(myfunction))
 @test reduce_monoid(myfunction, [1,2,3,4]) == 1*2*3*4
 
 # TODO Test Alternative

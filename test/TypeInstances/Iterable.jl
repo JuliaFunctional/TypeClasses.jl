@@ -1,14 +1,6 @@
 a = Iterable(i for i ∈ [1,2,3])
 b = Iterable([4,5,6])
 
-@test isAp(Iterable)
-@test isFunctor(Iterable)
-@test isNeutral(Iterable)
-@test isCombine(Iterable)
-@test isPure(Iterable)
-@test isFlatten(Iterable)
-
-
 # MonoidAlternative
 # =================
 
