@@ -1,9 +1,10 @@
-# TypeClasses.jl
+```@meta
+CurrentModule = TypeClasses
+```
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://JuliaFunctional.github.io/TypeClasses.jl/stable)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://JuliaFunctional.github.io/TypeClasses.jl/dev)
-[![Build Status](https://github.com/JuliaFunctional/TypeClasses.jl/workflows/CI/badge.svg)](https://github.com/JuliaFunctional/TypeClasses.jl/actions)
-[![Coverage](https://codecov.io/gh/JuliaFunctional/TypeClasses.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaFunctional/TypeClasses.jl)
+# TypeClasses
+
+Documentation for [TypeClasses](https://github.com/schlichtanders/TypeClasses.jl).
 
 TypeClasses defines general programmatic abstractions taken from Scala cats and Haskell TypeClasses.
 
@@ -17,3 +18,16 @@ Monad       | Applicative & `TypeClasses.flatmap` | Computational context with s
 Semigroup   | `TypeClasses.combine`, alias `⊕`    | The notion of something which can be combined with other things of its kind.
 Monoid      | Semigroup & `TypeClasses.neutral`   | A semigroup with a neutral element is called a Monoid, an often used category.
 Alternative | `TypeClasses.neutral` & `TypeClasses.orelse`, alias `⊛` | Slightly different than Monoid, the `orelse` semantic does not merge two values, but just takes one of the two.
+
+
+## Manual Outline
+
+```@contents
+Pages = ["manual.md"]
+```
+
+## [Library Index](@id main-index)
+
+```@index
+Pages = ["library.md"]
+```
