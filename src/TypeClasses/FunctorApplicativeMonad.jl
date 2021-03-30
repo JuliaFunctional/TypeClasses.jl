@@ -13,14 +13,6 @@ Note that this does not work for all Functors (e.g. not for Callables), however 
 This is also the reason why we don't use the default fallback to map, as this may make no sense for your custom Functor.
 """
 
-"""
-    isForeach(type)
-    isForeach(value) = isForeach(typeof(value))
-
-trait for checking whether a given Type defines `Base.foreach`
-"""
-isForeach(T::Type) = error("Could not find definition for `TypeClasses.isForeach(::Type{$T})`. Please define it.")
-isForeach(value) = isForeach(typeof(value))
 
 """
     @syntax_foreach begin
@@ -220,10 +212,6 @@ end
 
 function combine_applicative(a, b)
   mapn(⊕, a, b)
-end
-
-function absorbing_applicative(T::Type)
-  pure(T, absorbing(eltype(T)))
 end
 
 function orelse_applicative(a, b)
