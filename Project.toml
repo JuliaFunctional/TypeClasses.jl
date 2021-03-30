@@ -1,7 +1,7 @@
 name = "TypeClasses"
 uuid = "addcc920-e0cf-11e8-30b7-0fb08706b574"
 authors = ["Sahm Stephan <stephan.sahm@gmx.de>"]
-version = "0.5.0"
+version = "0.6.0"
 
 [deps]
 DataTypesBasic = "83eed652-29e8-11e9-12da-a7c29d64ffc9"
