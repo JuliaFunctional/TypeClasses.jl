@@ -15,9 +15,11 @@ isiterable(type::Type) = Base.isiterable(type)
 If `expr` evaluates to `nothing`, equivalent to `return nothing`, otherwise the macro
 evaluates to the value of `expr`. Not exported, useful for implementing iterators.
 ```jldoctest
+julia> using TypeClasses.Utils
+
 julia> @ifsomething iterate(1:2)
 (1, 1)
-julia> let elt, state = IterTools.@ifsomething iterate(1:2, 2); println("not reached"); end
+julia> let elt, state = @ifsomething iterate(1:2, 2); println("not reached"); end
 ```
 """
 macro ifsomething(ex)
