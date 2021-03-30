@@ -7,7 +7,7 @@ export Iterable, IterateEmpty, IterateSingleton,
   neutral, combine, ⊕, reduce_monoid, foldr_monoid, foldl_monoid,
   orelse, ⊛,
   foreach, @syntax_foreach,
-  map, @syntax_map, eltype,
+  map, @syntax_map,
   pure, ap, curry, mapn, @mapn, sequence, tupled,
   flatten, flatmap, @syntax_flatmap,
   flip_types
