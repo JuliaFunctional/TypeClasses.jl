@@ -38,6 +38,13 @@ Exactly like `iterate`, with the addition that you can use `result.value` in add
 and `result.state` for `result[2]`. It will return a named tuple respectively if not nothing, hence also the name.
 
 Can be used instead of `iterate`.
+
+```jldoctest
+julia> using TypeClasses.Utils
+
+julia> iterate_named(["one", "two"])
+(value = "one", state = 2)
+```
 """
 function iterate_named(iter, state...)
   value, state′ = @ifsomething iterate(iter, state...)
