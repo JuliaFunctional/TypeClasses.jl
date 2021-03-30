@@ -9,12 +9,14 @@ export Iterable, IterateEmpty, IterateSingleton,
   foreach, isForeach, @syntax_foreach,
   map, @syntax_map, eltype,
   pure, ap, curry, mapn, @mapn, sequence, tupled,
-  flatten, flatmap, @pure, @syntax_flatmap,
+  flatten, flatmap, @syntax_flatmap,
   flip_types
-  # re-export
-  @pure
+
+# re-export
+export @pure
 
 using DataTypesBasic
+using Monadic
 
 
 include("Utils/Utils.jl")
