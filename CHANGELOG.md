@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2021-03-30
+### Added
+* CI/CD pipeline
+* Minimal Docs using Documenter
+* Codecovering
+* TagBot & CompatHelper
+
 ## [0.6.0] - 2021-03-29
 
 ### Removed
