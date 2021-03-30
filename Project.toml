@@ -1,6 +1,6 @@
 name = "TypeClasses"
 uuid = "addcc920-e0cf-11e8-30b7-0fb08706b574"
-authors = ["Sahm Stephan <stephan.sahm@gmx.de>"]
+authors = ["Stephan Sahm <stephan.sahm@gmx.de> and contributors"]
 version = "0.6.1"
 
 [deps]

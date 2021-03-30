@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Minimal Docs using Documenter
 * Codecovering
 * TagBot & CompatHelper
+* License
+
+### Changed
+* parts from the README went to the docs
 
 ## [0.6.0] - 2021-03-29
 

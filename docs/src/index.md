@@ -4,7 +4,7 @@ CurrentModule = TypeClasses
 
 # TypeClasses
 
-Documentation for [TypeClasses](https://github.com/schlichtanders/TypeClasses.jl).
+Documentation for [TypeClasses](https://github.com/JuliaFunctional/TypeClasses.jl).
 
 TypeClasses defines general programmatic abstractions taken from Scala cats and Haskell TypeClasses.
 
