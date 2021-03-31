@@ -13,6 +13,9 @@ Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 StructEquality = "6ec83bb0-ed9f-11e9-3b4c-2b04cb4e219c"
 Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 
+[compat]
+StructEquality = "1.0"
+
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
