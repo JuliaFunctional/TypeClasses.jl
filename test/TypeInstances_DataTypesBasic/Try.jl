@@ -6,15 +6,15 @@
 @test ErrorException("hi") ⊕ ErrorException("ho") == MultipleExceptions(ErrorException("hi"), ErrorException("ho"))
 
 # orelse Try
-@test Try(3) ⊛ Try(4) == Try(3)  # take the first non-ErrorException("error")
-@test Try(ErrorException("error")) ⊛ Try(4) == Try(4)  # take the first non-ErrorException("error")
-@test Try(ErrorException("error")) ⊛ Try(4) == Try(4)  # take the first non-ErrorException("error")
-@test (@Try error("error")) ⊛ Try(4) == Try(4)  # take the first non-ErrorException("error")
+@test Try(3) ⊘ Try(4) == Try(3)  # take the first non-ErrorException("error")
+@test Try(ErrorException("error")) ⊘ Try(4) == Try(4)  # take the first non-ErrorException("error")
+@test Try(ErrorException("error")) ⊘ Try(4) == Try(4)  # take the first non-ErrorException("error")
+@test (@Try error("error")) ⊘ Try(4) == Try(4)  # take the first non-ErrorException("error")
 
 # combine Try
 @test Try("hi") ⊕ Try("ho") == Try("hiho")
 @test Try(ErrorException("error")) ⊕ Try(4) == Try(4)
-@test Try(ErrorException("error")) ⊕ Try(ErrorException("exception")) == Try(ErrorException("exception"))
+@test Try(ErrorException("error")) ⊕ Try(ErrorException("exception")) == Try(MultipleExceptions(ErrorException("error"), ErrorException("exception")))
 @test flip_left_right(Try(ErrorException("error"))) ⊕ flip_left_right(Try(ErrorException("exception"))) == flip_left_right(Try(MultipleExceptions(ErrorException("error"), ErrorException("exception"))))
 
 

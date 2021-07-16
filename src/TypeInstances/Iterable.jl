@@ -28,8 +28,11 @@ TypeClasses.combine(it1::Iterable, it2::Iterable) = Iterable(chain(it1.iter, it2
 # FunctorApplicativeMonad
 # =======================
 
-TypeClasses.pure(::Type{<:Iterable}, a) = Iterable(IterateSingleton(a))
+TypeClasses.pure(::Type{<:Iterable}, a) = Iterable(TypeClasses.DataTypes.Iterables.IterateSingleton(a))
 TypeClasses.ap(fs::Iterable, it::Iterable) = Iterable(f(a) for f ∈ fs.iter for a ∈ it.iter)
+
+# Base.map(f, iter1, iter2, iter3...) is already defined and uses zip semantics, hence we don't overload it
+
 
 # Flattening Iterables works with everything being iterable itself (it is treated as iterable)
 TypeClasses.flatten(it::Iterable) = Iterable(Iterators.flatten(it.iter))

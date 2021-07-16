@@ -21,7 +21,7 @@ Iterable(it::Iterable) = it  # don't nest Iterable wrappers
 
 ProxyInterfaces.iterator(::Type{Iterable{IterT}}) where {IterT} = IterT
 ProxyInterfaces.iterator(it::Iterable) = it.iter
-ProxyInterfaces.@iterator Iterable
+ProxyInterfaces.@iterator Iterable  # includes map
 
 # generic convert method
 Base.convert(::Type{Iterable{T}}, x::Iterable{T}) where T = x
