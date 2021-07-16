@@ -15,6 +15,12 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Manual" => [
+            "Introduction" => "manual.md",
+            "TypeClasses" => "manual-TypeClasses.md",
+            "DataTypes" => "manual-DataTypes.md",
+        ],
+        "Library" => "library.md",
     ],
 )
 

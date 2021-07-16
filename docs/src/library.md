@@ -6,15 +6,13 @@
 CurrentModule = TypeClasses
 ```
 
-Foreach
+Foreach, using `Base.foreach`
 ```@docs
-Base.foreach
 @syntax_foreach
 ```
 
-Functor
+Functor, using `Base.map`
 ```@docs
-Base.map
 @syntax_map
 ```
 
@@ -28,7 +26,6 @@ Applicative Helper
 ```@docs
 mapn
 @mapn
-sequence
 tupled
 ```
 
@@ -40,6 +37,7 @@ flatmap
 Monad Helper
 ```@docs
 flatten
+↠
 @syntax_flatmap
 ```
 
@@ -66,13 +64,14 @@ foldl_monoid
 Alternative
 ```@docs
 orelse
-⊛
+⊘
 ```
 
 ## FlipTypes
 
 ```@docs
 flip_types
+default_flip_types_having_pure_combine_apEltype
 ```
 
 ## TypeClasses.DataTypes
@@ -80,8 +79,6 @@ flip_types
 Iterable
 ```@docs
 Iterable
-IterateEmpty
-IterateSingleton
 ```
 
 Callable
@@ -92,6 +89,7 @@ Callable
 Writer
 ```@docs
 Writer
+getaccumulator
 ```
 
 State
