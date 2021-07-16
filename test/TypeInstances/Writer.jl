@@ -4,8 +4,9 @@
 a = Writer("a", [1])
 b = Writer("b", [2,3,4])
 
-# monoid is not supported, as Tuple and Pair seem enough for these usecases
-@test_throws MethodError a ⊕ b == Writer("ab", [1,2,3,4])
+# monoid is supported for convenience
+a ⊕ b == Writer("ab", [1,2,3,4])
+
 
 # FunctorApplicativeMonad
 # =======================
@@ -28,9 +29,25 @@ end
 
 @test pure(Writer{String}, 3) == Writer("", 3)
 
+# working with TypeClasses.pure
+@test (@syntax_flatmap begin
+  a = pure(Writer{String}, 5)
+  Writer("hi")
+  @pure a
+end) == Writer("hi", 5)
+
+@test (@syntax_flatmap begin
+  a = pure(Writer, 5)
+  Writer(Option("hi"))
+  @pure a
+end) == Writer(Option("hi"), 5)
+
 
 # FlipTypes
 # =========
 
 v = Writer("first", [:a, :b, :c])
 @test flip_types(v) == [Writer("first", :a), Writer("first", :b), Writer("first", :c)]
+
+vs = [Writer("first", :a), Writer("second", :b), Writer("third", :c)]
+@test flip_types(vs) == Writer("firstsecondthird", [:a, :b, :c])
