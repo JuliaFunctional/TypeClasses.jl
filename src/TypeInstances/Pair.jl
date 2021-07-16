@@ -8,4 +8,5 @@ using TypeClasses
 
 TypeClasses.neutral(::Type{Pair{F, S}}) where {F, S} = neutral(F) => neutral(S)
 TypeClasses.combine(p1::Pair, p2::Pair) = combine(p1.first, p2.first) => combine(p1.second, p2.second)
-TypeClasses.orelse(p1::Pair, p2::Pair) = orelse(p1.first, p2.first) => orelse(p1.second, p2.second)
+
+# we don't implement orelse, as it is commonly meant on container level, but there is no obvious failure semantics here

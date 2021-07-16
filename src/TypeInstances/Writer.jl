@@ -3,8 +3,10 @@ using TypeClasses
 # MonoidAlternative
 # =================
 
-# We do not define MonoidAlternative for Writer, Pair and Tuple are already enough for this
+TypeClasses.neutral(::Type{Writer{Accumulator, Value}}) where {Accumulator, Value} = neutral(Accumulator) => neutral(Value)
+TypeClasses.combine(w1::Writer, w2::Writer) = Writer(combine(w1.acc, w2.acc), combine(w1.value, w2.value))
 
+# we don't implement orelse, as it is commonly meant on container level, but there is no obvious failure semantics here
 
 # FunctorApplicativeMonad
 # =======================
@@ -16,14 +18,26 @@ TypeClasses.map(f, p::Writer) = Writer(p.acc, f(p.value))
 function TypeClasses.pure(::Type{<:Writer{Acc}}, a) where {Acc}
   Writer(neutral(Acc), a)
 end
+# We fall back to assume that the general writer uses Option values in order to have a neutral value
+# this should be okay, as it is canonical extension for any Semigroup to an Monoid  
+function TypeClasses.pure(::Type{<:Writer}, a)
+  Writer(Option(), a)
+end
 
 # Writer always defines `combine` on `acc`
 function TypeClasses.ap(f::Writer, a::Writer)
   Writer(combine(f.acc, a.acc), f.value(a.value))
 end
 
-function TypeClasses.flatmap(f, a::Writer{Acc}) where Acc
-  nested_writer = convert(Writer{Acc}, f(a.value))
+# we cannot overload this generically, because `Base.map(f, ::Vector...)` would get overwritten as well (even without warning surprisingly)
+TypeClasses.map(f, a::Writer, b::Writer, more::Writer...) = mapn(f, a, b, more...)
+
+
+
+function TypeClasses.flatmap(f, a::Writer)
+  # we intentionally only convert the container to Writer, and leave the responsibility for the accumulator to the `combine` function
+  # (one reason is that all monads are only converted on the container side, another is that it seems quite difficult to convert MyType{Option} correctly, because it is a Union type.)
+  nested_writer = convert(Writer, f(a.value))
   Writer(combine(a.acc, nested_writer.acc), nested_writer.value)
 end
 

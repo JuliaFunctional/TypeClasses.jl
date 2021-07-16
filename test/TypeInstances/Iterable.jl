@@ -37,11 +37,11 @@ h3() = @syntax_flatmap begin
   x = a
   y = isodd(x) ? Option(x*x) : Option()
   z = b
-  @pure x + y + z
+  @pure x, y, z
 end
-# ERROR: MethodError: Cannot `convert` an object of type Iterable{Array{Int64,1}} to an object of type Identity
-@test_throws MethodError collect(h3())
-# Tip: use ExtensibleEffects for such more complex multi effect interaction
+@test collect(h3()) == [
+  (x, x*x, z) for x in a for z in b if isodd(x)
+]
 
 
 # FlipTypes
@@ -49,8 +49,3 @@ end
 
 it = Iterable(Option(i) for i ∈ [1, 4, 7])
 @test map(collect, flip_types(it)) == Option([1, 4, 7])
-
-
-# it2 = Iterable([i, i+2] for i ∈ 1:4)
-# collect(it2)
-# map(collect, flip_types(it2))
