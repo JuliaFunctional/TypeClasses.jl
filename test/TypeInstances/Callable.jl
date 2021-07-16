@@ -43,9 +43,7 @@ end
 # FlipTypes
 # =========
 
-# this only works because of the general `combine` implementation for callables
-# so be cautious as the eltypes need to support `combine` to not get a MethodError in runtime
+# this works because Callable implements `ap`
 
 a = Callable.([x -> x, y -> 2y, z -> z*z])
-a2 = [map(x -> pure(Vector, x), v) for v in a]
 @test flip_types(a)(3) == [3, 6, 9]

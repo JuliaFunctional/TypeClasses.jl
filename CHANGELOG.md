@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2021-07-16
+### Added
+- extensive documentation is ready
+- re-exporting DataTypesBasic (Option, Try, Either, ContextManager)
+- `Writer` implements `neutral` and `combine` now, analog to `Pair` and `Tuple`
+- `Writer` implements `pure`, falling back to `Option()` as the generic neutral value. The user needs to wrap their accumulator into an `Option` to make use of this default.
+- new method `getaccumulator` is exported to access the accumulator of an `Writer`. Access its value with `Base.get`. 
+- `Dictionaries.AbstractDictionary` is supported, however only loaded if Dictionaries is available, so no extra dependency.
+- `AbstractVector` type-class instances now generalises the previous `Vector` instances.
+- `Base.run` is now defined for `State` as an alias for just calling it
+- when running a `State` you now do not need to provide an initial state, in that case it defaults to `nothing`.
+- `↠` operator is added, defined as `a ↠ b = flatmap(_ -> b, a)`, and semantically kind of the reverse of `orelse`. 
+- `↠`, `orelse` (`⊘`), `combine` (`⊕`) have now multi-argument versions (i.e. they can take more than 2 arguments).
+- added `flip_types` implementation for `Dict`
+- for convenience, `Base.map(f, a, b, c...)` is defined as an alias for `TypeClasses.mapn(f, a, b, c...)` for the data types `Option`, `Try`, `Either`, `ContextManager`, `Callable`, `Writer`, and `State`.
+- `Base.Nothing` now implements `neutral` and `combine`, concretely, `neutral(nothing) == nothing` and `nothing ⊕ nothing == nothing`. This was added to support `combine` on `Option` in general.
+
+### Changed
+- `ap` has a default implementation now, using `flatmap` and `map`. This is added because most user will be easily familiar with `flatmap` and `map`, and can define those easily. Hence this fallback simplifies the usage massively. Also there is no method ambiguity threat, because `ap` dispatches on both the function and monad argument with the concrete type, so everything is safe.
+- changed `orelse` alias `⊛` to `⊘` for better visual separation, the latex name \\oslash which fits semantically kind of, and because the original reasoning was an misunderstanding.
+- `Task` and `Future` now have an `orelse` implementation which parallelizes runs and returns the first result
+- `flatmap` for `Identity` is now defined as `flatmap(f, a::Identity) = f(a.value)`, i.e. there is no call to `convert(Identity, ...)` any longer, which makes composing Monads even simpler (Furthermore this gets rid of the need of converting a `Const` to an `Identity` which was more a hack beforehand). 
+- `neutral` for `Identity` now always returns `Const(nothing)`.
+- updated TagBot
+- updated CompatHelper
+
+### Fixed
+- `neutral` for Either now returns `Const`, which is accordance to the Monoid laws.
+
+### Removed
+- `orelse` is no longer forwarded to inner elements, as this function is usually defined on a container level.
+
 ## [0.6.1] - 2021-03-30
 ### Added
 * CI/CD pipeline

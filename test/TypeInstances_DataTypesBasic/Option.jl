@@ -7,11 +7,10 @@ using Test
 
 @test neutral(Option) == Option(nothing)
 
-@test Option(3) ⊛ Option(4) == Option(3)  # take the first non-nothing
-@test Option{Int}(nothing) ⊛ Option(4) == Option(4)  # take the first non-nothing
-@test Option(nothing) ⊛ Option(4) == Option(4)  # take the first non-nothing
-
-@test Option{String}("hi") ⊕ Option{String}("ho") == Option{String}("hiho")
+@test Option(3) ⊘ Option(4) == Option(3)  # take the first non-nothing
+@test Option(nothing) ⊘ Option(4) == Option(4)  # take the first non-nothing
+@test Option(nothing) ⊘ Option(4) == Option(4)  # take the first non-nothing
+@test Option("hi") ⊕ Option("ho") == Option("hiho")
 
 
 # FunctorApplicativeMonad
@@ -45,10 +44,10 @@ ho = @syntax_flatmap begin
   b = Option(nothing)
   @pure "$a, $b"
 end
-@test ho == Option{String}(nothing)
-
+@test ho == Option(nothing)
 
 @test pure(Option, 4) == Option(4)
+
 
 # FlipTypes
 # =========
