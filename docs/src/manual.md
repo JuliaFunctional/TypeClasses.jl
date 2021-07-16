@@ -1,17 +1,26 @@
-# Manual
+```@meta
+CurrentModule = TypeClasses
+DocTestSetup  = quote
+    using TypeClasses
+    using Dictionaries
+end
+```
+
+# Introduction
 
 Welcome to `TypeClasses.jl`. TypeClasses defines general programmatic abstractions taken from Scala cats and Haskell TypeClasses.
 
-The following interfaces are defined:
+We use "interface" and "typeclass" synonymously. The following interfaces are defined:
 
 TypeClass   | Methods                             | Description
 ----------- | ----------------------------------- | --------------------------------------------------------------------
-Functor     | `Base.map`                          | The basic definition of a container or computational context.
-Applicative | Functor & `TypeClasses.ap`          | Computational context with support for parallel execution.
-Monad       | Applicative & `TypeClasses.flatmap` | Computational context with support for sequential, nested execution.
-Semigroup   | `TypeClasses.combine`, alias `⊕`    | The notion of something which can be combined with other things of its kind.
-Monoid      | Semigroup & `TypeClasses.neutral`   | A semigroup with a neutral element is called a Monoid, an often used category.
-Alternative | `TypeClasses.neutral` & `TypeClasses.orelse`, alias `⊛` | Slightly different than Monoid, the `orelse` semantic does not merge two values, but just takes one of the two.
+[Functor ](@ref functor_applicative_monad)    | `Base.map`                          | The basic definition of a container or computational context.
+[Applicative](@ref functor_applicative_monad) | Functor & `TypeClasses.pure` & `TypeClasses.ap` (automatically defined when `map` and `flatmap` are defined)          | Computational context with support for parallel execution.
+[Monad](@ref functor_applicative_monad)       | Applicative & `TypeClasses.flatmap` | Computational context with support for sequential, nested execution.
+[Semigroup](@ref semigroup_monoid_alternative)   | `TypeClasses.combine`, alias `⊕`    | The notion of something which can be combined with other things of its kind.
+[Monoid](@ref semigroup_monoid_alternative)      | Semigroup & `TypeClasses.neutral`   | A semigroup with a neutral element is called a Monoid, an often used category.
+[Alternative](@ref semigroup_monoid_alternative) | `TypeClasses.neutral` & `TypeClasses.orelse`, alias `⊘` | Slightly different than Monoid, the `orelse` semantic does not merge two values, but just takes one of the two.
+[FlipTypes](@ref flip_types)   | `TypeClasses.flip_types`            | Enables dealing with nested types. Transforms an `A{B{C}}` into an `B{A{C}}`.
 
 
 ## Installation
@@ -26,30 +35,21 @@ Use it like
 using TypeClasses
 ```
 
-## TypeClasses
-### Functor, Applicative, Monad
-TODO
+## More Details
 
-### Semigroup, Monoid, Alternative
-TODO
+For detailed information of the TypeClasses, see [TypeClasses](@ref).
 
-### FlipTypes
-TODO
+For detailed information about implementations of the TypeClasses for concrete DataTypes, see [DataTypes](@ref).
 
-## DataTypes
-### Iterable
-TODO
 
-### Callable
-TODO
+## General Design Decisions
 
-### Writer
-TODO
+* reuse as much `Base` as possible
+* make it stable (hence so far we only support the most important type-classes)
+* make it simple
+* make it convenient
+* bring examples
 
-### State
-TODO
-
-## Design Decisions
 
 ### No dispatch on `eltype`
 

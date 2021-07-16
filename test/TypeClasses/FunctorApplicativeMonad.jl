@@ -29,7 +29,6 @@ end
 
 TypeClasses.map(f, x::TestDefaultFFlattenFunctor) = TestDefaultFFlattenFunctor(f(x.x))
 TypeClasses.flatmap(f, x::TestDefaultFFlattenFunctor) = f(x.x)
-TypeClasses.ap(f::TestDefaultFFlattenFunctor, x::TestDefaultFFlattenFunctor) = TypeClasses.default_ap_having_map_flatmap(f, x)
 
 @test mapn(TestDefaultFFlattenFunctor(3), TestDefaultFFlattenFunctor(4)) do x, y
   x + y

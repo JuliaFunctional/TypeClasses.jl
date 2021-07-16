@@ -42,9 +42,9 @@ end
 putget = @syntax_flatmap begin
   putstate(4)
   x = getstate
-  @pure x
+  @pure x * x
 end
-@test putget(()) == (4, 4)
+@test putget(()) == (16, 4)
 
 
 # FlipTypes

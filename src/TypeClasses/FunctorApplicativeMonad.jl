@@ -81,11 +81,14 @@ function pure end
 
 
 """
-  ap(f::F1, a::F2)
+  ap(f::F1, a::F2) -> F3
 
-apply function in container F1 to element in container F2
+Apply function in container `F1` to element in container `F2`, returning results in the same container `F3`.
+The default implementation uses `flatmap` and `map`, so that in general only those two need to be defined.
 """
-function ap end
+function ap(f, a)
+  default_ap_having_map_flatmap(f, a)
+end
 
 
 # basic functionality
@@ -126,11 +129,18 @@ function curry(func, n::Int)
   x -> h(x, ())
 end
 
-"""
-  apply a function over applicative contexts instead of plain values
-"""
+
 # Note that the try to make this a generative function failed because of erros like
 # """ERROR: The function body AST defined by this @generated function is not pure. This likely means it contains a closure or comprehension."""
+"""
+    mapn(f, a1::F{T1}, a2::F{T2}, a3::F{T3}, ...) -> F{T}
+
+Apply a function over applicative contexts instead of plain values.
+Similar to `Base.map`, however sometimes the semantic differs slightly. `TypeClasses.mapn` always follows the semantics of `TypeClasses.flatmap` if defined.
+
+E.g. for `Base.Vector` the `Base.map` function zips the inputs and checks for same length. On the other hand `TypeClasses.mapn` combines all combinations of inputs 
+instead of the zip (which conforms with the semantics of flattening nested Vectors).
+"""
 function mapn(func, args...)
   n = length(args)
   if n == 0
@@ -264,6 +274,24 @@ function flatmap end
 `flatten` gets rid of one level of nesting. Has a default fallback to use `flatmap`.
 """
 flatten(a) = flatmap(identity, a)
+
+
+"""
+    a ↠ b = flatmap(_ -> b, a) # \\twoheadrightarrow
+
+A convenience operator for monads which just applies the second monad within the first one.
+
+The operator ↠ (\\twoheadrightarrow) is choosen because the other favourite ≫ (\\gg) which would have been in accordance 
+with [haskell unicode syntax for monads](https://hackage.haskell.org/package/base-unicode-symbols-0.2.4.2/docs/Control-Monad-Unicode.html)
+is unfortunately parsed as boolean comparison with extra semantics which leads to errors with non-boolean applications.
+
+↠ is just the most similar looking other operator which does not have this restriction and is right-associative.
+
+"""
+a ↠ b = flatmap(_ -> b, a)
+
+# right associative
+↠(a, b, more...) = a ↠ b ↠ foldr(↠, more)  # more is non-empty, as the case `a ↠ b` is always defined
 
 """
     @syntax_flatmap begin
