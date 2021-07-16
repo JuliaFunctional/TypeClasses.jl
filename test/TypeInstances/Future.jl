@@ -1,33 +1,49 @@
 using TypeClasses
 using Test
-using Distributed: Future, @spawnat
+using Distributed
 
-@test fetch(pure(Future, 4)) == 4
 
-t = @spawnat :any begin
-  sleep(0.3)
-  4
+wait_a_little(f::Function, seconds=0.3) = @spawnat :any begin
+  sleep(seconds)
+  f()
 end
-tt = map(t) do x
+
+wait_a_little(x, seconds=0.3) = wait_a_little(() -> x, seconds)
+
+
+# Functor, Applicative, Monad
+# ===========================
+
+squared = map(wait_a_little(4)) do x
   x*x
-end
-@test fetch(tt) == 16
+end;  # returns a Task
 
+@test fetch(squared) == 16
 
-t11 = @spawnat :any begin
-  sleep(0.5)
-  11
-end
-t12 = @spawnat :any begin
-  sleep(0.5)
-  12
-end
-@test typeof(mapn(+, t11, t12)) === Future
-@test fetch(mapn(+, t11, t12)) == 11+12
+@test typeof(mapn(+, wait_a_little(11), wait_a_little(12))) === Future
+@test fetch(mapn(+, wait_a_little(11), wait_a_little(12))) == 23
 
-t2 = @syntax_flatmap begin
-  a = @spawnat :any begin sleep(0.5); 5 end
-  b = @spawnat :any begin sleep(a); a + 3 end
+monadic = @syntax_flatmap begin
+  a = wait_a_little(5)
+  b = wait_a_little(a + 3)
   @pure a, b
-end
-@test fetch(t2) == (5, 5+3)
+end;  # returns a Task
+
+@test fetch(monadic) == (5, 8)
+
+@test fetch(pure(Future, "a")) == "a"
+
+
+# Monoid, Alternative
+# ===================
+
+@test fetch(wait_a_little("hello.") ⊕ wait_a_little("world.")) == "hello.world."
+@test fetch(wait_a_little(:a, 1.0) ⊘ wait_a_little(:b, 2.0)) == :a
+@test fetch(wait_a_little(:a, 3.0) ⊘ wait_a_little(:b, 2.0)) == :b
+
+@test fetch(wait_a_little(() -> error("fails"), 0.1) ⊘ wait_a_little(:succeeds, 0.3)) == :succeeds
+
+@test fetch(wait_a_little(:succeeds, 0.3) ⊘ wait_a_little(() -> error("fails"), 0.1)) == :succeeds
+
+@test isa(fetch(wait_a_little(() -> error("fails1")) ⊘ wait_a_little(() -> error("fails2")) ⊘ wait_a_little(() -> error("fails3")) ⊘ wait_a_little(() -> error("fails4"))),
+   RemoteException)

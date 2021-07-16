@@ -2,13 +2,14 @@ using Test
 using TypeClasses
 using DataTypesBasic
 using Suppressor
+using Documenter
 
-# detect_ambiguities unfortunately seems to be buggy
-# @test isempty(detect_ambiguities(TypeClasses))
-# 1-element Array{Tuple{Method,Method},1}:
-#  (pure(::Type{Union{DataTypesBasic.Const{L}, DataTypesBasic.Identity{#s42}} where #s42}, a) where L in TypeClasses at /Users/s.sahm/.julia/dev/TypeClasses/src/TypeInstances_DataTypesBasic/Either.jl:27, pure(::Type{Union{DataTypesBasic.Const{L}, DataTypesBasic.Identity{R}}}, a) where {L, R} in TypeClasses at /Users/s.sahm/.julia/dev/TypeClasses/src/TypeInstances_DataTypesBasic/Either.jl:29)
-
+# Test Utils
 splitln(str) = split(strip(str), "\n")
+
+@test isempty(detect_ambiguities(TypeClasses))
+
+doctest(TypeClasses)
 
 @testset "TypeClasses" begin
   @testset "MonoidAlternative" begin
@@ -23,35 +24,38 @@ splitln(str) = split(strip(str), "\n")
 end
 
 @testset "TypeInstances" begin
-  @testset "Dict" begin
-    include("TypeInstances/Dict.jl")
+  @testset "AbstractDictionary" begin
+    include("TypeInstances/AbstractDictionary.jl")
+  end
+  @testset "AbstractVector" begin
+    include("TypeInstances/AbstractVector.jl")
   end
   @testset "Callable" begin
     include("TypeInstances/Callable.jl")
   end
-  @testset "State" begin
-    include("TypeInstances/State.jl")
+  @testset "Dict" begin
+    include("TypeInstances/Dict.jl")
   end
-  @testset "Pair" begin
-    include("TypeInstances/Pair.jl")
+  @testset "Future" begin
+    include("TypeInstances/Future.jl")
   end
   @testset "Iterable" begin
     include("TypeInstances/Iterable.jl")
   end
-  @testset "Tuple" begin
-    include("TypeInstances/Tuple.jl")
+  @testset "Pair" begin
+    include("TypeInstances/Pair.jl")
   end
-  @testset "Vector" begin
-    include("TypeInstances/Vector.jl")
-  end
-  @testset "Writer" begin
-    include("TypeInstances/Writer.jl")
+  @testset "State" begin
+    include("TypeInstances/State.jl")
   end
   @testset "Task" begin
     include("TypeInstances/Task.jl")
   end
-  @testset "Future" begin
-    include("TypeInstances/Future.jl")
+  @testset "Tuple" begin
+    include("TypeInstances/Tuple.jl")
+  end
+  @testset "Writer" begin
+    include("TypeInstances/Writer.jl")
   end
 end
 

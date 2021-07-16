@@ -3,12 +3,13 @@
 
 TypeClasses.pure(::Type{<:ContextManager}, x) = @ContextManager cont -> cont(x)
 
-# we use the default implementation of ap which follows from flatten
-# TypeClasses.ap
-TypeClasses.ap(f::ContextManager, a::ContextManager) = TypeClasses.default_ap_having_map_flatmap(f, a)
-
 TypeClasses.flatmap(f, x::ContextManager) = flatten(map(f, x))
 TypeClasses.flatten(c::ContextManager) = Iterators.flatten(c)
+
+
+# we cannot overload this generically, because `Base.map(f, ::Vector...)` would get overwritten as well (even without warning surprisingly)
+# hence we do it individually for ContextManager
+Base.map(f, a::ContextManager, b::ContextManager, more::ContextManager...) = mapn(f, a, b, more...)
 
 
 # FlipTypes

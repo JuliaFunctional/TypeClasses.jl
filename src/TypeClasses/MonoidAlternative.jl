@@ -1,19 +1,5 @@
-"""
-    combine(::T, ::T)::T
-    ⊕(::T, ::T)::T
-
-Associcative combinator operator.
-
-The symbol `⊕` following http://hackage.haskell.org/package/base-unicode-symbols-0.2.3/docs/Data-Monoid-Unicode.html
-
-# Following Laws should hold
-
-Associativity
-
-    ⊕(::T, ⊕(::T, ::T)) == ⊕(⊕(::T, ::T), ::T)
-"""
-function combine end
-const ⊕ = combine
+# Monoid / Semigroup
+# ==================
 
 """
     neutral(::Type{T})::T
@@ -39,6 +25,28 @@ Right Identity
 function neutral end
 neutral(T::Type) = error("neutral($T) not defined")
 neutral(a) = neutral(typeof(a))
+
+
+"""
+    combine(::T, ::T)::T  # overload this
+    ⊕(::T, ::T)::T  # alias \\oplus
+    combine(a, b, c, d, ...)  # using combine(a, b) internally
+
+Associcative combinator operator.
+
+The symbol `⊕` (\\oplus) following http://hackage.haskell.org/package/base-unicode-symbols-0.2.3/docs/Data-Monoid-Unicode.html
+
+# Following Laws should hold
+
+Associativity
+
+    ⊕(::T, ⊕(::T, ::T)) == ⊕(⊕(::T, ::T), ::T)
+"""
+function combine end
+const ⊕ = combine
+
+combine(a, b, c, more...) = foldl(⊕, more, init=(a⊕b)⊕c)
+
 
 
 struct _InitialValue end
@@ -88,13 +96,17 @@ end
 # ===========
 
 """
-    orelse(a, b)
-    ⊛(a, b)
+    orelse(a, b)  # overload this
+    ⊘(a, b)  # alias \\oslash
+    orelse(a, b, c, d, ...)  # using orelse(a, b) internally
 
 Implements an alternative logic, like having two options a and b, taking the first valid one.
 We decided for "orelse" instead of "alternatives" to highlight the intrinsic asymmetry in choosing.
 
-The operator ⊛ follows haskell unicode syntax http://hackage.haskell.org/package/base-unicode-symbols-0.2.3/docs/Control-Applicative-Unicode.html
+The operator ⊘ (\\oslash) is choosen to have an infix operator which is similar to \\oplus, however clearly distinguishable, asymmetric, and somehow capturing a choice semantics.
+The slash actually is used to indicate choice (at least in some languages, like German), and luckily \\oslash exists (and is not called \\odiv).  
 """
 function orelse end
-const ⊛ = orelse
+const ⊘ = orelse
+
+orelse(a, b, c, more...) = foldl(⊘, more, init=(a⊘b)⊘c)

@@ -1,29 +1,28 @@
 # TODO add Foldable class to refer to the reduce, foldr, foldl?
 
 module TypeClasses
-export Iterable, IterateEmpty, IterateSingleton,
-  Callable, Writer,
-  State, getstate, putstate,
-  neutral, combine, ⊕, reduce_monoid, foldr_monoid, foldl_monoid,
-  orelse, ⊛,
+export neutral, combine, ⊕, reduce_monoid, foldr_monoid, foldl_monoid,
+  orelse, ⊘,
   foreach, @syntax_foreach,
   map, @syntax_map,
-  pure, ap, curry, mapn, @mapn, sequence, tupled,
-  flatten, flatmap, @syntax_flatmap,
+  pure, ap, curry, mapn, @mapn, tupled, neutral_applicative, combine_applicative, orelse_applicative,
+  flatmap, flatten, ↠, @syntax_flatmap,
   flip_types
 
-# re-export
-export @pure
+using Compat
+using Reexport
+using Requires
 
-using DataTypesBasic
 using Monadic
+export @pure  # a user only needs @pure from Monadi
 
+@reexport using DataTypesBasic
 
 include("Utils/Utils.jl")
 using .Utils
 
 include("DataTypes/DataTypes.jl")
-using .DataTypes
+@reexport using .DataTypes
 
 # TypeClasses
 # ===========
@@ -39,19 +38,18 @@ include("TypeClasses/FlipTypes.jl")  # depends on both Monoid and Applicative
 # Instances
 # =========
 
-include("TypeInstances/Dict.jl")
+include("TypeInstances/AbstractVector.jl")
 include("TypeInstances/Callable.jl")
-include("TypeInstances/State.jl")
-include("TypeInstances/Iterable.jl")  # only supplies default functions, no actual dispatch is done (Reason: there had been too many conflicts with Dict already)
-include("TypeInstances/Pair.jl")
-include("TypeInstances/Tuple.jl")
-include("TypeInstances/String.jl")
-include("TypeInstances/Tuple.jl")
-include("TypeInstances/Vector.jl")
-include("TypeInstances/Monoid.jl")
-include("TypeInstances/Writer.jl")
-include("TypeInstances/Task.jl")
+include("TypeInstances/Dict.jl")
 include("TypeInstances/Future.jl")
+include("TypeInstances/Iterable.jl")  # only supplies default functions, no actual dispatch is done (Reason: there had been too many conflicts with Dict already)
+include("TypeInstances/Monoid.jl")
+include("TypeInstances/Pair.jl")
+include("TypeInstances/State.jl")
+include("TypeInstances/String.jl")
+include("TypeInstances/Task.jl")
+include("TypeInstances/Tuple.jl")
+include("TypeInstances/Writer.jl")
 
 include("TypeInstances_DataTypesBasic/Const.jl")
 include("TypeInstances_DataTypesBasic/Identity.jl")
@@ -61,4 +59,10 @@ include("TypeInstances_DataTypesBasic/ContextManager.jl")
 
 # extra interactions between ContainerTypes
 include("convert.jl")
+
+function __init__()
+  # there are known issues with require. See this issue for updates https://github.com/JuliaLang/Pkg.jl/issues/1285
+  @require Dictionaries="85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4" include("TypeInstances/AbstractDictionary.jl")
+end
+
 end # module
