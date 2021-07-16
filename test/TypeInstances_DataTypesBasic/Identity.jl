@@ -21,7 +21,8 @@ end
 # MonoidAlternative
 # =================
 
-@test neutral(Identity{String}) == Identity("")
+@test neutral(Identity{String}) == Option()
+@test neutral(Identity) == Option()
 @test Identity("hi") ⊕ Identity("ho") == Identity("hiho")
 
 

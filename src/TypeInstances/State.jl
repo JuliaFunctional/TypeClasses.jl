@@ -6,8 +6,8 @@ using TypeClasses
 # this is standard Applicative combine implementation
 # there is no other sensible definition for combine and hence if this does fail, it fails correctly
 TypeClasses.combine(a::State, b::State) = mapn(combine, a, b)
-TypeClasses.orelse(a::State, b::State) = mapn(orelse, a, b)
 
+# we don't do the same for orelse, as orelse lives on the container level, but there is  no default definition of orelse for State
 
 # FunctorApplicativeMonad
 # =======================
@@ -28,6 +28,10 @@ TypeClasses.ap(f::State, a::State) = State() do state0
   value, state2 = a(state1)
   func(value), state2
 end
+
+# we cannot overload this generically, because `Base.map(f, ::Vector...)` would get overwritten as well (even without warning surprisingly)
+TypeClasses.map(f, a::State, b::State, more::State...) = mapn(f, a, b, more...)
+
 
 TypeClasses.flatmap(f, a::State) = State() do state0
   value, state1 = a(state0)

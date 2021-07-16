@@ -22,12 +22,13 @@ function create_tuple_monoid_definitions(n)
     function TypeClasses.combine($(binary_args...)) where {$(binary_typevars_1...), $(binary_typevars_2...)}
       $(binary_return((a, b) -> :($a ⊕ $b)))
     end
-    function TypeClasses.orelse($(binary_args...)) where {$(binary_typevars_1...), $(binary_typevars_2...)}
-      $(binary_return((a, b) -> :($a ⊗ $b)))
-    end
+
+    # we don't implement orelse, as it is commonly meant on container level, but there is no obvious failure semantics here
   end
 end
 
-for n in 1:20  # 20 is an arbitrary number
-  eval(create_tuple_monoid_definitions(n))
+macro create_tuple_monoid_definitions(n::Int)
+  esc(Expr(:block, [create_tuple_monoid_definitions(i) for i ∈ 1:n]...))
 end
+
+@create_tuple_monoid_definitions 20  # 20 is an arbitrary number

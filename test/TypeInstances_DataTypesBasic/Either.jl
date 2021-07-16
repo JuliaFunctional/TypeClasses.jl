@@ -3,14 +3,14 @@
 # =================
 
 # orelse
-@test Either{String, Int}("hi") ⊛ Either{String, Int}(1) == Either{String, Int}(1)
-@test Either{String, Int}("hi") ⊛ Either{String, Int}("ho") == Either{String, Int}("ho")
-@test Either{String, Int}(1) ⊛ Either{String, Int}(4) == Either{String, Int}(1)
+@test Either{String, Int}("hi") ⊘ Either{String, Int}(1) == Either{String, Int}(1)
+@test Either{String, Int}("hi") ⊘ Either{String, Int}("ho") == Either{String, Int}("ho")
+@test Either{String, Int}(1) ⊘ Either{String, Int}(4) == Either{String, Int}(1)
 
 # combine
 @test_throws MethodError Either{Int}(true) ⊕ Either{Int}("ho")
 @test Either{Int, String}("hi") ⊕ Either{Int, String}("ho") == Either{Int, String}("hiho")
-@test Either{String, Int}("hi") ⊕ Either{String, Int}("ho") == Either{String, Int}("ho")
+@test Either{String, Int}("hi") ⊕ Either{String, Int}("ho") == Either{String, Int}("hiho")
 
 
 # FunctorApplicativeMonad
@@ -26,16 +26,16 @@ end == Either{String, Int}("hi")
 
 @test mapn(Either{String, Int}(2), Either{String, Int}("ho")) do x, y
   x + y
-end == Const{String}("ho")
+end == Const("ho")
 # TODO we loose type information here, however it is tough to infer through the generic curry function constructed by mapn
 
 @test mapn(Either{String, Int}("hi"), Either{String, Int}(3)) do x, y
   x + y
-end == Const{String}("hi")
+end == Const("hi")
 
 @test mapn(Either{String, Int}("hi"), Either{String, Int}("ho")) do x, y
   x + y
-end == Const{String}("hi")
+end == Const("hi")
 
 
 he = @syntax_flatmap begin
