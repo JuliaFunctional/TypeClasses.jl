@@ -8,9 +8,10 @@ using Documenter
 splitln(str) = split(strip(str), "\n")
 
 # somehow only Julia 1.6 does this correctly
-VERSION >= v"1.6" && @test isempty(detect_ambiguities(TypeClasses))
-
-doctest(TypeClasses)
+if VERSION >= v"1.6" 
+  @test isempty(detect_ambiguities(TypeClasses))
+  doctest(TypeClasses)
+end
 
 @testset "TypeClasses" begin
   @testset "MonoidAlternative" begin
