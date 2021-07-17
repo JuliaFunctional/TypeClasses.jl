@@ -7,9 +7,10 @@ using Documenter
 # Test Utils
 splitln(str) = split(strip(str), "\n")
 
-# somehow only Julia 1.6 does this correctly
-if VERSION >= v"1.6" 
+if v"1.6" <= VERSION < v"1.7"
+  # somehow only Julia 1.6 does this correctly
   @test isempty(detect_ambiguities(TypeClasses))
+  # doctests are super instable, hence we only do it for a specific Julia Version
   doctest(TypeClasses)
 end
 
