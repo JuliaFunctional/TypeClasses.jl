@@ -10,7 +10,6 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.3'  # DataTypesBasic only works since 1.3
           - '1.6'
           - 'nightly'
         os:
