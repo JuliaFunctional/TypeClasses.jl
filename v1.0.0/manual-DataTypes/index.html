@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>DataTypes · TypeClasses.jl</title><script data-outdated-warner src="../assets/warner.js"></script><link rel="canonical" href="https://JuliaFunctional.github.io/TypeClasses.jl/manual-DataTypes/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">TypeClasses.jl</a></span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../manual/">Introduction</a></li><li><a class="tocitem" href="../manual-TypeClasses/">TypeClasses</a></li><li class="is-active"><a class="tocitem" href>DataTypes</a><ul class="internal"><li><a class="tocitem" href="#Option,-Try,-Either"><span>Option, Try, Either</span></a></li><li><a class="tocitem" href="#ContextManager"><span>ContextManager</span></a></li><li><a class="tocitem" href="#AbstractVector"><span>AbstractVector</span></a></li><li><a class="tocitem" href="#Dict"><span>Dict</span></a></li><li><a class="tocitem" href="#AbstractDictionary"><span>AbstractDictionary</span></a></li><li><a class="tocitem" href="#Iterable"><span>Iterable</span></a></li><li><a class="tocitem" href="#Callable"><span>Callable</span></a></li><li><a class="tocitem" href="#@spawnat-and-@async"><span><code>@spawnat</code> and <code>@async</code></span></a></li><li><a class="tocitem" href="#Writer"><span>Writer</span></a></li><li><a class="tocitem" href="#Pair/Tuple"><span>Pair/Tuple</span></a></li><li><a class="tocitem" href="#State"><span>State</span></a></li></ul></li></ul></li><li><a class="tocitem" href="../library/">Library</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Manual</a></li><li class="is-active"><a href>DataTypes</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>DataTypes</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/JuliaFunctional/TypeClasses.jl/blob/master/docs/src/manual-DataTypes.md#" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="DataTypes"><a class="docs-heading-anchor" href="#DataTypes">DataTypes</a><a id="DataTypes-1"></a><a class="docs-heading-anchor-permalink" href="#DataTypes" title="Permalink"></a></h1><h2 id="Option,-Try,-Either"><a class="docs-heading-anchor" href="#Option,-Try,-Either">Option, Try, Either</a><a id="Option,-Try,-Either-1"></a><a class="docs-heading-anchor-permalink" href="#Option,-Try,-Either" title="Permalink"></a></h2><p><code>Option</code>, <code>Try</code>, and <code>Either</code> are re-exported from <a href="https://github.com/JuliaFunctional/DataTypesBasic.jl">DataTypesBasic.jl</a> and equipped with the TypeClasses. As all three are implemented using the same primitives <code>Identity</code> and <code>Const</code>, they can actually be combined seamlessly. <code>Option</code> and <code>Try</code> are really only more specific <code>Either</code>. This is quite a unique design among typeclasses, which enables a lot flexibility and simplicity.</p><table><tr><th style="text-align: right">DataType</th><th style="text-align: right">Implementation</th><th style="text-align: right">Helpers</th></tr><tr><td style="text-align: right">Identity</td><td style="text-align: right"><code>Identity</code></td><td style="text-align: right"><code>isidentity</code>, all&amp;nbsp;TypeClasses</td></tr><tr><td style="text-align: right">Const</td><td style="text-align: right"><code>Const</code></td><td style="text-align: right"><code>Base.isconst</code>, almost all TypeClasses, but without <code>pure</code></td></tr><tr><td style="text-align: right">Either</td><td style="text-align: right"><code>Either{L, R} = Union{Const{L}, Identity{R}}</code></td><td style="text-align: right"><code>Either</code>, <code>Base.eltype</code>, <code>either</code>, <code>@either</code>, <code>flip_left_right</code>, <code>iseither</code>, <code>isleft</code>, <code>isright</code>, <code>getleft</code>, <code>getright</code>, <code>getleftOption</code>, <code>getrightOption</code>, <code>getOption</code>, all&amp;nbsp;TypeClasses</td></tr><tr><td style="text-align: right">Try</td><td style="text-align: right"><code>Try{T} = Union{Const{&lt;:Exception}, Identity{T}}</code></td><td style="text-align: right"><code>Try</code>, <code>@Try</code>, <code>@TryCatch</code>, <code>istry</code>, <code>issuccess</code>, <code>isfailure</code>, all&amp;nbsp;TypeClasses</td></tr><tr><td style="text-align: right">Option</td><td style="text-align: right"><code>Option{T} = Union{Const{Nothing}, Identity{T}}</code></td><td style="text-align: right"><code>Option</code>, <code>isoption</code>, <code>issome</code>, <code>isnone</code>, <code>iffalse</code>, <code>iftrue</code>, all&amp;nbsp;TypeClasses</td></tr></table><p>For more Details take also a look at <a href="https://github.com/JuliaFunctional/DataTypesBasic.jl">DataTypesBasic.jl</a>.</p><h3 id="Functor/Applicative/Monad"><a class="docs-heading-anchor" href="#Functor/Applicative/Monad">Functor/Applicative/Monad</a><a id="Functor/Applicative/Monad-1"></a><a class="docs-heading-anchor-permalink" href="#Functor/Applicative/Monad" title="Permalink"></a></h3><p>If all works, the result is an <code>Identity</code></p><pre><code class="language-julia-repl hljs">julia&gt; @syntax_flatmap begin
+         a = true ? Option(4) : Option()
+         b = @Try isodd(a) ? error(&quot;stop&quot;) : 5
+         c = either(:left, isodd(b), &quot;right&quot;)
+         @pure a, b, c
+       end
+Identity((4, 5, &quot;right&quot;))</code></pre><p>If something fails, the computation stops early on, returning a <code>Const</code></p><pre><code class="language-julia-repl hljs">julia&gt; @syntax_flatmap begin
+         a = false ? Option(4) : Option()
+         b = @Try isodd(a) ? error(&quot;stop&quot;) : 5
+         c = either(:left, isodd(b), &quot;right&quot;)
+         @pure a, b, c
+       end
+Const(nothing)
+
+julia&gt; @syntax_flatmap begin
+         a = true ? Option(5) : Option()
+         b = @Try isodd(a) ? error(&quot;stop&quot;) : 5
+         c = either(:left, isodd(b), &quot;right&quot;)
+         @pure a, b, c
+       end
+Const(Thrown(ErrorException(&quot;stop&quot;)))
+
+julia&gt; @syntax_flatmap begin
+         a = true ? Option(4) : Option()
+         b = @Try isodd(a) ? error(&quot;stop&quot;) : 6
+         c = either(:left, isodd(b), &quot;right&quot;)
+         @pure a, b, c
+       end
+Const(:left)</code></pre><h3 id="Monoid/Alternative"><a class="docs-heading-anchor" href="#Monoid/Alternative">Monoid/Alternative</a><a id="Monoid/Alternative-1"></a><a class="docs-heading-anchor-permalink" href="#Monoid/Alternative" title="Permalink"></a></h3><p>You can also <code>combine</code> Option, Try, Either. When combining Const with Const or Identity with Identity, the <code>combine</code> function of the underlying value is used. When combining <code>Const</code> with <code>Identity</code>, the <code>Identity</code> is always returned. When using <code>Option</code>, the value <code>Option() = Const(nothing)</code> deals as the <code>neutral</code> value and hence you can make any Semigroup (something which supports <code>combine</code>) into a Monoid (something which supports <code>combine</code> and <code>neutral</code>) by just wrapping it into <code>Option</code>.</p><pre><code class="language-julia-repl hljs">julia&gt; combine(Option(), Option(4))
+Identity(4)
+
+julia&gt; @Try(4) ⊕ @Try(error(&quot;stop&quot;))  # \oplus is an alias for `combine`
+Identity(4)
+
+julia&gt; either(:left, true, &quot;right.&quot;) ⊕ @Try(&quot;success.&quot;) ⊕ Option(&quot;also needs to be a string.&quot;)
+Identity(&quot;right.success.also needs to be a string.&quot;)</code></pre><p>If your the element does not support <code>combine</code>, you can still use <code>orelse</code> (alias <code>⊘</code>, \oslash), which will just return the first Identity value.</p><pre><code class="language-julia-repl hljs">julia&gt; either(:left, false, &quot;right.&quot;) ⊘ @Try(&quot;success.&quot;) ⊘ Option([&quot;does&quot; &quot;not&quot; &quot;need&quot; &quot;to&quot; &quot;be&quot; &quot;a&quot; &quot;string.&quot;])
+Identity(&quot;success.&quot;)</code></pre><p>For completenes, the Monad definition of <code>Option</code>, <code>Try</code>, and <code>Either</code> also come with the binary operator <code>↠</code> (\twoheadrightarrow), which acts somehow as the reverse of <code>orelse</code>: It will stop at the first <code>Const</code> value:</p><pre><code class="language-julia-repl hljs">julia&gt; either(:left, true, &quot;right.&quot;) ↠ @Try(error(&quot;stop.&quot;)) ↠ Option([&quot;does&quot; &quot;not&quot; &quot;need&quot; &quot;to&quot; &quot;be&quot; &quot;a&quot; &quot;string.&quot;])
+Const(Thrown(ErrorException(&quot;stop.&quot;)))</code></pre><h3 id="FlipTypes"><a class="docs-heading-anchor" href="#FlipTypes">FlipTypes</a><a id="FlipTypes-1"></a><a class="docs-heading-anchor-permalink" href="#FlipTypes" title="Permalink"></a></h3><p>With any Functor you can flip types.</p><pre><code class="language-julia-repl hljs">julia&gt; flip_types(Const(Identity(3)))
+Identity(Const(3))
+
+julia&gt; flip_types(Identity(Const(3)))
+Const(3)</code></pre><p>You may be surprised by <code>Const(3)</code>, however this is correct. Flipping an outer Identity will <code>map</code> Identity over the inner Functor. The <code>Const</code> Functor, however, just ignores everything when mapped over it and will stay the same. More correctly, it would have changed its pseudo return value, however this is not represented in Julia, leaving it literally constant. </p><h2 id="ContextManager"><a class="docs-heading-anchor" href="#ContextManager">ContextManager</a><a id="ContextManager-1"></a><a class="docs-heading-anchor-permalink" href="#ContextManager" title="Permalink"></a></h2><p><code>ContextManager</code> also comes from <a href="https://github.com/JuliaFunctional/DataTypesBasic.jl">DataTypesBasic.jl</a>. It is super handy to define your own enter-exit semantics.</p><h3 id="Functor/Applicative/Monad-2"><a class="docs-heading-anchor" href="#Functor/Applicative/Monad-2">Functor/Applicative/Monad</a><a class="docs-heading-anchor-permalink" href="#Functor/Applicative/Monad-2" title="Permalink"></a></h3><pre><code class="language-julia-repl hljs">julia&gt; create_context(x) = @ContextManager continuation -&gt; begin
+         println(&quot;before x = $x&quot;)
+         result = continuation(x)
+         println(&quot;after x = $x&quot;)
+         result
+       end
+create_context (generic function with 1 method)
+
+julia&gt; context = @syntax_flatmap begin
+         a = create_context(3)
+         b = create_context(a*a)
+         @pure a, b
+       end;
+
+julia&gt; context() do x
+         println(&quot;within x = $x&quot;)
+         x
+       end
+before x = 3
+before x = 9
+within x = (3, 9)
+after x = 9
+after x = 3
+(3, 9)</code></pre><h3 id="Monoid/Alternative-2"><a class="docs-heading-anchor" href="#Monoid/Alternative-2">Monoid/Alternative</a><a class="docs-heading-anchor-permalink" href="#Monoid/Alternative-2" title="Permalink"></a></h3><p>ContextManager only supports Functor/Applicative/Monad TypeClasses.</p><h3 id="FlipTypes-2"><a class="docs-heading-anchor" href="#FlipTypes-2">FlipTypes</a><a class="docs-heading-anchor-permalink" href="#FlipTypes-2" title="Permalink"></a></h3><p>ContextManager only supports Functor/Applicative/Monad TypeClasses.</p><h2 id="AbstractVector"><a class="docs-heading-anchor" href="#AbstractVector">AbstractVector</a><a id="AbstractVector-1"></a><a class="docs-heading-anchor-permalink" href="#AbstractVector" title="Permalink"></a></h2><p><code>Base.Vector</code> are supported. More concretely, methods are implemented for the whole <code>AbstractArray</code> tree, by converting from <code>Vector</code>. Vector types can be seamlessly combined with <code>Either</code> (including <code>Options</code> and <code>Try</code>), providing a very flexible setup out-of-the-box. <code>Either</code> types get converted to singleton lists in the case of <code>Identity</code> or an empty list in the case of <code>Const</code>.</p><h3 id="Functor/Applicative/Monad-3"><a class="docs-heading-anchor" href="#Functor/Applicative/Monad-3">Functor/Applicative/Monad</a><a class="docs-heading-anchor-permalink" href="#Functor/Applicative/Monad-3" title="Permalink"></a></h3><p>The implementation of <code>TypeClasses.flatmap</code> follows the flattening/combining semantics, which takes all combinations of the vectors. As if you would have used for loops, however with constructing a result by collecting everything.</p><pre><code class="language-julia-repl hljs">julia&gt; @syntax_flatmap begin
+         a = [1, 2]
+         b = [:x, :y]
+         @pure a, b
+         end
+4-element Vector{Tuple{Int64, Symbol}}:
+ (1, :x)
+ (1, :y)
+ (2, :x)
+ (2, :y)
+
+julia&gt; @syntax_flatmap begin
+         a = [1, 2, 3, 4, 5]
+         @pure b = a + 1
+         c = iftrue(a % 2 == 0) do
+           a + b
+         end
+         @Try @assert a &gt; 3
+         @pure @show a, b, c
+       end
+(a, b, c) = (4, 5, 9)
+1-element Vector{Any}:
+ (4, 5, 9)</code></pre><p>Sometimes it may also be handy to use the <code>pure</code> function.</p><pre><code class="language-julia-repl hljs">julia&gt; pure(Vector, 1)
+1-element Vector{Int64}:
+ 1</code></pre><h3 id="Monoid/Alternative-3"><a class="docs-heading-anchor" href="#Monoid/Alternative-3">Monoid/Alternative</a><a class="docs-heading-anchor-permalink" href="#Monoid/Alternative-3" title="Permalink"></a></h3><p>Vectors only support Monoid interface, no Alternative.</p><pre><code class="language-julia-repl hljs">julia&gt; neutral(Vector)
+Any[]
+
+julia&gt; [1] ⊕ [5,6]
+3-element Vector{Int64}:
+ 1
+ 5
+ 6
+
+julia&gt; combine([1], [5, 6])
+3-element Vector{Int64}:
+ 1
+ 5
+ 6
+
+julia&gt; foldl_monoid([[1,2], [4,5], [10]])
+5-element Vector{Int64}:
+  1
+  2
+  4
+  5
+ 10</code></pre><h3 id="FlipTypes-3"><a class="docs-heading-anchor" href="#FlipTypes-3">FlipTypes</a><a class="docs-heading-anchor-permalink" href="#FlipTypes-3" title="Permalink"></a></h3><p>You can flip nested types with <code>Vector</code>. It assumes the inner type supports Applicative method <code>ap</code> (if you have defined <code>flatmap</code> the <code>ap</code> method is automatically defined for you).</p><pre><code class="language-julia-repl hljs">julia&gt; flip_types([Option(1), Option(&quot;2&quot;), Option(:three)])
+Identity(Any[1, &quot;2&quot;, :three])
+
+julia&gt; flip_types([Option(1), Option(), Option(:three)])
+Const(nothing)</code></pre><p>Remember that flip_types usually forgets information, like here in the case when a <code>Const</code> is found.</p><h2 id="Dict"><a class="docs-heading-anchor" href="#Dict">Dict</a><a id="Dict-1"></a><a class="docs-heading-anchor-permalink" href="#Dict" title="Permalink"></a></h2><p>We do not support <code>AbstractDict</code> in general, because there is no common way of constructing such dicts. For the concrete <code>Base.Dict</code> we know how to construct it.</p><h3 id="Functor/Applicative/Monad-4"><a class="docs-heading-anchor" href="#Functor/Applicative/Monad-4">Functor/Applicative/Monad</a><a class="docs-heading-anchor-permalink" href="#Functor/Applicative/Monad-4" title="Permalink"></a></h3><p><code>Base.map</code> explicitly throws an error on <code>Dict</code>, so there is no way to support Functor/Applicative/Monad typeclasses.</p><h3 id="Monoid/Alternative-4"><a class="docs-heading-anchor" href="#Monoid/Alternative-4">Monoid/Alternative</a><a class="docs-heading-anchor-permalink" href="#Monoid/Alternative-4" title="Permalink"></a></h3><p><code>neutral</code> for Dict just returns a general empty Dict</p><pre><code class="language-julia-repl hljs">julia&gt; neutral(Dict)
+Dict{Any, Any}() </code></pre><p><code>combine</code> (<code>⊕</code>) will forward the function call <code>combine</code> to its elements. <code>orelse</code> (<code>⊘</code>) will take the first existing value, i.e. a flipped version of merge.</p><pre><code class="language-julia-repl hljs">julia&gt; d1 = Dict(:a =&gt; &quot;3&quot;, :b =&gt; &quot;1&quot;)
+Dict{Symbol, String} with 2 entries:
+  :a =&gt; &quot;3&quot;
+  :b =&gt; &quot;1&quot;
+
+julia&gt; d2 = Dict(:a =&gt; &quot;5&quot;, :b =&gt; &quot;9&quot;, :c =&gt; &quot;15&quot;)
+Dict{Symbol, String} with 3 entries:
+  :a =&gt; &quot;5&quot;
+  :b =&gt; &quot;9&quot;
+  :c =&gt; &quot;15&quot;
+
+julia&gt; d1 ⊕ d2
+Dict{Symbol, String} with 3 entries:
+  :a =&gt; &quot;35&quot;
+  :b =&gt; &quot;19&quot;
+  :c =&gt; &quot;15&quot;
+
+julia&gt; d1 ⊘ d2
+Dict{Symbol, String} with 3 entries:
+  :a =&gt; &quot;3&quot;
+  :b =&gt; &quot;1&quot;
+  :c =&gt; &quot;15&quot;</code></pre><h3 id="FlipTypes-4"><a class="docs-heading-anchor" href="#FlipTypes-4">FlipTypes</a><a class="docs-heading-anchor-permalink" href="#FlipTypes-4" title="Permalink"></a></h3><p><code>flip_types</code> works only in one direction.</p><pre><code class="language-julia-repl hljs">julia&gt; flip_types(Dict(:a =&gt; [1,2], :b =&gt; [3, 4])) 
+4-element Vector{Dict{Symbol, Int64}}:
+ Dict(:a =&gt; 1, :b =&gt; 3)
+ Dict(:a =&gt; 1, :b =&gt; 4)
+ Dict(:a =&gt; 2, :b =&gt; 3)
+ Dict(:a =&gt; 2, :b =&gt; 4)
+
+julia&gt; flip_types([Dict(:a =&gt; 1, :b =&gt; 3), Dict(:a =&gt; 2, :b =&gt; 4)])
+ERROR: map is not defined on dictionaries</code></pre><p>As you see, this is becaue <code>Base.map</code> explicitly throws an Error for <code>Base.Dict</code>.</p><h2 id="AbstractDictionary"><a class="docs-heading-anchor" href="#AbstractDictionary">AbstractDictionary</a><a id="AbstractDictionary-1"></a><a class="docs-heading-anchor-permalink" href="#AbstractDictionary" title="Permalink"></a></h2><p>Luckily this limitation of <code>Base.Dict</code> can be circumvented by using the package <code>Dictionaries</code> which enhances the dictionary interface and speeds up its performance.</p><h3 id="Functor/Applicative/Monad-5"><a class="docs-heading-anchor" href="#Functor/Applicative/Monad-5">Functor/Applicative/Monad</a><a class="docs-heading-anchor-permalink" href="#Functor/Applicative/Monad-5" title="Permalink"></a></h3><p><code>AbstractDictionary</code> is the abstract type provided by the package, and it already defines <code>Base.map</code> for it, so that we can implement Functor/Applicative/Monad interfaces on top. The semantics of the flattening of dictionaries follows the implementation in Scala Cats for Scala&#39;s Map type. It works like first filtering for common keys and then doing stuff respectively.</p><pre><code class="language-julia-repl hljs">julia&gt; using Dictionaries
+
+julia&gt; dict = Dictionary([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], [1, 2, 3])
+3-element Dictionaries.Dictionary{String, Int64}
+ &quot;a&quot; │ 1
+ &quot;b&quot; │ 2
+ &quot;c&quot; │ 3
+
+julia&gt; create_dictionary(x) = Dictionary([&quot;b&quot;, &quot;c&quot;, &quot;d&quot;], [10x, 20x, 30x])
+create_dictionary (generic function with 1 method)
+
+julia&gt; @syntax_flatmap begin
+         a = dict
+         b = create_dictionary(a)
+         @pure a, b
+         end
+2-element Dictionaries.Dictionary{String, Tuple{Int64, Int64}}
+ &quot;b&quot; │ (2, 20)
+ &quot;c&quot; │ (3, 60)</code></pre><p>20 is 10 times 2, and 60 is 20 times 3. You see it picks the right values for &quot;b&quot; and &quot;c&quot; respectively. The key &quot;d&quot; does not exist in all dictionaries and hence is filtered out.</p><h3 id="Monoid/Alternative-5"><a class="docs-heading-anchor" href="#Monoid/Alternative-5">Monoid/Alternative</a><a class="docs-heading-anchor-permalink" href="#Monoid/Alternative-5" title="Permalink"></a></h3><p>The implementation for <code>neutral</code>, <code>combine</code> and <code>orelse</code> are analogous to those for <code>Dict</code>, just a bit more abstract. Thanks to the good interfaces defined in the package <code>Dictionaries</code>, we can support general <code>AbstractDictionary</code>.</p><h3 id="FlipTypes-5"><a class="docs-heading-anchor" href="#FlipTypes-5">FlipTypes</a><a class="docs-heading-anchor-permalink" href="#FlipTypes-5" title="Permalink"></a></h3><p><code>flip_types</code> now actually works in both directions, as <code>AbstractDictionary</code> is a Monad itself.</p><pre><code class="language-julia-repl hljs">julia&gt; flip_types(dictionary((:a =&gt; [1,2], :b =&gt; [3, 4]))) 
+4-element Vector{Dictionary{Symbol, Int64}}:
+ {:a = 1, :b = 3}
+ {:a = 1, :b = 4}
+ {:a = 2, :b = 3}
+ {:a = 2, :b = 4}
+
+julia&gt; flip_types([
+           dictionary((:a =&gt; 1, :b =&gt; 2)),
+           dictionary((:a =&gt; 10, :b =&gt; 20)),
+           dictionary((:b =&gt; 200, :c =&gt; 300))
+       ])
+1-element Dictionaries.Dictionary{Symbol, Vector{Int64}}
+ :b │ [2, 20, 200]</code></pre><p>In the last example you can again recognize the filtering logic. Here it leaves <code>:b</code> as the only valid key.</p><h2 id="Iterable"><a class="docs-heading-anchor" href="#Iterable">Iterable</a><a id="Iterable-1"></a><a class="docs-heading-anchor-permalink" href="#Iterable" title="Permalink"></a></h2><p>TypeClasses exports a wrapper type called <code>Iterable</code> which can be used to enable support on any iterable. </p><h3 id="Functor/Applicative/Monad-6"><a class="docs-heading-anchor" href="#Functor/Applicative/Monad-6">Functor/Applicative/Monad</a><a class="docs-heading-anchor-permalink" href="#Functor/Applicative/Monad-6" title="Permalink"></a></h3><pre><code class="language-julia-repl hljs">julia&gt; collect(@syntax_flatmap begin
+         a = Iterable(1:2)
+         b = Iterable([3,6])
+         @pure a, b
+       end)
+4-element Vector{Tuple{Int64, Int64}}:
+ (1, 3)
+ (1, 6)
+ (2, 3)
+ (2, 6)</code></pre><p>The <code>@syntax_flatmap</code> macro actually can receive a wrapper function as an additional first argument with which the above can be written as</p><pre><code class="language-julia-repl hljs">julia&gt; collect(@syntax_flatmap Iterable begin
+         a = 1:2
+         b = [3,6]
+         @pure a, b
+       end)
+4-element Vector{Tuple{Int64, Int64}}:
+ (1, 3)
+ (1, 6)
+ (2, 3)
+ (2, 6)</code></pre><p>You can use <code>TypeClasses.pure</code> to construct singleton Iterables</p><pre><code class="language-julia-repl hljs">julia&gt; pure(Iterable, 1)
+Iterable{TypeClasses.DataTypes.Iterables.IterateSingleton{Int64}}(TypeClasses.DataTypes.Iterables.IterateSingleton{Int64}(1))</code></pre><p>It wraps an internal type which really just supports the singleton Iterable for your convenience.</p><h3 id="Monoid/Alternative-6"><a class="docs-heading-anchor" href="#Monoid/Alternative-6">Monoid/Alternative</a><a class="docs-heading-anchor-permalink" href="#Monoid/Alternative-6" title="Permalink"></a></h3><p><code>Iterable</code> defines only the Monoid interface, just like Vector, but lazy.</p><pre><code class="language-julia-repl hljs">julia&gt; Iterable(1:2) ⊕ Iterable(5:6)
+Iterable{Base.Iterators.Flatten{Tuple{UnitRange{Int64}, UnitRange{Int64}}}}(Base.Iterators.Flatten{Tuple{UnitRange{Int64}, UnitRange{Int64}}}((1:2, 5:6)))
+
+julia&gt; collect(Iterable(1:2) ⊕ Iterable(5:6))
+4-element Vector{Int64}:
+ 1
+ 2
+ 5
+ 6</code></pre><p>For implementing the <code>neutral</code> function, an extra type for an empty iterator was defined within TypeClasses. It is itself not exported, because using <code>neutral</code> instead is simpler and better.</p><pre><code class="language-julia-repl hljs">julia&gt; neutral(Iterable)
+Iterable{TypeClasses.DataTypes.Iterables.IterateEmpty{Union{}}}(TypeClasses.DataTypes.Iterables.IterateEmpty{Union{}}())
+
+julia&gt; collect(neutral(Iterable))
+Union{}[]</code></pre><p>The element-type is <code>Union{}</code> to be easily type-joined with other iterables and element-types.</p><h3 id="FlipTypes-6"><a class="docs-heading-anchor" href="#FlipTypes-6">FlipTypes</a><a class="docs-heading-anchor-permalink" href="#FlipTypes-6" title="Permalink"></a></h3><p>Again similar to Vector, Iterables define <code>flip_types</code> in a lazy style.</p><pre><code class="language-julia-repl hljs">julia&gt; it = Iterable(Option(i) for i ∈ [1, 4, 7])
+Iterable{Base.Generator{Vector{Int64}, Type{Option{T} where T}}}(Base.Generator{Vector{Int64}, Type{Option{T} where T}}(Option{T} where T, [1, 4, 7]))
+
+julia&gt; flip_types(it)
+Identity(Iterable{Base.Iterators.Flatten{Tuple{Base.Iterators.Flatten{Tuple{TypeClasses.DataTypes.Iterables.IterateSingleton{Int64}, TypeClasses.DataTypes.Iterables.IterateSingleton{Int64}}}, TypeClasses.DataTypes.Iterables.IterateSingleton{Int64}}}}(Base.Iterators.Flatten{Tuple{Base.Iterators.Flatten{Tuple{TypeClasses.DataTypes.Iterables.IterateSingleton{Int64}, TypeClasses.DataTypes.Iterables.IterateSingleton{Int64}}}, TypeClasses.DataTypes.Iterables.IterateSingleton{Int64}}}((Base.Iterators.Flatten{Tuple{TypeClasses.DataTypes.Iterables.IterateSingleton{Int64}, TypeClasses.DataTypes.Iterables.IterateSingleton{Int64}}}((TypeClasses.DataTypes.Iterables.IterateSingleton{Int64}(1), TypeClasses.DataTypes.Iterables.IterateSingleton{Int64}(4))), TypeClasses.DataTypes.Iterables.IterateSingleton{Int64}(7)))))
+
+julia&gt; map(collect, flip_types(it))
+Identity([1, 4, 7])</code></pre><h2 id="Callable"><a class="docs-heading-anchor" href="#Callable">Callable</a><a id="Callable-1"></a><a class="docs-heading-anchor-permalink" href="#Callable" title="Permalink"></a></h2><p>We also provide a wrapper for functions. To enable support for your functions, just wrap them into <code>Callable</code>.</p><h3 id="Functor/Applicative/Monad-7"><a class="docs-heading-anchor" href="#Functor/Applicative/Monad-7">Functor/Applicative/Monad</a><a class="docs-heading-anchor-permalink" href="#Functor/Applicative/Monad-7" title="Permalink"></a></h3><p>The callable monad is also sometimes called reader monad, however in Julia context that name doesn&#39;t make much sense. At least you heard it and can connect the concepts.</p><pre><code class="language-julia-repl hljs">julia&gt; func = @syntax_flatmap begin
+         a = Callable(x -&gt; x * 10)
+         b = Callable(x -&gt; x * 100 )
+         Callable() do x
+           x + a + b
+         end
+       end;
+
+julia&gt; func(2)
+222</code></pre><p>Similar as for Iterables, it may simplify your setup to add <code>Callable</code> as a wrapper-function to <code>@syntax_flatmap</code></p><pre><code class="language-julia-repl hljs">julia&gt; func = @syntax_flatmap Callable begin
+         # you need to use anonymous functions, as the equal sign `=` is rewritten by the macro
+         a = x -&gt; x * 10
+         b = x -&gt; x * 100
+         identity() do x
+           x + a + b
+         end
+       end;
+
+julia&gt; func(3)
+333</code></pre><p>You can also wrap a value into <code>Callable</code> using <code>pure</code>. It works like a constant function.</p><pre><code class="language-julia-repl hljs">julia&gt; pure(Callable, 1)()
+1
+
+julia&gt; pure(Callable, 1)(&quot;any&quot;, :arguments, key=4)
+1</code></pre><h3 id="Monoid/Alternative-7"><a class="docs-heading-anchor" href="#Monoid/Alternative-7">Monoid/Alternative</a><a class="docs-heading-anchor-permalink" href="#Monoid/Alternative-7" title="Permalink"></a></h3><p><code>Callables</code> implement only <code>combine</code> by forwarding it to its elements.</p><pre><code class="language-julia-repl hljs">julia&gt; a = Callable(x -&gt; &quot;hello $x&quot;);
+
+julia&gt; b = Callable(x -&gt; &quot;!&quot;);
+
+julia&gt; (a ⊕ b)(:Albert)
+&quot;hello Albert!&quot;</code></pre><h3 id="FlipTypes-7"><a class="docs-heading-anchor" href="#FlipTypes-7">FlipTypes</a><a class="docs-heading-anchor-permalink" href="#FlipTypes-7" title="Permalink"></a></h3><p>Callable itself does not implement <code>flip_types</code> as it would need to know its arguments in advance, which of course is impossible. However because it implements Monad interface, we can use it as a nested type within another type and get it out.</p><pre><code class="language-julia-repl hljs">julia&gt; a = Callable.([x -&gt; x, y -&gt; 2y, z -&gt; z*z]);
+
+julia&gt; flip_types(a)(3)
+3-element Vector{Int64}:
+ 3
+ 6
+ 9</code></pre><h2 id="@spawnat-and-@async"><a class="docs-heading-anchor" href="#@spawnat-and-@async"><code>@spawnat</code> and <code>@async</code></a><a id="@spawnat-and-@async-1"></a><a class="docs-heading-anchor-permalink" href="#@spawnat-and-@async" title="Permalink"></a></h2><p><code>@async</code> runs the computation in another thread, <code>@spawnat</code> runs it on another machine potentially. Both are supported by TypeClasses.</p><p><code>@async</code> are described by <code>Task</code> objects, <code>@spawnat</code> by <code>Distributed.Future</code> respectively. Both kinds of contexts can be evaluated/run with <code>Base.fetch</code>.</p><h3 id="Functor/Applicative/Monad-8"><a class="docs-heading-anchor" href="#Functor/Applicative/Monad-8">Functor/Applicative/Monad</a><a class="docs-heading-anchor-permalink" href="#Functor/Applicative/Monad-8" title="Permalink"></a></h3><pre><code class="language-julia-repl hljs">julia&gt; wait_a_little(f::Function, seconds=0.3) = @async begin
+         sleep(seconds)
+         f()
+       end
+wait_a_little (generic function with 2 methods)
+
+julia&gt; wait_a_little(x, seconds=0.3) = wait_a_little(() -&gt; x, seconds)
+wait_a_little (generic function with 4 methods)
+
+julia&gt; squared = map(wait_a_little(4)) do x
+         x*x
+       end;  # returns a Task
+
+julia&gt; fetch(squared)
+16
+
+julia&gt; fetch(mapn(+, wait_a_little(11), wait_a_little(12)))
+23
+
+julia&gt; monadic = @syntax_flatmap begin
+         a = wait_a_little(5)
+         b = wait_a_little(a + 3)
+         @pure a, b
+       end;  # returns a Task
+
+julia&gt; fetch(monadic)
+(5, 8)</code></pre><p>You can do the very same using <code>@spawnat</code>, i.e. the type <code>Distributed.Future</code>. Just use the following function instead.</p><pre><code class="language-julia hljs">using Distributed
+
+wait_a_little(f::Function, seconds=0.3) = @spawnat :any begin
+  sleep(seconds)
+  f()
+end</code></pre><p>You can put any value into a <code>Task</code> and <code>Future</code> object by using <code>TypeClasses.pure</code>. You get it out again with <code>Base.fetch</code>.</p><pre><code class="language-julia-repl hljs">julia&gt; fetch(pure(Task, 4))
+4
+
+julia&gt; using Distributed
+
+julia&gt; fetch(pure(Future, &quot;a&quot;))
+&quot;a&quot;</code></pre><h3 id="Monoid/Alternative-8"><a class="docs-heading-anchor" href="#Monoid/Alternative-8">Monoid/Alternative</a><a class="docs-heading-anchor-permalink" href="#Monoid/Alternative-8" title="Permalink"></a></h3><p>Future and Task do not implement <code>neutral</code>.</p><p><code>combine</code> is forwarded to the computation results.</p><pre><code class="language-julia-repl hljs">julia&gt; fetch(wait_a_little(&quot;hello.&quot;) ⊕ wait_a_little(&quot;world.&quot;))
+&quot;hello.world.&quot;</code></pre><p><code>orelse</code> is defined as the Alternative semantics of running multiple threads in parallel and taking the faster one.</p><pre><code class="language-julia-repl hljs">julia&gt; fetch(wait_a_little(:a, 1.0) ⊘ wait_a_little(:b, 2.0))
+:a
+
+julia&gt; fetch(wait_a_little(:a, 3.0) ⊘ wait_a_little(:b, 2.0))
+:b
+
+julia&gt; fetch(wait_a_little(() -&gt; error(&quot;fails&quot;), 0.1) ⊘ wait_a_little(:succeeds, 0.3))
+:succeeds
+
+julia&gt; fetch(wait_a_little(:succeeds, 0.3) ⊘ wait_a_little(() -&gt; error(&quot;fails&quot;), 0.1))
+:succeeds</code></pre><p>In case all different paths fail, all errors are collected into an <code>MultipleExceptions</code> object</p><pre><code class="language-julia hljs">julia&gt; fetch(wait_a_little(() -&gt; error(&quot;fails1&quot;)) ⊘ wait_a_little(() -&gt; error(&quot;fails2&quot;)) ⊘ wait_a_little(() -&gt; error(&quot;fails3&quot;)) ⊘ wait_a_little(() -&gt; error(&quot;fails4&quot;)))
+ERROR: TaskFailedException
+Stacktrace:
+ [1] wait
+   @ ./task.jl:322 [inlined]
+ [2] fetch(t::Task)
+   @ Base ./task.jl:337
+ [3] top-level scope
+   @ REPL[56]:1
+
+    nested task error: MultipleExceptions{NTuple{4, Thrown{TaskFailedException}}}((Thrown(TaskFailedException(Task (failed) @0x00007f5c8633af50)), Thrown(TaskFailedException(Task (failed) @0x00007f5c8633b0a0)), Thrown(TaskFailedException(Task (failed) @0x00007f5c864382b0)), Thrown(TaskFailedException(Task (failed) @0x00007f5c86438550))))</code></pre><p>You can do the very same using <code>@spawnat</code>, i.e. the type <code>Distributed.Future</code>. Just use the following function instead.</p><pre><code class="language-julia hljs">using Distributed
+
+wait_a_little(f::Function, seconds=0.3) = @spawnat :any begin
+  sleep(seconds)
+  f()
+end</code></pre><p>Note that a fetch on a Future will RETURN an RemoteException object instead of throwing an error.</p><pre><code class="language-julia hljs">julia&gt; fetch(wait_a_little(() -&gt; error(&quot;fails1&quot;)) ⊘ wait_a_little(() -&gt; error(&quot;fails2&quot;)) ⊘ wait_a_little(() -&gt; error(&quot;fails3&quot;)) ⊘ wait_a_little(() -&gt; error(&quot;fails4&quot;)))
+RemoteException(1, CapturedException(MultipleExceptions{NTuple{4, RemoteException}}((RemoteException(1, CapturedException(ErrorException(&quot;fails1&quot;), [...]</code></pre><h3 id="FlipTypes-8"><a class="docs-heading-anchor" href="#FlipTypes-8">FlipTypes</a><a class="docs-heading-anchor-permalink" href="#FlipTypes-8" title="Permalink"></a></h3><p>Implementing <code>flip_types</code> does not make much sense for <code>Task</code> and <code>Future</code>, as this would need to execute the Task, and map over its returned value, finally creating a bunch of dummy Tasks within it. <code>@async</code> and <code>@spawnat</code> are really meant to be lazy constructions.</p><h2 id="Writer"><a class="docs-heading-anchor" href="#Writer">Writer</a><a id="Writer-1"></a><a class="docs-heading-anchor-permalink" href="#Writer" title="Permalink"></a></h2><p>The <code>Writer{Accumulator, Value}</code> monad stores logs or other intermediate outputs. It is like <code>Base.Pair{Accumulator, Value}</code>, with the added assumption that <code>Accumulator</code> implements the <code>TypeClasses.combine</code>. Also the <code>eltype</code> of a <code>Writer</code> corresponds to the element-type of the <code>Value</code>.</p><h3 id="Functor/Applicative/Monad-9"><a class="docs-heading-anchor" href="#Functor/Applicative/Monad-9">Functor/Applicative/Monad</a><a class="docs-heading-anchor-permalink" href="#Functor/Applicative/Monad-9" title="Permalink"></a></h3><p>You can use the writer to implicitly accumulate any Semigroup or Monoid</p><pre><code class="language-julia-repl hljs">julia&gt; @syntax_flatmap begin
+         a = pure(Writer{String}, 5)
+         Writer(&quot;first.&quot;)
+         b = Writer(&quot;second.&quot;, a*a)
+         @pure a, b
+       end
+Writer{String, Tuple{Int64, Int64}}(&quot;first.second.&quot;, (5, 25))</code></pre><p>In case you only have a Semigroup, just wrap it into <code>Option</code>, the default <code>TypeClasses.pure</code> implementation for writer will use <code>Option()</code> internally.</p><pre><code class="language-julia-repl hljs">julia&gt; @syntax_flatmap begin
+         a = pure(Writer, 5)
+         Writer(Option(&quot;hi&quot;))
+         @pure a
+       end
+Writer{Identity{String}, Int64}(Identity(&quot;hi&quot;), 5)</code></pre><h3 id="Monoid/Alternative-9"><a class="docs-heading-anchor" href="#Monoid/Alternative-9">Monoid/Alternative</a><a class="docs-heading-anchor-permalink" href="#Monoid/Alternative-9" title="Permalink"></a></h3><p><code>neutral</code> and <code>combine</code> will foward the call to <code>neutral</code> and <code>combine</code> onto the element-types (for <code>neutral</code>) or the concrete element-values (for <code>combine</code>).</p><pre><code class="language-julia-repl hljs">julia&gt; neutral(Writer{Option, Vector})
+Const(nothing) =&gt; Any[]
+
+julia&gt; Writer(&quot;one.&quot;, [1,2]) ⊕ Writer(&quot;two.&quot;, [3,4]) ⊕ Writer(&quot;three.&quot;, [5])
+Writer{String, Vector{Int64}}(&quot;one.two.three.&quot;, [1, 2, 3, 4, 5])
+
+julia&gt; Writer(&quot;hello.&quot;) ⊕ Writer(&quot;world.&quot;)  # the single argument constructor is just for logging, however as `nothing` always combines, this works too
+Writer{String, Nothing}(&quot;hello.world.&quot;, nothing)</code></pre><p>We don&#39;t implement <code>orelse</code>, as it is commonly meant on container level, but there is no obvious failure semantics here.</p><h3 id="FlipTypes-9"><a class="docs-heading-anchor" href="#FlipTypes-9">FlipTypes</a><a class="docs-heading-anchor-permalink" href="#FlipTypes-9" title="Permalink"></a></h3><p><code>Writer</code> supports <code>flip_types</code> by duplicating the accumulator respectively. </p><pre><code class="language-julia-repl hljs">julia&gt; flip_types(Writer(&quot;accumulator&quot;, [1, 2, 3]))
+3-element Vector{Writer{String, Int64}}:
+ Writer{String, Int64}(&quot;accumulator&quot;, 1)
+ Writer{String, Int64}(&quot;accumulator&quot;, 2)
+ Writer{String, Int64}(&quot;accumulator&quot;, 3)</code></pre><p>Used within another FlipTypes, <code>Writer</code> just accumulates the accumulator.</p><pre><code class="language-julia-repl hljs">julia&gt; flip_types([ Writer(&quot;one.&quot;, 1), Writer(&quot;two.&quot;, 2), Writer(&quot;three.&quot;, 3) ])
+Writer{String, Vector{Int64}}(&quot;one.two.three.&quot;, [1, 2, 3])</code></pre><h2 id="Pair/Tuple"><a class="docs-heading-anchor" href="#Pair/Tuple">Pair/Tuple</a><a id="Pair/Tuple-1"></a><a class="docs-heading-anchor-permalink" href="#Pair/Tuple" title="Permalink"></a></h2><p>Pair and Tuple have no Monad instances, but we support <code>combine</code> and <code>neutral</code> by forwarding the calls to its elements</p><h3 id="Functor/Applicative/Monad-10"><a class="docs-heading-anchor" href="#Functor/Applicative/Monad-10">Functor/Applicative/Monad</a><a class="docs-heading-anchor-permalink" href="#Functor/Applicative/Monad-10" title="Permalink"></a></h3><p>No implementation. Please see <a href="#Writer">Writer</a> instead.</p><h3 id="Monoid/Alternative-10"><a class="docs-heading-anchor" href="#Monoid/Alternative-10">Monoid/Alternative</a><a class="docs-heading-anchor-permalink" href="#Monoid/Alternative-10" title="Permalink"></a></h3><pre><code class="language-julia-repl hljs">julia&gt; (&quot;hello.&quot; =&gt; [1,2]) ⊕ (&quot;world.&quot; =&gt; [3])
+&quot;hello.world.&quot; =&gt; [1, 2, 3]
+
+julia&gt; (&quot;hello.&quot;, [1,2], Dict(:a =&gt; &quot;one.&quot;)) ⊕ (&quot;world.&quot;, [3], Dict(:a =&gt; &quot;two.&quot;))
+(&quot;hello.world.&quot;, [1, 2, 3], Dict(:a =&gt; &quot;one.two.&quot;))
+
+julia&gt; neutral(Pair{String, Vector})
+&quot;&quot; =&gt; Any[]
+
+julia&gt; neutral(Tuple{String, Vector})
+(&quot;&quot;, Any[])
+
+julia&gt; neutral(Tuple{String})
+(&quot;&quot;,)</code></pre><h3 id="FlipTypes-10"><a class="docs-heading-anchor" href="#FlipTypes-10">FlipTypes</a><a class="docs-heading-anchor-permalink" href="#FlipTypes-10" title="Permalink"></a></h3><p>No implementation. Please see <a href="#Writer">Writer</a> instead.</p><h2 id="State"><a class="docs-heading-anchor" href="#State">State</a><a id="State-1"></a><a class="docs-heading-anchor-permalink" href="#State" title="Permalink"></a></h2><p>With the <code>State</code> monad you can hide the modification of some external variable. In Julia you can modify variables by side-effect, hence this State monad is rather for illustrative purposes only. However if you like to have tight control over your state or config, you can give it a try.</p><h3 id="Functor/Applicative/Monad-11"><a class="docs-heading-anchor" href="#Functor/Applicative/Monad-11">Functor/Applicative/Monad</a><a class="docs-heading-anchor-permalink" href="#Functor/Applicative/Monad-11" title="Permalink"></a></h3><p>You can lift an arbitrary value into a  <code>State</code> with <code>TypeClasses.pure</code>. It won&#39;t do anything with the state.</p><pre><code class="language-julia-repl hljs">julia&gt; run(pure(State, &quot;returnvalue&quot;), :initialstate)
+(&quot;returnvalue&quot;, :initialstate)</code></pre><p>If you want to change the state, use <code>TypeClasses.putstate</code>, and if you want to access the state itself, you can use <code>TypeClasses.getstate</code>. For the general case you can construct <code>State</code> by passing a function taking the state as its only input argument, and returning result value and new state in a tuple.</p><pre><code class="language-julia-repl hljs">julia&gt; putget = @syntax_flatmap begin
+         putstate(4)
+         x = getstate
+         State(s -&gt; (&quot;x = $x&quot;, s+1))
+       end;
+
+julia&gt; value, state = putget(())
+(&quot;x = 4&quot;, 5)</code></pre><h3 id="Monoid/Alternative-11"><a class="docs-heading-anchor" href="#Monoid/Alternative-11">Monoid/Alternative</a><a class="docs-heading-anchor-permalink" href="#Monoid/Alternative-11" title="Permalink"></a></h3><p>State only supports <code>combine</code> by forwarding it to its inner element. The state is passed from the first to the second.</p><pre><code class="language-julia-repl hljs">julia&gt; state1 = State(s -&gt; (&quot;one.&quot;, s*s));
+
+julia&gt; state2 = State(s -&gt; (&quot;two.&quot;, 2s));
+
+julia&gt; run(state1 ⊕ state2, 3)
+(&quot;one.two.&quot;, 18)
+
+julia&gt; run(state2 ⊕ state1, 3)
+(&quot;two.one.&quot;, 36)</code></pre><h3 id="FlipTypes-11"><a class="docs-heading-anchor" href="#FlipTypes-11">FlipTypes</a><a class="docs-heading-anchor-permalink" href="#FlipTypes-11" title="Permalink"></a></h3><p>There is no implementation for <code>flip_types</code>, as you would need to look inside the <code>State</code> and wrap it out. That is hidden behind a function which depends on the state, so no way to bring things inside-out without such a state.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../manual-TypeClasses/">« TypeClasses</a><a class="docs-footer-nextpage" href="../library/">Library »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.4 on <span class="colophon-date" title="Tuesday 20 July 2021 21:23">Tuesday 20 July 2021</span>. Using Julia version 1.6.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
