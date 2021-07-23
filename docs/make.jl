@@ -26,4 +26,5 @@ makedocs(;
 
 deploydocs(;
     repo="github.com/JuliaFunctional/TypeClasses.jl",
+    devbranch="main",
 )
