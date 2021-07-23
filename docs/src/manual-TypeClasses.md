@@ -124,7 +124,7 @@ Monoid, Alternative | `TypeClasses.neutral` |
 Monoid, Semigroup | `TypeClasses.combine` | alias `⊕` (\oplus), `reduce_monoid`, `foldr_monoid`, `foldl_monoid`
 Alternative | `TypeClasses.orelse` | alias `⊘` (\oslash) 
 
-A **Semigroup** just supports `combine`, a **Monoid** in addition supports `neutral`.
+A **Semigroup** just supports `combine`, a **Monoid** in addition supports `neutral`. We define the generic neutral element `neutral` which is neutral to everything, hence every Semigroup is actually a Monoid in Julia. Hence `TypeClasses.neutral` is both a function which returns the neutral element (defaulting to `neutral`), as well as the generic neutral element itself. 
 
 Sometimes, the type itself has an obvious way of combining multiple values, like for `String` or `Vector`. Other times, the `combine` is forwarded to inner elements in case it is needed.
 

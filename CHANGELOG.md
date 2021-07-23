@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2021-07-23
+### Added
+- `neutral` can be used as generic `neutral` value. With this every Semigroup is automatically a Monoid.
+- `neutral(type)` now defaults to returning `neutral` instead of throwing a not-implemented-error.
+
+### Changed
+- `pure(Writer, value)` now initializes the accumulator to `TypeClasses.neutral` instead of `Option()`, making it strictly more general with regard to `TypeClasses.combine`.
+
+### Removed
+- `reduce_monoid`, `foldl_monoid` and `foldr_monoid` can now only be called as `reduce_monoid(iterable; [init])`. The older variant `reduce_monoid(combine_function, iterable; [init])` was a left over from previous thrown-away iterations.
+
 ## [1.0.0] - 2021-07-16
 ### Added
 - extensive documentation is ready

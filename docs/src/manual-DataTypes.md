@@ -660,14 +660,14 @@ julia> @syntax_flatmap begin
 Writer{String, Tuple{Int64, Int64}}("first.second.", (5, 25))
 ```
 
-In case you only have a Semigroup, just wrap it into `Option`, the default `TypeClasses.pure` implementation for writer will use `Option()` internally.
+In case you only have a Semigroup, no problem, as the default `TypeClasses.pure` implementation for writer will use `neutral` as the accumulator, which combines with everything.
 ```jldoctest
 julia> @syntax_flatmap begin
          a = pure(Writer, 5)
-         Writer(Option("hi"))
+         Writer("hi")
          @pure a
        end
-Writer{Identity{String}, Int64}(Identity("hi"), 5)
+Writer{String, Int64}("hi", 5)
 ```
 
 ### Monoid/Alternative
@@ -685,7 +685,7 @@ julia> Writer("hello.") ⊕ Writer("world.")  # the single argument constructor 
 Writer{String, Nothing}("hello.world.", nothing)
 ```
 
-We don't implement `orelse`, as it is commonly meant on container level, but there is no obvious failure semantics here.
+We do not implement `orelse`, as it is commonly meant on container level, but there is no obvious failure semantics here.
 
 
 ### FlipTypes

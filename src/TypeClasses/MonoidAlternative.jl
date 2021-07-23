@@ -2,9 +2,14 @@
 # ==================
 
 """
-    neutral(::Type{T})::T
+    neutral
+    neutral(::Type)
+    neutral(_default_return_value) = neutral
 
-Neutral element for `⊕`, also called "identity element".
+Neutral element for `⊕`, also called "identity element". `neutral` is a function which can give you 
+the neutral element for a concrete type, or alternatively you can use it as a singleton value which combines with everything.
+
+By default `neutral(type)` will return the generic `neutral` singleton. You can override it for your specific type to have a more specific neutral value.
 
 We decided for name `neutral` according to https://en.wikipedia.org/wiki/Identity_element. Alternatives seem inappropriate
   - "identity" is already taken
@@ -12,7 +17,9 @@ We decided for name `neutral` according to https://en.wikipedia.org/wiki/Identit
   - "I" is too ambiguous
   - "unit" seems ambiguous with physical units
 
-# Following Laws should hold
+
+Following Laws should hold
+--------------------------
 
 Left Identity
 
@@ -23,7 +30,7 @@ Right Identity
       ⊕(t::T, neutral(T)) == t
 """
 function neutral end
-neutral(T::Type) = error("neutral($T) not defined")
+neutral(T::Type) = neutral  # we use the singleton type itself as the generic neutral value
 neutral(a) = neutral(typeof(a))
 
 
@@ -48,8 +55,11 @@ const ⊕ = combine
 combine(a, b, c, more...) = foldl(⊕, more, init=(a⊕b)⊕c)
 
 
+# supporting `neutral` as generic neutral value
+combine(::typeof(neutral), b) = b
+combine(a, ::typeof(neutral)) = a
+combine(::typeof(neutral), ::typeof(neutral)) = neutral
 
-struct _InitialValue end
 
 for reduce ∈ [:reduce, :foldl, :foldr]
   reduce_monoid = Symbol(reduce, "_monoid")
@@ -57,34 +67,21 @@ for reduce ∈ [:reduce, :foldl, :foldr]
 
   @eval begin
     """
-        $($reduce_monoid)(itr; [init])
-        $($reduce_monoid)(monoid_combine_function, itr; [init])
-
-    Combines all elements of `itr` using the initial element `init` if given and `combine`.
-    If no `init` is given, `neutral` and `combine` is used instead.
-
-    If `monoid_combine_function` is given, it `neutral(monoid_combine_function)` is expected to return the corresponding `neutral` function
+        $($reduce_monoid)(itr; init=TypeClasses.neutral)
+        
+    Combines all elements of `itr` using the initial element `init` if given and `TypeClasses.combine`.
     """
-    function $reduce_monoid(itr; init = _InitialValue())
-      $_reduce_monoid(TypeClasses.combine, TypeClasses.neutral, itr, init)
-    end
-    function $reduce_monoid(monoid_combine_function, itr; init = _InitialValue())
-      $_reduce_monoid(monoid_combine_function, neutral(monoid_combine_function), itr, init)
-    end
-    function $_reduce_monoid(combine, neutral, itr, init)
-      op(acc::_InitialValue, x) = x
-      op(acc, x) = combine(acc, x)
+    function $reduce_monoid(itr; init=neutral)
       # taken from Base._foldl_impl
 
-      # Unroll the while loop once; if init is known, the call to op may
-      # be evaluated at compile time
+      # Unroll the while loop once to hopefully infer the element type at compile time
       y = iterate_named(itr)
-      isnothing(y) && return neutral(eltype(itr))
-      v = op(init, y.value)
+      isnothing(y) && return init
+      v = combine(init, y.value)
       while true
           y = iterate_named(itr, y.state)
           isnothing(y) && break
-          v = op(v, y.value)
+          v = combine(v, y.value)
       end
       return v
     end

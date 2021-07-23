@@ -42,6 +42,12 @@ end) == Writer("hi", 5)
   @pure a
 end) == Writer(Option("hi"), 5)
 
+@test (@syntax_flatmap begin
+  a = pure(Writer, 5)
+  Writer("hi")
+  @pure a
+end) == Writer("hi", 5)
+
 
 # FlipTypes
 # =========

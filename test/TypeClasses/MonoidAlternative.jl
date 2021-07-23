@@ -2,11 +2,10 @@
 # ---------------------------------------
 
 TypeClasses.combine(a::Int, b::Int) = a + b
-TypeClasses.neutral(::Type{Int}) = 0
 
 @test reduce_monoid([1,2,3,1]) == 7
 @test foldl_monoid([1,2,3,4]) == 10
-@test foldr_monoid([1,2,3,100]) == 106
+@test foldr_monoid([1,2,3,100], init=3000) == 3106
 
 
 # Test default Semigroup instance for String
@@ -15,11 +14,9 @@ TypeClasses.neutral(::Type{Int}) = 0
 @test reduce_monoid(["hi"," ","du"], init="!") == "!hi du"
 
 
-# Define and Test neutral for functions
-# -------------------------------------
+# Test `neutral` singleton value
+# ------------------------------
 
-myfunction(a, b) = a * b
-TypeClasses.neutral(::Type{typeof(myfunction)}) = one
-@test reduce_monoid(myfunction, [1,2,3,4]) == 1*2*3*4
-
-# TODO Test Alternative
+@test combine(neutral, :anything) == :anything
+@test combine("anything", neutral) == "anything"
+@test combine(neutral, neutral) == neutral

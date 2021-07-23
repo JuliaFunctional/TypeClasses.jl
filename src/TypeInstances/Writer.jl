@@ -21,7 +21,7 @@ end
 # We fall back to assume that the general writer uses Option values in order to have a neutral value
 # this should be okay, as it is canonical extension for any Semigroup to an Monoid  
 function TypeClasses.pure(::Type{<:Writer}, a)
-  Writer(Option(), a)
+  Writer(neutral, a)
 end
 
 # Writer always defines `combine` on `acc`
