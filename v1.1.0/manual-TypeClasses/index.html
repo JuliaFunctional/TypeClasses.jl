@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>TypeClasses · TypeClasses.jl</title><script data-outdated-warner src="../assets/warner.js"></script><link rel="canonical" href="https://JuliaFunctional.github.io/TypeClasses.jl/manual-TypeClasses/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">TypeClasses.jl</a></span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../manual/">Introduction</a></li><li class="is-active"><a class="tocitem" href>TypeClasses</a><ul class="internal"><li><a class="tocitem" href="#functor_applicative_monad"><span>Functor, Applicative, Monad</span></a></li><li><a class="tocitem" href="#semigroup_monoid_alternative"><span>Semigroup, Monoid, Alternative</span></a></li><li><a class="tocitem" href="#flip_types"><span>FlipTypes</span></a></li></ul></li><li><a class="tocitem" href="../manual-DataTypes/">DataTypes</a></li></ul></li><li><a class="tocitem" href="../library/">Library</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Manual</a></li><li class="is-active"><a href>TypeClasses</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>TypeClasses</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/JuliaFunctional/TypeClasses.jl/blob/master/docs/src/manual-TypeClasses.md#" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="TypeClasses"><a class="docs-heading-anchor" href="#TypeClasses">TypeClasses</a><a id="TypeClasses-1"></a><a class="docs-heading-anchor-permalink" href="#TypeClasses" title="Permalink"></a></h1><h2 id="functor_applicative_monad"><a class="docs-heading-anchor" href="#functor_applicative_monad">Functor, Applicative, Monad</a><a id="functor_applicative_monad-1"></a><a class="docs-heading-anchor-permalink" href="#functor_applicative_monad" title="Permalink"></a></h2><table><tr><th style="text-align: right">Typeclass</th><th style="text-align: right">Interface</th><th style="text-align: right">Helpers from <code>TypeClasses</code></th></tr><tr><td style="text-align: right">&amp;nbsp;</td><td style="text-align: right"><code>TypeClasses.foreach = Base.foreach</code></td><td style="text-align: right"><code>@syntax_foreach</code></td></tr><tr><td style="text-align: right">Functor, Applicative, Monad</td><td style="text-align: right"><code>TypeClasses.map = Base.map</code></td><td style="text-align: right"><code>@syntax_map</code></td></tr><tr><td style="text-align: right">Applicative, Monad</td><td style="text-align: right"><code>TypeClasses.pure</code>, <code>TypeClasses.ap</code></td><td style="text-align: right"><code>ap</code> is automatically defined if you defined <code>Base.map</code> and <code>TypeClasses.flatmap</code>. Further helpers: <code>mapn</code>, <code>@mapn</code>, <code>tupled</code>, <code>neutral_applicative</code>, <code>combine_applicative</code>, <code>orelse_applicative</code></td></tr><tr><td style="text-align: right">Monad</td><td style="text-align: right"><code>TypeClasses.flatmap</code></td><td style="text-align: right"><code>flatten</code>, <code>↠</code> (\twoheadrightarrow), <code>@syntax_flatmap</code></td></tr></table><p>There are three syntax supported, where <code>@syntax_flatmap</code> is the most useful, however sometimes <code>@syntax_foreach</code> may also be handy because of its power and simplicity in a programming language with side-effects (like Julia).</p><pre><code class="language-julia-repl hljs">julia&gt; @syntax_foreach begin  # translates to foreach calls
+         a = [1, 2]
+         b = [3, 4]
+         @pure println(&quot;a = $a, b = $b&quot;)
+       end
+a = 1, b = 3
+a = 1, b = 4
+a = 2, b = 3
+a = 2, b = 4
+
+julia&gt; @syntax_map begin  # translates to map calls
+         a = [1, 2]
+         b = [3, 4]
+         @pure &quot;a = $a, b = $b&quot;
+       end
+2-element Vector{Vector{String}}:
+ [&quot;a = 1, b = 3&quot;, &quot;a = 1, b = 4&quot;]
+ [&quot;a = 2, b = 3&quot;, &quot;a = 2, b = 4&quot;]
+
+julia&gt; @syntax_flatmap begin  # translates to map/flatmap calls
+         a = [1, 2]
+         b = [3, 4]
+         @pure &quot;a = $a, b = $b&quot;
+       end
+4-element Vector{String}:
+ &quot;a = 1, b = 3&quot;
+ &quot;a = 1, b = 4&quot;
+ &quot;a = 2, b = 3&quot;
+ &quot;a = 2, b = 4&quot;</code></pre><p>For <strong>Applicatives</strong> there are a couple of additional helpers</p><pre><code class="language-julia-repl hljs">julia&gt; f(a, b, c) = a + b + c
+f (generic function with 1 method)
+
+julia&gt; @mapn f([1,2], [10], [100, 200])  # can also be written as `mapn(f, [1,2], [10], [100,200])`
+4-element Vector{Int64}:
+ 111
+ 211
+ 112
+ 212
+
+julia&gt; tupled([1,2], [3, 4])
+4-element Vector{Tuple{Int64, Int64}}:
+ (1, 3)
+ (1, 4)
+ (2, 3)
+ (2, 4)</code></pre><p>And for <strong>Monads</strong> you have</p><pre><code class="language-julia-repl hljs">julia&gt; flatten([[1,2], [3,4]])
+4-element Vector{Int64}:
+ 1
+ 2
+ 3
+ 4
+
+julia&gt; [1, 2] ↠ [3, 4]  # flatmap(_ -&gt; [3,4], [1,2])
+4-element Vector{Int64}:
+ 3
+ 4
+ 3
+ 4
+
+julia&gt; Option(3) ↠ Option() ↠ Option(&quot;hi&quot;)  # stopping behaviour with operator syntax
+Const(nothing)</code></pre><h3 id="Considerations"><a class="docs-heading-anchor" href="#Considerations">Considerations</a><a id="Considerations-1"></a><a class="docs-heading-anchor-permalink" href="#Considerations" title="Permalink"></a></h3><h4 id="Functor-map"><a class="docs-heading-anchor" href="#Functor-map">Functor - map</a><a id="Functor-map-1"></a><a class="docs-heading-anchor-permalink" href="#Functor-map" title="Permalink"></a></h4><p>You can overload <code>TypeClasses.map</code> or <code>Base.map</code>, as you like, they are both the very same.</p><h4 id="Monad-flatmap"><a class="docs-heading-anchor" href="#Monad-flatmap">Monad - flatmap</a><a id="Monad-flatmap-1"></a><a class="docs-heading-anchor-permalink" href="#Monad-flatmap" title="Permalink"></a></h4><p>We decided to use <code>flatmap</code> as the interface, because it is often more intuitiv to implement than <code>flatten</code> and also comes quite natural next to <code>map</code>.</p><p>In order to enable simple interactions between monads, all <code>flatmap</code> implementations use <code>convert</code> before flattening. The exception is <code>Identity</code> which for convenience just returns whatever inner monad may appear, without forcing a conversion to <code>Identity</code>. For example, this enables you to combine <code>Vector</code> with <code>OPtion</code>, <code>Try</code>, <code>Either</code> in all ways.</p><p><code>@syntax_flatmap</code> provides monadic syntax (similar to haskell do-notation). However, the macro translates to <code>flatmap</code> and <code>map</code> only, and does not need <code>pure</code>.</p><h4 id="Applicative-ap-/-mapn-/-map"><a class="docs-heading-anchor" href="#Applicative-ap-/-mapn-/-map">Applicative - ap / mapn / map</a><a id="Applicative-ap-/-mapn-/-map-1"></a><a class="docs-heading-anchor-permalink" href="#Applicative-ap-/-mapn-/-map" title="Permalink"></a></h4><p><code>mapn</code> is explicitly an extra function, because it has a generic definition which uses <code>pure</code> and <code>ap</code>, which can also be derived given the implementation of <code>flatmap</code> and single <code>map</code>. Many types define <code>Base.map(f, a, b, c, ...)</code> which is in this sense a <code>mapn</code>. However, they sometimes do not conform to the respective implementation of <code>flatten</code>/<code>flatmap</code>. For example <code>Vector</code> defines <code>Base.map(f, a, b, c, ...)</code> for Vectors of equal length, however flattening vectors is collecting all combinations of all vectors. These are two different semantics and it is hard to forsee which error-potentials this would bring if they are intermixed. Another example is <code>Dictionaries.Dictionary</code>, which supports map similar to Vector, checking for same indices first and raising an error otherwise.</p><p>For convenience, <code>Base.map(f, a, b, c...)</code> is defined as an alias for <code>TypeClasses.mapn(f, a, b, c...)</code> for the data types <code>Option</code>, <code>Try</code>, <code>Either</code>, <code>ContextManager</code>, <code>Callable</code>, <code>Writer</code>, and <code>State</code>.</p><p>Each Applicative can lift an underlying Monoid. In addition some Applicatives also define Monoids themselves (e.g. Vector). Hence, we distinguish both by adding functions <code>neutral_applicative</code>, <code>combine_applicative</code>, <code>orelse_applicative</code>.</p><h2 id="semigroup_monoid_alternative"><a class="docs-heading-anchor" href="#semigroup_monoid_alternative">Semigroup, Monoid, Alternative</a><a id="semigroup_monoid_alternative-1"></a><a class="docs-heading-anchor-permalink" href="#semigroup_monoid_alternative" title="Permalink"></a></h2><table><tr><th style="text-align: right">Typeclass</th><th style="text-align: right">Interface</th><th style="text-align: right">Helpers from <code>TypeClasses</code></th></tr><tr><td style="text-align: right">Monoid, Alternative</td><td style="text-align: right"><code>TypeClasses.neutral</code></td><td style="text-align: right"></td></tr><tr><td style="text-align: right">Monoid, Semigroup</td><td style="text-align: right"><code>TypeClasses.combine</code></td><td style="text-align: right">alias <code>⊕</code> (\oplus), <code>reduce_monoid</code>, <code>foldr_monoid</code>, <code>foldl_monoid</code></td></tr><tr><td style="text-align: right">Alternative</td><td style="text-align: right"><code>TypeClasses.orelse</code></td><td style="text-align: right">alias <code>⊘</code> (\oslash)</td></tr></table><p>A <strong>Semigroup</strong> just supports <code>combine</code>, a <strong>Monoid</strong> in addition supports <code>neutral</code>. We define the generic neutral element <code>neutral</code> which is neutral to everything, hence every Semigroup is actually a Monoid in Julia. Hence <code>TypeClasses.neutral</code> is both a function which returns the neutral element (defaulting to <code>neutral</code>), as well as the generic neutral element itself. </p><p>Sometimes, the type itself has an obvious way of combining multiple values, like for <code>String</code> or <code>Vector</code>. Other times, the <code>combine</code> is forwarded to inner elements in case it is needed.</p><pre><code class="language-julia-repl hljs">julia&gt; neutral(Vector) ⊕ [1,2] ⊕ [3]
+3-element Vector{Any}:
+ 1
+ 2
+ 3
+
+julia&gt; d = Dict(:a =&gt; &quot;hello.&quot;, :b =&gt; 4) ⊕ Dict(:a =&gt; &quot;world.&quot;, :c =&gt; 1.0)
+Dict{Symbol, Any} with 3 entries:
+  :a =&gt; &quot;hello.world.&quot;
+  :b =&gt; 4
+  :c =&gt; 1.0
+
+julia&gt; combine(Option(), Option([1]), Option([2, 3]))
+Identity([1, 2, 3])</code></pre><p>Let&#39;s look at <strong>Alternative</strong>. Take the <code>Dict</code> as an example of a container. If we find the same key in both dictionaries, <code>combine</code> is going to recursively call <code>combine</code> on them. Alternatively, we could just grab the one or the other. This is implemented within the <code>orelse</code> function, which will always take the first value it finds. </p><pre><code class="language-julia-repl hljs">julia&gt; Dict(:a =&gt; &quot;first&quot;, :b =&gt; 4) ⊘ Dict(:a =&gt; true, :c =&gt; 1.0)
+Dict{Symbol, Any} with 3 entries:
+  :a =&gt; &quot;first&quot;
+  :b =&gt; 4
+  :c =&gt; 1.0
+
+julia&gt; orelse(Option(), Option(1), Option(4))
+Identity(1)</code></pre><h3 id="Considerations-2"><a class="docs-heading-anchor" href="#Considerations-2">Considerations</a><a class="docs-heading-anchor-permalink" href="#Considerations-2" title="Permalink"></a></h3><p>We decided to use the same <code>neutral</code> for both Monoid and Alternative because of simplicity. </p><p>Julia does not have stable typeparameters (for optimization a typeparameter may be inferred as Any instead of more concrete type), and hence Alternative (which is concept targeted at Functors, i.e. things with one typeparameter) becomes way more similar to Monoid.</p><h2 id="flip_types"><a class="docs-heading-anchor" href="#flip_types">FlipTypes</a><a id="flip_types-1"></a><a class="docs-heading-anchor-permalink" href="#flip_types" title="Permalink"></a></h2><table><tr><th style="text-align: right">Typeclass</th><th style="text-align: right">Interface</th><th style="text-align: right">Helpers from <code>TypeClasses</code></th></tr><tr><td style="text-align: right">FlipTypes</td><td style="text-align: right"><code>TypeClasses.flip_types</code></td><td style="text-align: right"><code>TypeClasses.default_flip_types_having_pure_combine_apEltype</code></td></tr></table><p><code>flip_types(::A{B{C}})</code> should return <code>::B{A{C}}</code>. Hence the name: it flips the first two types. </p><p>Here are some examples</p><pre><code class="language-julia-repl hljs">julia&gt; flip_types([Option(:a), Option(:b)])
+Identity([:a, :b])
+
+julia&gt; flip_types(Identity([:a, :b]))
+2-element Vector{Identity{Symbol}}:
+ Identity(:a)
+ Identity(:b)
+
+julia&gt; flip_types([Option(:a), Option()])
+Const(nothing)
+
+julia&gt; using Dictionaries
+
+julia&gt; flip_types(dictionary((:a =&gt; [1,2], :b =&gt; [3, 4])))
+4-element Vector{Dictionary{Symbol, Int64}}:
+ {:a = 1, :b = 3}
+ {:a = 1, :b = 4}
+ {:a = 2, :b = 3}
+ {:a = 2, :b = 4}
+
+julia&gt; flip_types([dictionary((:a =&gt; 1, :b =&gt; 2)), dictionary((:a =&gt; 10, :b =&gt; 20)), dictionary((:b =&gt; 200, :c =&gt; 300))])
+1-element Dictionaries.Dictionary{Symbol, Vector{Int64}}
+ :b │ [2, 20, 200]</code></pre><p>You see that flip<em>types may actually forget information. This is normal, but very important to remember. Hence, applying flip</em>types twice usually not return to the original value, but will change the result.</p><h3 id="Considerations-3"><a class="docs-heading-anchor" href="#Considerations-3">Considerations</a><a class="docs-heading-anchor-permalink" href="#Considerations-3" title="Permalink"></a></h3><p>FlipTypes is not an official TypeClass, however proofs to be a very essential abstraction. Normally this comes with the TypeClass Traversable and is called <code>sequence</code>, however that name is not very self-explanatory and sounds quite specific.</p><p><code>TypeClasses.flip_types</code> has already one big usage in <code>ExtensibleEffects.jl</code>, for a generic implementation of effect handling.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../manual/">« Introduction</a><a class="docs-footer-nextpage" href="../manual-DataTypes/">DataTypes »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.4 on <span class="colophon-date" title="Saturday 24 July 2021 22:25">Saturday 24 July 2021</span>. Using Julia version 1.6.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
