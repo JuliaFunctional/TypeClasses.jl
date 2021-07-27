@@ -3,8 +3,7 @@
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://JuliaFunctional.github.io/TypeClasses.jl/stable)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://JuliaFunctional.github.io/TypeClasses.jl/dev)
 [![Build Status](https://github.com/JuliaFunctional/TypeClasses.jl/workflows/CI/badge.svg)](https://github.com/JuliaFunctional/TypeClasses.jl/actions)
-![Codecov](https://img.shields.io/codecov/c/github/JuliaFunctional/TypeClasses.jl)
-
+[![Coverage](https://img.shields.io/codecov/c/github/JuliaFunctional/TypeClasses.jl)](https://codecov.io/gh/JuliaFunctional/TypeClasses.jl)
 
 TypeClasses defines general programmatic abstractions taken from Scala cats and Haskell TypeClasses.
 
