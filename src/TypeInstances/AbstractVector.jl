@@ -11,13 +11,13 @@ As of now this seems to be a great solution.
 # MonoidAlternative
 # =================
 
-TypeClasses.neutral(T::Type{<:AbstractArray}) = convert(T, [])
+TypeClasses.neutral(::Type{T}) where T <: AbstractArray = convert(T, [])
 TypeClasses.combine(v1::AbstractArray, v2::AbstractArray) = [v1; v2]  # general syntax which is overloaded by concrete AbstractVector types
 
 # FunctorApplicativeMonad
 # =======================
 
-TypeClasses.pure(T::Type{<:AbstractArray}, a) = convert(Base.typename(T).wrapper, [a]) 
+TypeClasses.pure(::Type{T}, a) where T <: AbstractArray = convert(Base.typename(T).wrapper, [a]) 
 TypeClasses.ap(fs::AbstractArray, v::AbstractArray) = vcat((map(f, v) for f in fs)...)
 
 # for flattening we solve type-safety by converting to Vector elementwise
