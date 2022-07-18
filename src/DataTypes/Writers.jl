@@ -18,7 +18,7 @@ struct Writer{Acc, Value}
   end
 end
 
-@def_structequal Writer
+@struct_hash_equal Writer
 
 """
     getaccumulator(writer::Writer)
