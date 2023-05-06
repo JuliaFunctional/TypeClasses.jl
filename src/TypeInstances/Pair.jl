@@ -1,5 +1,3 @@
-using TypeClasses
-
 # we assume that Pair(a::A, b::B) always constructs the most specific Pair type Pair{A, B}
 # TODO is this really the case? It could be, but is it true?
 

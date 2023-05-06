@@ -1,6 +1,4 @@
 
-using TypeClasses
-
 """
 considerations: because `Base.typename(Vector).wrapper == Array`, we dispatch everything on AbstractArray to support AbstractVector.
 

@@ -1,4 +1,4 @@
-using TypeClasses.Utils
+using .TypeClasses.Utils
 
 """
     flip_types(value::T{S{A}})::S{T{A}}
