@@ -1,6 +1,3 @@
-using TypeClasses
-
-
 # MonoidAlternative
 # =================
 

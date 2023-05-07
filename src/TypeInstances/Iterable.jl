@@ -1,5 +1,3 @@
-using TypeClasses
-
 """
 Iterables can be seen two ways. On the one hand, an iterable is mainly defined by its `iterate` method, which can be
 thought of as a kind of TypeClass (similar to how `map`, `combine`, `Monad`, or `Monoid` refer to TypeClasses). In
